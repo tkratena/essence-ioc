@@ -1,0 +1,9 @@
+language: csharp
+solution: EssenceIoc/EssenceIoc.sln
+install:
+  - nuget restore EssenceIoc/EssenceIoc.sln
+  - nuget install NUnit.Runners -Version 3.8.0 -OutputDirectory testrunner
+script:
+  - xbuild /p:Configuration=Release EssenceIoc/EssenceIoc.sln
+  - mono ./testrunner/NUnit.Runners.3.8.0/tools/nunit-console.exe ./EssenceIoc/Essence.Framework.UnitTests/bin/Release/Essence.Framework.UnitTests.dll ./EssenceIoc/Essence.Ioc.UnitTests/bin/Release/Essence.Ioc.UnitTests.dll
+
