@@ -253,7 +253,9 @@ namespace Essence.Ioc.FluentRegistration
         }
     }
 
-    internal class Service<T1, T2, T3, T4, T5, T6, T7, T8, T9> : ServiceBase, IService<T1, T2, T3, T4, T5, T6, T7, T8, T9>
+    internal class Service<T1, T2, T3, T4, T5, T6, T7, T8, T9> :
+        ServiceBase, 
+        IService<T1, T2, T3, T4, T5, T6, T7, T8, T9>
     {
         public Service(ICollection<IRegistration> registrations) : base(
             registrations, 
