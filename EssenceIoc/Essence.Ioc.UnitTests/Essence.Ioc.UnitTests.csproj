@@ -1,76 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DF42F415-46BC-4E6E-B418-2CD06EEE83A8}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Essence.Ioc</RootNamespace>
-    <AssemblyName>Essence.Ioc.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <TargetFrameworks>netcoreapp2.0;net471;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=3.9.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb">
-      <HintPath>..\packages\NUnit.3.9.0\lib\net45\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <ProjectReference Include="..\Essence.Framework\Essence.Framework.csproj" />
+    <ProjectReference Include="..\Essence.Ioc\Essence.Ioc.csproj" />
+    <ProjectReference Include="..\Essence.TestFramework\Essence.TestFramework.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CircularDependencyTests.cs" />
-    <Compile Include="InvalidGenericRegistrationTests.cs" />
-    <Compile Include="InvalidRegistrationTests.cs" />
-    <Compile Include="InvalidResolutionTests.cs" />
-    <Compile Include="InvalidSubsequentRegistrationTests.cs" />
-    <Compile Include="MultipleServiceResolutionTests.cs" />
-    <Compile Include="PerformanceTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResolutionLifeScopeTests.cs" />
-    <Compile Include="ResolutionTests.cs" />
+    <PackageReference Include="NUnit" Version="3.9.0" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Essence.Ioc\Essence.Ioc.csproj">
-      <Project>{5e0983ac-d85e-4b5a-b6bd-67fe06b1ab14}</Project>
-      <Name>Essence.Ioc</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Essence.TestFramework\Essence.TestFramework.csproj">
-      <Project>{bda7108f-9ca9-4e71-a46a-053a71fe1531}</Project>
-      <Name>Essence.TestFramework</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-         Other similar extension points exist, see Microsoft.Common.targets.
-    <Target Name="BeforeBuild">
-    </Target>
-    <Target Name="AfterBuild">
-    </Target>
-    -->
 </Project>

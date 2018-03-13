@@ -14,7 +14,6 @@ namespace Essence.Ioc
             private const int TryCount = 1_000;
             
             [Test]
-            [Timeout(20_000)]
             public void RegisteringToContainerIsNegligible()
             {
                 var containerStopWatch = new Stopwatch();
@@ -50,7 +49,6 @@ namespace Essence.Ioc
         
             [Test]
             [Explicit]
-            [Timeout(20_000)]
             public void CreatingAnInstanceByContainerIsComparablyFastAsInjectingDependenciesManually()
             {
                 var manualInjectionStopWatch = new Stopwatch();
