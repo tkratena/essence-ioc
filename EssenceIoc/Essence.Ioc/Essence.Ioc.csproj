@@ -1,95 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5E0983AC-D85E-4B5A-B6BD-67FE06B1AB14}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Essence.Ioc</RootNamespace>
-    <AssemblyName>Essence.Ioc</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0</FileVersion>
+    <Authors>Tomáš Kratěna</Authors>
+    <Description>Essence IoC: From injecting to designing</Description>
+    <Copyright>Copyright (c) 2017 Tomáš Kratěna</Copyright>
+    <TargetFrameworks>netcoreapp2.0;net471;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <ProjectReference Include="..\Essence.Framework\Essence.Framework.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Container.cs" />
-    <Compile Include="FluentRegistration\FluentRegistrator.cs" />
-    <Compile Include="FluentRegistration\GenericService.cs" />
-    <Compile Include="FluentRegistration\IGenericServices.cs" />
-    <Compile Include="FluentRegistration\ILifeScope.cs" />
-    <Compile Include="FluentRegistration\IRegistration.cs" />
-    <Compile Include="FluentRegistration\IRegistrator.cs" />
-    <Compile Include="FluentRegistration\IService.cs" />
-    <Compile Include="FluentRegistration\Service.cs" />
-    <Compile Include="FluentRegistration\ServiceBase.cs" />
-    <Compile Include="IContainer.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Registration\RegisteredServices.cs" />
-    <Compile Include="Registration\RegistrationExceptions\AlreadyRegisteredException.cs" />
-    <Compile Include="Registration\RegistrationExceptions\AmbiguousConstructorsException.cs" />
-    <Compile Include="Registration\RegistrationExceptions\DependencyRegistrationException.cs" />
-    <Compile Include="Registration\RegistrationExceptions\DisposableClassException.cs" />
-    <Compile Include="Registration\RegistrationExceptions\ImplementationTypeNotGenericTypeDefinitionException.cs" />
-    <Compile Include="Registration\RegistrationExceptions\ImplementationTypeNotImplementingGenericService.cs" />
-    <Compile Include="Registration\RegistrationExceptions\NoConstructorException.cs" />
-    <Compile Include="Registration\RegistrationExceptions\NonConcreteClassException.cs" />
-    <Compile Include="Registration\RegistrationExceptions\NonFactoryDelegateException.cs" />
-    <Compile Include="Registration\RegistrationExceptions\NotRegisteredDependencyException.cs" />
-    <Compile Include="Registration\RegistrationExceptions\NotRegisteredSequenceDependencyException.cs" />
-    <Compile Include="Registration\RegistrationExceptions\RegistrationException.cs" />
-    <Compile Include="Registration\RegistrationExceptions\ServiceTypeNotGenericTypeDefinitionException.cs" />
-    <Compile Include="Registration\RegistrationExceptions\UnsupportedConstructorParametersException.cs" />
-    <Compile Include="Registration\Registrator.cs" />
-    <Compile Include="Resolution\Factories.cs" />
-    <Compile Include="Resolution\FactoryExpression.cs" />
-    <Compile Include="Resolution\IFactoryExpression.cs" />
-    <Compile Include="Resolution\IFactoryFinder.cs" />
-    <Compile Include="Resolution\NotRegisteredServiceException.cs" />
-    <Compile Include="Resolution\Resolver.cs" />
-    <Compile Include="TypeModel\GenericService.cs" />
-    <Compile Include="TypeModel\Implementation.cs" />
-    <Compile Include="TypeModel\LazyService.cs" />
-    <Compile Include="TypeModel\Service.cs" />
-    <Compile Include="TypeModel\ServiceFactory.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Essence.Framework\Essence.Framework.csproj">
-      <Project>{2b378ab6-8405-4850-9514-50c829cdea6c}</Project>
-      <Name>Essence.Framework</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-         Other similar extension points exist, see Microsoft.Common.targets.
-    <Target Name="BeforeBuild">
-    </Target>
-    <Target Name="AfterBuild">
-    </Target>
-    -->
 </Project>
