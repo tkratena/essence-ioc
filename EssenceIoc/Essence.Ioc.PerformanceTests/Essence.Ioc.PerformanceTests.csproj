@@ -1,6 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <RootNamespace>Essence.Framework</RootNamespace>
+    <RootNamespace>Essence.Ioc</RootNamespace>
     <TargetFramework>net471</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
@@ -9,6 +9,6 @@
     <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Essence.Framework\Essence.Framework.csproj" />
+    <ProjectReference Include="..\Essence.Ioc\Essence.Ioc.csproj" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Essence.Framework;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.Resolution;
@@ -88,7 +89,7 @@ namespace Essence.Ioc.Registration
 
         private void RegisterFactoryTransient(Delegate factory, Type serviceType)
         {
-            if (typeof(IDisposable).IsAssignableFrom(serviceType))
+            if (typeof(IDisposable).GetTypeInfo().IsAssignableFrom(serviceType))
             {
                 throw new DisposableClassException(serviceType);
             }
@@ -101,7 +102,7 @@ namespace Essence.Ioc.Registration
             Type implementationGenericTypeDefinition,
             IEnumerable<Type> serviceGenericTypeDefinitions)
         {
-            if (!implementationGenericTypeDefinition.IsGenericTypeDefinition)
+            if (!implementationGenericTypeDefinition.GetTypeInfo().IsGenericTypeDefinition)
             {
                 throw new ImplementationTypeNotGenericTypeDefinitionException(implementationGenericTypeDefinition);
             }
@@ -114,7 +115,7 @@ namespace Essence.Ioc.Registration
 
         private void RegisterGeneric(Type implementationGenericTypeDefinition, Type serviceGenericTypeDefinition)
         {
-            if (!serviceGenericTypeDefinition.IsGenericTypeDefinition)
+            if (!serviceGenericTypeDefinition.GetTypeInfo().IsGenericTypeDefinition)
             {
                 throw new ServiceTypeNotGenericTypeDefinitionException();
             }
@@ -137,7 +138,7 @@ namespace Essence.Ioc.Registration
             Type implementationGenericTypeDefinition)
         {
             var serviceTypes = implementationGenericTypeDefinition.GetSuperTypes()
-                .Where(t => t.IsGenericType)
+                .Where(t => t.GetTypeInfo().IsGenericType)
                 .Where(t => t.GetGenericTypeDefinition() == serviceGenericTypeDefinition);
 
             return serviceTypes.Any(i => AreGenericArgumentsMatching(i, implementationGenericTypeDefinition));
@@ -145,7 +146,7 @@ namespace Essence.Ioc.Registration
 
         private static bool AreGenericArgumentsMatching(Type a, Type b)
         {
-            return a.GetGenericArguments().SequenceEqual(b.GetGenericArguments());
+            return a.GetTypeInfo().GetGenericArguments().SequenceEqual(b.GetTypeInfo().GetGenericArguments());
         }
     }
 }

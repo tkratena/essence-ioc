@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.Resolution;
 
@@ -28,7 +29,7 @@ namespace Essence.Ioc.TypeModel
                 return factoryExpression;
             }
             
-            if (_type.IsGenericType)
+            if (_type.GetTypeInfo().IsGenericType)
             {
                 return new GenericService(_type).Resolve(factoryFinder);
             }

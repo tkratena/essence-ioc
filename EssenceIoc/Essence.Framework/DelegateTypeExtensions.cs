@@ -7,7 +7,7 @@ namespace Essence.Framework
     {
         public static bool IsDelegate(this Type type)
         {
-            return typeof(Delegate).IsAssignableFrom(type);
+            return typeof(Delegate).GetTypeInfo().IsAssignableFrom(type);
         }
 
         public static IDelegateInfo AsDelegate(this Type delegateType)
@@ -23,7 +23,7 @@ namespace Essence.Framework
             public DelegateInfo(Type type)
             {
                 Type = type;
-                InvokeMethod = type.GetMethod("Invoke");
+                InvokeMethod = type.GetTypeInfo().GetMethod("Invoke");
             }
 
             public override string ToString()
