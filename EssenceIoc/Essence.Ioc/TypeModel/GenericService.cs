@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.Resolution;
 
@@ -27,20 +28,20 @@ namespace Essence.Ioc.TypeModel
                 throw new NotRegisteredDependencyException(_type);
             }
 
-            var implementationType = implementationTypeDefinition.MakeGenericType(_type.GetGenericArguments());
+            var implementationType = implementationTypeDefinition.MakeGenericType(_type.GetTypeInfo().GetGenericArguments());
             return new Implementation(implementationType).Resolve(factoryFinder);
         }
 
         private bool IsGenericSequence(Type type)
         {
-            var genericArguments = type.GetGenericArguments();
+            var genericArguments = type.GetTypeInfo().GetGenericArguments();
             if (genericArguments.Length != 1)
             {
                 return false;
             }
 
             var sequenceType = typeof(IEnumerable<>).MakeGenericType(genericArguments.Single());
-            return sequenceType.IsAssignableFrom(type);
+            return sequenceType.GetTypeInfo().IsAssignableFrom(type);
         }
     }
 }

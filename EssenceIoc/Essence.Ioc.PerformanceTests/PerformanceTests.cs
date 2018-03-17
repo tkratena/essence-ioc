@@ -9,7 +9,7 @@ namespace Essence.Ioc
     public class PerformanceTests
     {
         [TestFixture]
-        public class RegistrationTests
+        public class RegistrationPerformanceTests
         {
             private const int TryCount = 1_000;
             
@@ -31,7 +31,7 @@ namespace Essence.Ioc
         }
 
         [TestFixture]
-        public class ResolutionTests
+        public class ResolutionPerformanceTests
         {
             private const int TryCount = 5_000_000;
             private const int TryCountChunk = 1_000;

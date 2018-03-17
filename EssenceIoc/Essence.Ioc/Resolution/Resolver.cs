@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Reflection;
 using Essence.Ioc.TypeModel;
 
 namespace Essence.Ioc.Resolution
@@ -50,7 +51,7 @@ namespace Essence.Ioc.Resolution
                 return expression;
             }
 
-            if (serviceType.IsGenericType)
+            if (serviceType.GetTypeInfo().IsGenericType)
             {
                 return new GenericService(serviceType).Resolve(_factoryFinder);
             }

@@ -25,7 +25,7 @@ namespace Essence.Ioc.TypeModel
                 throw new NonConcreteClassException(_type);
             }
 
-            if (typeof(IDisposable).IsAssignableFrom(_type))
+            if (typeof(IDisposable).GetTypeInfo().IsAssignableFrom(_type))
             {
                 throw new DisposableClassException(_type);
             }
@@ -39,12 +39,12 @@ namespace Essence.Ioc.TypeModel
 
         private static bool IsConcreteClass(Type implementationType)
         {
-            return implementationType.IsClass && !implementationType.IsAbstract;
+            return implementationType.GetTypeInfo().IsClass && !implementationType.GetTypeInfo().IsAbstract;
         }
 
         private static ConstructorInfo GetSinglePublicConstructor(Type classType)
         {
-            var publicConstructors = classType.GetConstructors();
+            var publicConstructors = classType.GetTypeInfo().GetConstructors();
 
             if (publicConstructors.Length == 0)
             {
@@ -86,7 +86,7 @@ namespace Essence.Ioc.TypeModel
         {
             try
             {
-                if (type.IsGenericType && typeof(Lazy<>) == type.GetGenericTypeDefinition())
+                if (type.GetTypeInfo().IsGenericType && typeof(Lazy<>) == type.GetGenericTypeDefinition())
                 {
                     return new LazyService(type).Resolve(factoryFinder);
                 }

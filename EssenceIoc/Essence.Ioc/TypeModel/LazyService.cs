@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using Essence.Framework;
 using Essence.Ioc.Resolution;
 
@@ -23,7 +24,7 @@ namespace Essence.Ioc.TypeModel
 
             return FactoryExpression.CreateLazy(() =>
             {
-                var constructor = _lazyType.GetConstructor(new[] {serviceFactoryDelegateInfo.Type});
+                var constructor = _lazyType.GetTypeInfo().GetConstructor(new[] {serviceFactoryDelegateInfo.Type});
 
                 // ReSharper disable once AssignNullToNotNullAttribute
                 return Expression.New(constructor, factory.Body);
