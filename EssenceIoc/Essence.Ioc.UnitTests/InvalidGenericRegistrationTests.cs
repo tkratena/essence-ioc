@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using NUnit.Framework;
-using TestCaseAttribute = Essence.TestFramework.TestCaseAttribute;
 
 namespace Essence.Ioc
 {

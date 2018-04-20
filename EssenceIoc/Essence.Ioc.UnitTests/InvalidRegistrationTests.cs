@@ -5,7 +5,6 @@ using Essence.Ioc.FluentRegistration;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.Resolution;
 using NUnit.Framework;
-using TestCaseAttribute = Essence.TestFramework.TestCaseAttribute;
 
 namespace Essence.Ioc
 {
@@ -17,78 +16,73 @@ namespace Essence.Ioc
     [SuppressMessage("ReSharper", "ObjectCreationAsStatement")]
     public class InvalidRegistrationTests
     {
-        [Test]
-        [TestCase(typeof(NoConstructorException), Generic = typeof(ClassWithPrivateConstructor))]
-        [TestCase(typeof(NoConstructorException), Generic = typeof(ClassWithInternalConstructor))]
-        [TestCase(typeof(AmbiguousConstructorsException), Generic = typeof(ClassWithMultipleConstructors))]
-        [TestCase(typeof(NonConcreteClassException), Generic = typeof(AbstractClass))]
-        [TestCase(typeof(NonConcreteClassException), Generic = typeof(IInterface))]
-        [TestCase(typeof(DisposableClassException), Generic = typeof(DisposableClass))]
-        [TestCase(typeof(UnsupportedConstructorParametersException), Generic = typeof(ClassWithRefConstructorParameter))]
-        [TestCase(typeof(UnsupportedConstructorParametersException), Generic = typeof(ClassWithOutConstructorParameter))]
-        [TestCase(typeof(UnsupportedConstructorParametersException), Generic = typeof(ClassWithOptionalConstructorParameter))]
-        public void RegisteringInvalidServiceImplementationThrows<T>(Type expectedExceptionType)
-            where T : class, IService
+        [TestFixture(typeof(ClassWithPrivateConstructor), typeof(NoConstructorException))]
+        [TestFixture(typeof(ClassWithInternalConstructor), typeof(NoConstructorException))]
+        [TestFixture(typeof(ClassWithMultipleConstructors), typeof(AmbiguousConstructorsException))]
+        [TestFixture(typeof(AbstractClass), typeof(NonConcreteClassException))]
+        [TestFixture(typeof(IInterface), typeof(NonConcreteClassException))]
+        [TestFixture(typeof(DisposableClass), typeof(DisposableClassException))]
+        [TestFixture(typeof(ClassWithRefConstructorParameter), typeof(UnsupportedConstructorParametersException))]
+        [TestFixture(typeof(ClassWithOutConstructorParameter), typeof(UnsupportedConstructorParametersException))]
+        [TestFixture(typeof(ClassWithOptionalConstructorParameter), typeof(UnsupportedConstructorParametersException))]
+        public class RegisteringInvalidServiceImplementation<TServiceImplementation, TExpectedException>
+            where TServiceImplementation : class, IService
+            where TExpectedException : Exception
         {
-            TestDelegate when = () => new Container(r => 
-                r.RegisterService<IService>().ImplementedBy<T>());
+            [Test]
+            public void RegisteringThrows()
+                
+            {
+                TestDelegate when = () => new Container(r => 
+                    r.RegisterService<IService>().ImplementedBy<TServiceImplementation>());
 
-            Assert.That(when, Throws.Exception.InstanceOf(expectedExceptionType));
+                Assert.That(when, Throws.Exception.InstanceOf<TExpectedException>());
+            }
+            
+            [Test]
+            public void RegisteringAsSingletonThrows()
+                
+            {
+                TestDelegate when = () => new Container(r => 
+                    r.RegisterService<IService>().ImplementedBy<TServiceImplementation>().AsSingleton());
+
+                Assert.That(when, Throws.Exception.InstanceOf<TExpectedException>());
+            }
         }
         
-        [Test]
-        [TestCase(typeof(NonFactoryDelegateException), Generic = typeof(ClassDependingOnDelegateWithNoReturnType))]
-        [TestCase(typeof(NonFactoryDelegateException), Generic = typeof(ClassDependingOnDelegateWithParameters))]
-        [TestCase(typeof(NonFactoryDelegateException), Generic = typeof(ClassDependingOnDelegateWithParametersAndNoReturnType))]
-        [TestCase(typeof(NotRegisteredDependencyException), Generic = typeof(ClassDependingOnServiceNotRegisteredYet))]
-        public void RegisteringServiceImplementationWithInvalidDependencyThrows<T>(Type expectedInnerExceptionType)
-            where T : class, IService
+        [TestFixture(typeof(ClassDependingOnDelegateWithNoReturnType), typeof(NonFactoryDelegateException))]
+        [TestFixture(typeof(ClassDependingOnDelegateWithParameters), typeof(NonFactoryDelegateException))]
+        [TestFixture(typeof(ClassDependingOnDelegateWithParametersAndNoReturnType), typeof(NonFactoryDelegateException))]
+        [TestFixture(typeof(ClassDependingOnServiceNotRegisteredYet), typeof(NotRegisteredDependencyException))]
+        public class RegisteringServiceImplementationWithInvalidDependency<TServiceImplementation, TExpectedException>
+            where TServiceImplementation : class, IService
+            where TExpectedException : Exception
         {
-            TestDelegate when = () => new Container(r => 
-                r.RegisterService<IService>().ImplementedBy<T>());
+            [Test]
+            public void RegisteringThrows()
+            {
+                TestDelegate when = () => new Container(r => 
+                    r.RegisterService<IService>().ImplementedBy<TServiceImplementation>());
 
-            Assert.That(
-                when,
-                Throws.Exception.InstanceOf<DependencyRegistrationException>()
-                    .With.InnerException.InstanceOf(expectedInnerExceptionType));
-        }
+                Assert.That(
+                    when,
+                    Throws.Exception.InstanceOf<DependencyRegistrationException>()
+                        .With.InnerException.InstanceOf<TExpectedException>());
+            }
+            
+            [Test]
+            public void RegisteringAsSingletonThrows()
+            {
+                TestDelegate when = () => new Container(r => 
+                    r.RegisterService<IService>().ImplementedBy<TServiceImplementation>().AsSingleton());
 
-        [Test]
-        [TestCase(typeof(NoConstructorException), Generic = typeof(ClassWithPrivateConstructor))]
-        [TestCase(typeof(NoConstructorException), Generic = typeof(ClassWithInternalConstructor))]
-        [TestCase(typeof(AmbiguousConstructorsException), Generic = typeof(ClassWithMultipleConstructors))]
-        [TestCase(typeof(NonConcreteClassException), Generic = typeof(AbstractClass))]
-        [TestCase(typeof(NonConcreteClassException), Generic = typeof(IInterface))]
-        [TestCase(typeof(DisposableClassException), Generic = typeof(DisposableClass))]
-        [TestCase(typeof(UnsupportedConstructorParametersException), Generic = typeof(ClassWithRefConstructorParameter))]
-        [TestCase(typeof(UnsupportedConstructorParametersException), Generic = typeof(ClassWithOutConstructorParameter))]
-        [TestCase(typeof(UnsupportedConstructorParametersException), Generic = typeof(ClassWithOptionalConstructorParameter))]
-        public void RegisteringInvalidServiceImplementationAsSingletonThrows<T>(Type expectedExceptionType) 
-            where T : class, IService
-        {
-            TestDelegate when = () => new Container(r => 
-                r.RegisterService<IService>().ImplementedBy<T>().AsSingleton());
-
-            Assert.That(when, Throws.Exception.InstanceOf(expectedExceptionType));
+                Assert.That(
+                    when,
+                    Throws.Exception.InstanceOf<DependencyRegistrationException>()
+                        .With.InnerException.InstanceOf<TExpectedException>());
+            }
         }
         
-        [Test]
-        [TestCase(typeof(NonFactoryDelegateException), Generic = typeof(ClassDependingOnDelegateWithNoReturnType))]
-        [TestCase(typeof(NonFactoryDelegateException), Generic = typeof(ClassDependingOnDelegateWithParameters))]
-        [TestCase(typeof(NonFactoryDelegateException), Generic = typeof(ClassDependingOnDelegateWithParametersAndNoReturnType))]
-        [TestCase(typeof(NotRegisteredDependencyException), Generic = typeof(ClassDependingOnServiceNotRegisteredYet))]
-        public void RegisteringServiceImplementationWithInvalidDependencyAsSingletonThrows<T>(Type expectedInnerExceptionType)
-            where T : class, IService
-        {
-            TestDelegate when = () => new Container(r => 
-                r.RegisterService<IService>().ImplementedBy<T>().AsSingleton());
-
-            Assert.That(
-                when,
-                Throws.Exception.InstanceOf<DependencyRegistrationException>()
-                    .With.InnerException.InstanceOf(expectedInnerExceptionType));
-        }
-
         [Test]
         public void RegisteringCustomDisposableServiceThrows()
         {
@@ -98,59 +92,49 @@ namespace Essence.Ioc
             Assert.That(when, Throws.Exception.InstanceOf<DisposableClassException>());
         }
 
-        [Test]
-        [TestCase(Generic = typeof(IEnumerable<IDummy>))]
-        [TestCase(Generic = typeof(IReadOnlyCollection<IDummy>))]
-        [TestCase(Generic = typeof(IReadOnlyList<IDummy>))]
-        [TestCase(Generic = typeof(ICollection<IDummy>))]
-        [TestCase(Generic = typeof(ISet<IDummy>))]
-        [TestCase(Generic = typeof(IList<IDummy>))]
-        [TestCase(Generic = typeof(List<IDummy>))]
-        [TestCase(Generic = typeof(HashSet<IDummy>))]
-        [TestCase(Generic = typeof(LinkedList<IDummy>))]
-        [TestCase(Generic = typeof(SortedSet<IDummy>))]
-        [TestCase(Generic = typeof(Stack<IDummy>))]
-        [TestCase(Generic = typeof(Queue<IDummy>))]
-        public void RegisteringClassDependentOnSequenceServiceNotRegisteredYetThrowsSpecificException<TSequence>()
+        [TestFixture(typeof(IEnumerable<IDummy>))]
+        [TestFixture(typeof(IReadOnlyCollection<IDummy>))]
+        [TestFixture(typeof(IReadOnlyList<IDummy>))]
+        [TestFixture(typeof(ICollection<IDummy>))]
+        [TestFixture(typeof(ISet<IDummy>))]
+        [TestFixture(typeof(IList<IDummy>))]
+        [TestFixture(typeof(List<IDummy>))]
+        [TestFixture(typeof(HashSet<IDummy>))]
+        [TestFixture(typeof(LinkedList<IDummy>))]
+        [TestFixture(typeof(SortedSet<IDummy>))]
+        [TestFixture(typeof(Stack<IDummy>))]
+        [TestFixture(typeof(Queue<IDummy>))]
+        public class RegisteringClassDependentOnSequenceServiceNotRegisteredYet<TSequence>
             where TSequence : IEnumerable<IDummy>
         {
-            TestDelegate when = () => new Container(r => 
-                r.RegisterService<IService>()
-                    .ImplementedBy<ClassDependingOnSequenceServiceNotRegisteredYet<TSequence>>());
+            [Test]
+            public void RegisteringThrowsSpecificException()
+            {
+                TestDelegate when = () => new Container(r =>
+                    r.RegisterService<IService>()
+                        .ImplementedBy<ClassDependingOnSequenceServiceNotRegisteredYet<TSequence>>());
 
-            Assert.That(
-                when, 
-                Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
-                    .With.InstanceOf<NotRegisteredSequenceDependencyException>());
-        }
-        
-        [Test]
-        [TestCase(Generic = typeof(IEnumerable<IDummy>))]
-        [TestCase(Generic = typeof(IReadOnlyCollection<IDummy>))]
-        [TestCase(Generic = typeof(IReadOnlyList<IDummy>))]
-        [TestCase(Generic = typeof(ICollection<IDummy>))]
-        [TestCase(Generic = typeof(ISet<IDummy>))]
-        [TestCase(Generic = typeof(IList<IDummy>))]
-        [TestCase(Generic = typeof(List<IDummy>))]
-        [TestCase(Generic = typeof(HashSet<IDummy>))]
-        [TestCase(Generic = typeof(LinkedList<IDummy>))]
-        [TestCase(Generic = typeof(SortedSet<IDummy>))]
-        [TestCase(Generic = typeof(Stack<IDummy>))]
-        [TestCase(Generic = typeof(Queue<IDummy>))]
-        public void RegisteringClassDependentOnSequenceServiceNotRegisteredYetAsSingletonThrowsSpecificException<TSequence>()
-            where TSequence : IEnumerable<IDummy>
-        {
-            TestDelegate when = () => new Container(r => 
-                r.RegisterService<IService>()
-                    .ImplementedBy<ClassDependingOnSequenceServiceNotRegisteredYet<TSequence>>()
-                    .AsSingleton());
+                Assert.That(
+                    when,
+                    Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
+                        .With.InstanceOf<NotRegisteredSequenceDependencyException>());
+            }
 
-            Assert.That(
-                when, 
-                Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
-                    .With.InstanceOf<NotRegisteredSequenceDependencyException>());
+            [Test]
+            public void RegisteringAsSingletonThrowsSpecificException()
+            {
+                TestDelegate when = () => new Container(r =>
+                    r.RegisterService<IService>()
+                        .ImplementedBy<ClassDependingOnSequenceServiceNotRegisteredYet<TSequence>>()
+                        .AsSingleton());
+
+                Assert.That(
+                    when,
+                    Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
+                        .With.InstanceOf<NotRegisteredSequenceDependencyException>());
+            }
         }
-        
+
         [Test]
         public void RegisteringClassDependentOnSequenceDescendantNotRegisteredYetThrowsNonSpecificException()
         {
