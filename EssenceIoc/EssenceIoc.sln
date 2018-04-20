@@ -8,8 +8,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Essence.Framework", "Essenc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Essence.Framework.UnitTests", "Essence.Framework.UnitTests\Essence.Framework.UnitTests.csproj", "{BFE3591B-5715-429C-8F57-03F14F9EDEC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Essence.TestFramework", "Essence.TestFramework\Essence.TestFramework.csproj", "{BDA7108F-9CA9-4E71-A46A-053A71FE1531}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Essence.Ioc.PerformanceTests", "Essence.Ioc.PerformanceTests\Essence.Ioc.PerformanceTests.csproj", "{ABA1068F-B695-4216-A7FE-FE1FD73D2977}"
 EndProject
 Global
@@ -34,10 +32,6 @@ Global
 		{BFE3591B-5715-429C-8F57-03F14F9EDEC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFE3591B-5715-429C-8F57-03F14F9EDEC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFE3591B-5715-429C-8F57-03F14F9EDEC6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BDA7108F-9CA9-4E71-A46A-053A71FE1531}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BDA7108F-9CA9-4E71-A46A-053A71FE1531}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BDA7108F-9CA9-4E71-A46A-053A71FE1531}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BDA7108F-9CA9-4E71-A46A-053A71FE1531}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ABA1068F-B695-4216-A7FE-FE1FD73D2977}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{ABA1068F-B695-4216-A7FE-FE1FD73D2977}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABA1068F-B695-4216-A7FE-FE1FD73D2977}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using NUnit.Framework;
-using TestCaseAttribute = Essence.TestFramework.TestCaseAttribute;
 
 namespace Essence.Ioc
 {
@@ -12,68 +11,83 @@ namespace Essence.Ioc
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     public class CircularDependencyTests
     {
-        [Test]
-        [TestCase(Generic = typeof(ClassDependingOnSelf))]
-        [TestCase(Generic = typeof(ClassDependingOnLazySelf))]
-        [TestCase(Generic = typeof(ClassDependingOnSelfFactory))]
-        public void RegisteringClassWithDependencyOnSelfThrows<T>() where T : class, IService
+        [TestFixture(typeof(ClassDependingOnSelf))]
+        [TestFixture(typeof(ClassDependingOnLazySelf))]
+        [TestFixture(typeof(ClassDependingOnSelfFactory))]
+        public class RegisteringServiceImplementationWithDependencyOnSelfTests<T> where T : class, IService
         {
-            TestDelegate when = () => new Container(r => 
-                r.RegisterService<IService>().ImplementedBy<T>());
+            [Test]
+            public void RegisteringThrows()
+            {
+                TestDelegate when = () => new Container(r => 
+                    r.RegisterService<IService>().ImplementedBy<T>());
 
-            Assert.That(
-                when, 
-                Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
-                    .With.InstanceOf<NotRegisteredDependencyException>()
-                    .And.Property(nameof(NotRegisteredDependencyException.DependencyType)).EqualTo(typeof(T)));
+                Assert.That(
+                    when, 
+                    Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
+                        .With.InstanceOf<NotRegisteredDependencyException>()
+                        .And.Property(nameof(NotRegisteredDependencyException.DependencyType)).EqualTo(typeof(T)));
+            }
+            
+            [Test]
+            public void RegisteringAsSingletonThrows()
+            {
+                TestDelegate when = () => new Container(r => 
+                    r.RegisterService<IService>().ImplementedBy<T>().AsSingleton());
+
+                Assert.That(
+                    when, 
+                    Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
+                        .With.InstanceOf<NotRegisteredDependencyException>()
+                        .And.Property(nameof(NotRegisteredDependencyException.DependencyType)).EqualTo(typeof(T)));
+            }
+        }
+        
+        [TestFixture(typeof(ClassDependingOnServiceItImplements))]
+        [TestFixture(typeof(ClassDependingOnLazyServiceItImplements))]
+        [TestFixture(typeof(ClassDependingOnServiceItImplementsFactory))]
+        public class RegisteringServiceImplementationWithDependencyOnServiceItImplementeds<T> where T : class, IService
+        {
+            [Test]
+            public void RegisteringThrows()
+            {
+                TestDelegate when = () => new Container(r => 
+                    r.RegisterService<IService>().ImplementedBy<T>());
+
+                Assert.That(
+                    when, 
+                    Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
+                        .With.InstanceOf<NotRegisteredDependencyException>()
+                        .And.Property(nameof(NotRegisteredDependencyException.DependencyType)).EqualTo(typeof(IService)));
+            }
+        
+            [Test]
+            public void RegisteringAsSingletonThrows()
+            {
+                TestDelegate when = () => new Container(r => 
+                    r.RegisterService<IService>().ImplementedBy<T>().AsSingleton());
+
+                Assert.That(
+                    when, 
+                    Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
+                        .With.InstanceOf<NotRegisteredDependencyException>()
+                        .And.Property(nameof(NotRegisteredDependencyException.DependencyType)).EqualTo(typeof(IService)));
+            }
         }
         
         [Test]
-        [TestCase(Generic = typeof(ClassDependingOnServiceItImplements))]
-        [TestCase(Generic = typeof(ClassDependingOnLazyServiceItImplements))]
-        [TestCase(Generic = typeof(ClassDependingOnServiceItImplementsFactory))]
-        public void RegisteringClassWithDependencyOnServiceItImplementsThrows<T>() where T : class, IService
+        public void RegisteringServiceImplementationDependentOnSelfByItsDependencyThrows()
         {
-            TestDelegate when = () => new Container(r => 
-                r.RegisterService<IService>().ImplementedBy<T>());
+            TestDelegate when = () => new Container(r =>
+            {
+                r.RegisterService<IServiceA>().ImplementedBy<ServiceAImplementationDependingOnServiceB>();
+                r.RegisterService<IServiceB>().ImplementedBy<ServiceBImplementationDependingOnServiceA>();
+            });
 
             Assert.That(
                 when, 
                 Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
-                    .With.InstanceOf<NotRegisteredDependencyException>()
-                    .And.Property(nameof(NotRegisteredDependencyException.DependencyType)).EqualTo(typeof(IService)));
-        }
-        
-        [Test]
-        [TestCase(Generic = typeof(ClassDependingOnSelf))]
-        [TestCase(Generic = typeof(ClassDependingOnLazySelf))]
-        [TestCase(Generic = typeof(ClassDependingOnSelfFactory))]
-        public void RegisteringClassWithDependencyOnSelfAsSingletonThrows<T>() where T : class, IService
-        {
-            TestDelegate when = () => new Container(r => 
-                r.RegisterService<IService>().ImplementedBy<T>().AsSingleton());
-
-            Assert.That(
-                when, 
-                Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
-                    .With.InstanceOf<NotRegisteredDependencyException>()
-                    .And.Property(nameof(NotRegisteredDependencyException.DependencyType)).EqualTo(typeof(T)));
-        }
-        
-        [Test]
-        [TestCase(Generic = typeof(ClassDependingOnServiceItImplements))]
-        [TestCase(Generic = typeof(ClassDependingOnLazyServiceItImplements))]
-        [TestCase(Generic = typeof(ClassDependingOnServiceItImplementsFactory))]
-        public void RegisteringClassWithDependencyOnServiceItImplementsAsSingletonThrows<T>() where T : class, IService
-        {
-            TestDelegate when = () => new Container(r => 
-                r.RegisterService<IService>().ImplementedBy<T>().AsSingleton());
-
-            Assert.That(
-                when, 
-                Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
-                    .With.InstanceOf<NotRegisteredDependencyException>()
-                    .And.Property(nameof(NotRegisteredDependencyException.DependencyType)).EqualTo(typeof(IService)));
+                    .With.InstanceOf<NotRegisteredDependencyException>());
         }
         
         private class ClassDependingOnSelf : IService
@@ -96,7 +110,7 @@ namespace Essence.Ioc
             {
             }
         }
-      
+        
         private class ClassDependingOnServiceItImplements : IService
         {
             public ClassDependingOnServiceItImplements(IService circularDependency)
@@ -122,21 +136,6 @@ namespace Essence.Ioc
         {
         }
         
-        [Test]
-        public void RegisteringClassDependentOnSelfByItsDependencyThrows()
-        {
-            TestDelegate when = () => new Container(r =>
-            {
-                r.RegisterService<IServiceA>().ImplementedBy<ServiceAImplementationDependingOnServiceB>();
-                r.RegisterService<IServiceB>().ImplementedBy<ServiceBImplementationDependingOnServiceA>();
-            });
-
-            Assert.That(
-                when, 
-                Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
-                    .With.InstanceOf<NotRegisteredDependencyException>());
-        }
-
         private class ServiceAImplementationDependingOnServiceB : IServiceA
         {
             public ServiceAImplementationDependingOnServiceB(IServiceB circularDependency)
