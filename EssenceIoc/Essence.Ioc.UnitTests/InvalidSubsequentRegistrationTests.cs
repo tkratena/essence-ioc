@@ -26,10 +26,18 @@ namespace Essence.Ioc
             new Registration(
                 "Custom factory",
                 r => r.RegisterService<IService>().ConstructedBy(() => new ServiceImplementation())),
+            
+            new Registration(
+                "Custom factory singleton",
+                r => r.RegisterService<IService>().ConstructedBy(() => new ServiceImplementation()).AsSingleton()),
 
             new Registration(
                 "Custom factory using container",
-                r => r.RegisterService<IService>().ConstructedBy(_ => new ServiceImplementation()))
+                r => r.RegisterService<IService>().ConstructedBy(_ => new ServiceImplementation())),
+            
+            new Registration(
+                "Custom factory singleton using container",
+                r => r.RegisterService<IService>().ConstructedBy(_ => new ServiceImplementation()).AsSingleton())
         };
 
         [Test]
