@@ -149,7 +149,7 @@ namespace Essence.Ioc
         public void MultipleGenericServicesImplementedBySameClass()
         {
             var container = new Container(r => 
-                r.GenericlyRegisterService(typeof(IGenericService1<>))
+                r.GenericallyRegisterService(typeof(IGenericService1<>))
                     .AndService(typeof(IGenericService2<>))
                     .ImplementedBy(typeof(MultipleGenericServiceImplementation<>)));
 

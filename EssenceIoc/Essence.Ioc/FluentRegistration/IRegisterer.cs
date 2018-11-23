@@ -2,9 +2,9 @@
 
 namespace Essence.Ioc.FluentRegistration
 {
-    public interface IRegistrator
+    public interface IRegisterer
     {
         IService<TService> RegisterService<TService>() where TService : class;
-        IGenericServices GenericlyRegisterService(Type genericServiceTypeDefinition);
+        IGenericServices GenericallyRegisterService(Type genericServiceTypeDefinition);
     }
 }

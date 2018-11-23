@@ -16,7 +16,7 @@ namespace Essence.Ioc
         public void RegisteringNonGenericTypeDefinitionAsGenericServiceThrows(Type serviceType)
         {
             TestDelegate when = () => new Container(r =>
-                r.GenericlyRegisterService(serviceType).ImplementedBy(typeof(GenericServiceImplementation<>)));
+                r.GenericallyRegisterService(serviceType).ImplementedBy(typeof(GenericServiceImplementation<>)));
 
             Assert.That(when, Throws.Exception.InstanceOf<ServiceTypeNotGenericTypeDefinitionException>());
         }
@@ -27,7 +27,7 @@ namespace Essence.Ioc
         public void RegisteringNonGenericTypeDefinitionAsGenericServiceImplementationThrows(Type implementationType)
         {
             TestDelegate when = () => new Container(r => 
-                r.GenericlyRegisterService(typeof(IGenericService<>)).ImplementedBy(implementationType));
+                r.GenericallyRegisterService(typeof(IGenericService<>)).ImplementedBy(implementationType));
 
             Assert.That(when, Throws.Exception.InstanceOf<ImplementationTypeNotGenericTypeDefinitionException>());
         }
@@ -36,7 +36,7 @@ namespace Essence.Ioc
         public void RegisteringClassNotImplementingGivenServiceAsGenericServiceImplementationThrows()
         {
             TestDelegate when = () => new Container(r => 
-                r.GenericlyRegisterService(typeof(IGenericService<>))
+                r.GenericallyRegisterService(typeof(IGenericService<>))
                     .ImplementedBy(typeof(GenericClassNotImplementingAService<>)));
 
             Assert.That(when, Throws.Exception.InstanceOf<ImplementationTypeNotImplementingGenericService>());

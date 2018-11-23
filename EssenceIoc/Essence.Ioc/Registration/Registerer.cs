@@ -9,14 +9,14 @@ using Essence.Ioc.TypeModel;
 
 namespace Essence.Ioc.Registration
 {
-    internal class Registrator
+    internal class Registerer
     {
         private readonly RegisteredServices _registeredServices = new RegisteredServices();
         private readonly RegisteredServices _registeredGenericServices = new RegisteredServices();
         private readonly Factories _factories;
         private readonly IContainer _container;
 
-        public Registrator(Factories factories, IContainer container)
+        public Registerer(Factories factories, IContainer container)
         {
             _factories = factories;
             _container = container;

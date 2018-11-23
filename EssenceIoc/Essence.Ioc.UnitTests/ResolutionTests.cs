@@ -145,23 +145,23 @@ namespace Essence.Ioc
                 r.RegisterService<IServiceDependency>()
                     .ImplementedBy<DependencyImplementation>();
                 r.RegisterService<IService>()
-                    .ImplementedBy<SpyServiceImplementationDelependengOnGenericServiceFactoryDelegate>();
+                    .ImplementedBy<SpyServiceImplementationDependentOnGenericServiceFactoryDelegate>();
             });
 
             var service = container.Resolve<IService>();
 
-            Assert.IsInstanceOf<SpyServiceImplementationDelependengOnGenericServiceFactoryDelegate>(service);
-            var dependency = ((SpyServiceImplementationDelependengOnGenericServiceFactoryDelegate) service).Dependency;
+            Assert.IsInstanceOf<SpyServiceImplementationDependentOnGenericServiceFactoryDelegate>(service);
+            var dependency = ((SpyServiceImplementationDependentOnGenericServiceFactoryDelegate) service).Dependency;
             Assert.IsInstanceOf<DependencyImplementation>(dependency.Invoke());
         }
         
-        private class SpyServiceImplementationDelependengOnGenericServiceFactoryDelegate : IService
+        private class SpyServiceImplementationDependentOnGenericServiceFactoryDelegate : IService
         {
             public delegate T DependencyFactory<out T>();
 
             public DependencyFactory<IServiceDependency> Dependency { get; }
 
-            public SpyServiceImplementationDelependengOnGenericServiceFactoryDelegate(
+            public SpyServiceImplementationDependentOnGenericServiceFactoryDelegate(
                 DependencyFactory<IServiceDependency> dependency)
             {
                 Dependency = dependency;
@@ -221,11 +221,11 @@ namespace Essence.Ioc
         }
 
         [Test]
-        public void ClassDependentOnGenericlyRegisteredGenericService()
+        public void ClassDependentOnGenericallyRegisteredGenericService()
         {
             var container = new Container(r =>
             {
-                r.GenericlyRegisterService(typeof(IService<>)).ImplementedBy(typeof(ServiceImplementation<>));
+                r.GenericallyRegisterService(typeof(IService<>)).ImplementedBy(typeof(ServiceImplementation<>));
                 r.RegisterService<IService>().ImplementedBy<SpyServiceImplementationDependentOnGenericService>();
             });
 
@@ -274,10 +274,10 @@ namespace Essence.Ioc
         }
 
         [Test]
-        public void GenericlyRegisteredGenericService()
+        public void GenericallyRegisteredGenericService()
         {
             var container = new Container(r =>
-                r.GenericlyRegisterService(typeof(IService<>)).ImplementedBy(typeof(ServiceImplementation<>)));
+                r.GenericallyRegisterService(typeof(IService<>)).ImplementedBy(typeof(ServiceImplementation<>)));
 
             var service = container.Resolve<IService<IActualGenericArg>>();
 
@@ -285,10 +285,10 @@ namespace Essence.Ioc
         }
         
         [Test]
-        public void GenericlyRegisteredGenericServiceImplementationNestedInAGenericClass()
+        public void GenericallyRegisteredGenericServiceImplementationNestedInAGenericClass()
         {
             var container = new Container(r =>
-                r.GenericlyRegisterService(typeof(IService<>))
+                r.GenericallyRegisterService(typeof(IService<>))
                     .ImplementedBy(typeof(GenericClass<>.NestedGenericServiceImplementation)));
 
             var service = container.Resolve<IService<IActualGenericArg>>();
@@ -304,13 +304,13 @@ namespace Essence.Ioc
         }
         
         [Test]
-        public void GenericlyRegisteredGenericServiceWithDependencyOfTheGenericArgumentType()
+        public void GenericallyRegisteredGenericServiceWithDependencyOfTheGenericArgumentType()
         {
             var container = new Container(r =>
             {
                 r.RegisterService<IService>()
                     .ImplementedBy<ServiceImplementation>();
-                r.GenericlyRegisterService(typeof(IService<>))
+                r.GenericallyRegisterService(typeof(IService<>))
                     .ImplementedBy(typeof(ServiceImplementationDependentOn<>));
             });
 
@@ -352,7 +352,7 @@ namespace Essence.Ioc
         {
             var container = new Container(r =>
             {
-                r.GenericlyRegisterService(typeof(IService<>))
+                r.GenericallyRegisterService(typeof(IService<>))
                     .ImplementedBy(typeof(ServiceImplementation<>));
                 r.RegisterService<IService<INonGenericallyRegisteredGenericArg>>()
                     .ImplementedBy<NonGenericallyRegisteredGenericServiceImplementation>();
@@ -388,10 +388,10 @@ namespace Essence.Ioc
         }
         
         [Test]
-        public void GenericlyRegisteredGenericServiceWithTwoGenericArguments()
+        public void GenericallyRegisteredGenericServiceWithTwoGenericArguments()
         {
             var container = new Container(r =>
-                r.GenericlyRegisterService(typeof(IService<,>)).ImplementedBy(typeof(ServiceImplementation<,>)));
+                r.GenericallyRegisterService(typeof(IService<,>)).ImplementedBy(typeof(ServiceImplementation<,>)));
 
             var service = container.Resolve<IService<IFirstActualGenericArg, ISecondActualGenericArg>>();
 

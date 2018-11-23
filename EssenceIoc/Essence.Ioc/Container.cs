@@ -10,16 +10,16 @@ namespace Essence.Ioc
     {
         private readonly IContainer _resolver;
 
-        public Container(Action<IRegistrator> serviceRegistration)
+        public Container(Action<IRegisterer> serviceRegistration)
         {
             var factories = new Factories();
             _resolver = new Resolver(factories);
             
-            var fluentRegistrator = new FluentRegistrator();
-            serviceRegistration.Invoke(fluentRegistrator);
+            var fluentRegisterer = new FluentRegisterer();
+            serviceRegistration.Invoke(fluentRegisterer);
             
-            var registrator = new Registrator(factories, _resolver);
-            fluentRegistrator.ExecuteRegistration(registrator);
+            var registerer = new Registerer(factories, _resolver);
+            fluentRegisterer.ExecuteRegistration(registerer);
         }
 
         [Pure]

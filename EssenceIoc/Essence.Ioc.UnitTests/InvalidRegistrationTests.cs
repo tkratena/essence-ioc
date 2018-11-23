@@ -151,9 +151,9 @@ namespace Essence.Ioc
         [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
         public void RegistrationIsNotPossibleAfterContainerIsCreated()
         {
-            IRegistrator registrator = null;
-            var container = new Container(r => registrator = r);
-            registrator.RegisterService<IService>().ImplementedBy<ServiceImplementation>();
+            IRegisterer registerer = null;
+            var container = new Container(r => registerer = r);
+            registerer.RegisterService<IService>().ImplementedBy<ServiceImplementation>();
 
             TestDelegate when = () => container.Resolve<IService>();
 

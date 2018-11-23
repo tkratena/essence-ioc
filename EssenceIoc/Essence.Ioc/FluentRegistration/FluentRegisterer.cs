@@ -5,15 +5,15 @@ using Essence.Ioc.Registration;
 
 namespace Essence.Ioc.FluentRegistration
 {
-    internal class FluentRegistrator : IRegistrator
+    internal class FluentRegisterer : IRegisterer
     {
         private readonly ICollection<IRegistration> _registrations = new List<IRegistration>();
 
-        internal void ExecuteRegistration(Registrator registrator)
+        internal void ExecuteRegistration(Registerer registerer)
         {
             foreach (var registration in _registrations)
             {
-                registration.Register(registrator);
+                registration.Register(registerer);
             }
         }
         
@@ -24,7 +24,7 @@ namespace Essence.Ioc.FluentRegistration
         }
 
         [Pure]
-        public IGenericServices GenericlyRegisterService(Type genericServiceTypeDefinition)
+        public IGenericServices GenericallyRegisterService(Type genericServiceTypeDefinition)
         {
             return new GenericService(_registrations, genericServiceTypeDefinition);
         }

@@ -65,17 +65,17 @@ namespace Essence.Ioc
         public class Registration
         {
             private readonly string _description;
-            private readonly Action<IRegistrator> _registerServices;
+            private readonly Action<IRegisterer> _registerServices;
 
-            public Registration(string description, Action<IRegistrator> registerServices)
+            public Registration(string description, Action<IRegisterer> registerServices)
             {
                 _description = description;
                 _registerServices = registerServices;
             }
 
-            public void Invoke(IRegistrator registrator)
+            public void Invoke(IRegisterer registerer)
             {
-                _registerServices.Invoke(registrator);
+                _registerServices.Invoke(registerer);
             }
 
             public override string ToString()

@@ -20,9 +20,9 @@ namespace Essence.Ioc.Resolution
             _factoryExpressions.Add(serviceType, factoryExpression);
         }
 
-        public void AddGenericImplementation(Type servicecType, Type implementationType)
+        public void AddGenericImplementation(Type serviceType, Type implementationType)
         {
-            _genericImplementations.Add(servicecType, implementationType);
+            _genericImplementations.Add(serviceType, implementationType);
         }
 
         public bool TryGetFactory(Type constructedType, out Delegate factory)

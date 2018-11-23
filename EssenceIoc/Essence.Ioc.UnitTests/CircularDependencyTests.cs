@@ -46,7 +46,7 @@ namespace Essence.Ioc
         [TestFixture(typeof(ClassDependingOnServiceItImplements))]
         [TestFixture(typeof(ClassDependingOnLazyServiceItImplements))]
         [TestFixture(typeof(ClassDependingOnServiceItImplementsFactory))]
-        public class RegisteringServiceImplementationWithDependencyOnServiceItImplementeds<T> where T : class, IService
+        public class RegisteringServiceImplementationWithDependencyOnServiceItImplements<T> where T : class, IService
         {
             [Test]
             public void RegisteringThrows()

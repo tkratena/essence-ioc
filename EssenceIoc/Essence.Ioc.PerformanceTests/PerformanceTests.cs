@@ -106,7 +106,7 @@ namespace Essence.Ioc
             var container = new Container(r =>
             {
                 r.RegisterService<ITerminalService>().ImplementedBy<TerminalService>().AsSingleton();
-                r.GenericlyRegisterService(typeof(IGenericService<>)).ImplementedBy(typeof(GenericService<>));
+                r.GenericallyRegisterService(typeof(IGenericService<>)).ImplementedBy(typeof(GenericService<>));
                 r.RegisterService<ICustomService>()
                     .ConstructedBy(c => new CustomService(1, c.Resolve<ITerminalService>()));
                 r.RegisterService<ConcreteService>().ImplementedBy<ConcreteService>();
