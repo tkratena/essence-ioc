@@ -256,6 +256,23 @@ namespace Essence.Ioc
 
             Assert.IsInstanceOf<ServiceImplementation>(service);
         }
+        
+        [Test]
+        public void ServiceConstructedByCustomFactoryThatUsesContainer()
+        {
+            var container = new Container(r =>
+            {
+                r.RegisterService<IServiceDependency>().ImplementedBy<DependencyImplementation>();
+                r.RegisterService<IService>()
+                    .ConstructedBy(c => new SpyServiceImplementationDependentOnService(c.Resolve<IServiceDependency>()));
+            });
+
+            var service = container.Resolve<IService>();
+
+            Assert.IsInstanceOf<SpyServiceImplementationDependentOnService>(service);
+            var dependency = ((SpyServiceImplementationDependentOnService) service).Dependency;
+            Assert.IsInstanceOf<DependencyImplementation>(dependency);
+        }
 
         private class ServiceImplementation : IService
         {

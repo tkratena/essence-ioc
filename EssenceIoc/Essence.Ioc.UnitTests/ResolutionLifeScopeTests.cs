@@ -205,6 +205,26 @@ namespace Essence.Ioc
             
             Assert.AreSame(firstInstance, secondInstance);
         }
+        
+        [Test]
+        public void ContainerProvidesSameInstanceOfSingletonDependencyCreatedByCustomFactoryThatUsesContainer()
+        {
+            var container = new Container(r =>
+            {
+                r.RegisterService<IServiceDependency>().ImplementedBy<DependencyImplementation>();
+                r.RegisterService<IService>()
+                    .ConstructedBy(c => new ServiceImplementationDependentOnService(c.Resolve<IServiceDependency>()))
+                    .AsSingleton();
+                r.RegisterService<SpyClassDependentTwiceOnService>()
+                    .ImplementedBy<SpyClassDependentTwiceOnService>();
+            });
+
+            var spy = container.Resolve<SpyClassDependentTwiceOnService>();
+            var firstInstance = spy.FirstDependency;
+            var secondInstance = spy.SecondDependency;
+            
+            Assert.AreSame(firstInstance, secondInstance);
+        }
 
         private class ServiceImplementation : IService
         {
@@ -244,7 +264,23 @@ namespace Essence.Ioc
             }
         }
         
+        private class ServiceImplementationDependentOnService : IService
+        {
+            [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+            public ServiceImplementationDependentOnService(IServiceDependency dependency)
+            {
+            }
+        }
+
+        private class DependencyImplementation : IServiceDependency
+        {
+        }
+        
         private interface IService
+        {
+        }
+        
+        private interface IServiceDependency
         {
         }
     }
