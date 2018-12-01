@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Essence.Ioc.Resolution;
 
-namespace Essence.Ioc.Resolution
+namespace Essence.Ioc.Registration
 {
     internal class Factories : IFactoryFinder
     {
