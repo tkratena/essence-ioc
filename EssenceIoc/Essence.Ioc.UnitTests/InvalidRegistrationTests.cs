@@ -54,6 +54,8 @@ namespace Essence.Ioc
         [TestFixture(typeof(ClassDependingOnDelegateWithParameters), typeof(NonFactoryDelegateException))]
         [TestFixture(typeof(ClassDependingOnDelegateWithParametersAndNoReturnType), typeof(NonFactoryDelegateException))]
         [TestFixture(typeof(ClassDependingOnServiceNotRegisteredYet), typeof(NotRegisteredDependencyException))]
+        [TestFixture(typeof(ClassDependingOnGenericServiceNotRegisteredYet), typeof(NotRegisteredDependencyException))]
+        [TestFixture(typeof(ClassDependingOnGenericServiceWithMultipleGenericArgsNotRegisteredYet), typeof(NotRegisteredDependencyException))]
         public class RegisteringServiceImplementationWithInvalidDependency<TServiceImplementation, TExpectedException>
             where TServiceImplementation : class, IService
             where TExpectedException : Exception
@@ -257,6 +259,21 @@ namespace Essence.Ioc
             {
             }
         }
+        
+        private class ClassDependingOnGenericServiceNotRegisteredYet : IService
+        {
+            public ClassDependingOnGenericServiceNotRegisteredYet(INotRegisteredService<IActualGenericArg> dependency)
+            {
+            }
+        }
+
+        private class ClassDependingOnGenericServiceWithMultipleGenericArgsNotRegisteredYet : IService
+        {
+            public ClassDependingOnGenericServiceWithMultipleGenericArgsNotRegisteredYet(
+                INotRegisteredService<IActualGenericArg, IActualGenericArg> dependency)
+            {
+            }
+        }
 
         private class ClassDependingOnSequenceServiceNotRegisteredYet<TSequence> : IService
             where TSequence : IEnumerable<IDummy>
@@ -278,6 +295,20 @@ namespace Essence.Ioc
         }
 
         private interface INotRegisteredService
+        {
+        }
+        
+        [SuppressMessage("ReSharper", "UnusedTypeParameter")]
+        private interface INotRegisteredService<T>
+        {
+        }
+        
+        [SuppressMessage("ReSharper", "UnusedTypeParameter")]
+        private interface INotRegisteredService<T1, T2>
+        {
+        }
+        
+        private interface IActualGenericArg
         {
         }
 
