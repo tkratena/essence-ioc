@@ -33,7 +33,7 @@ namespace Essence.Ioc.Resolution
             }
 
             var factoryExpression = GetFactoryExpression(serviceType);
-            factory = factoryExpression.CompileFactory<TService>();
+            factory = factoryExpression.Compile<TService>();
             _compiledFactories[serviceType] = factory;
 
             return (Func<TService>) factory;

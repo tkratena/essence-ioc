@@ -15,6 +15,11 @@ namespace Essence.Ioc.Resolution
             return new Lazy(body);
         }
         
+        public static Func<T> Compile<T>(this IFactoryExpression factoryExpression)
+        {
+            return CompileLambda<T>(factoryExpression.Body);
+        }
+
         private static Func<T> CompileLambda<T>(Expression body)
         {
             return Expression.Lambda<Func<T>>(body).Compile();
@@ -28,11 +33,6 @@ namespace Essence.Ioc.Resolution
             }
 
             public Expression Body { get; }
-            
-            public Func<T> CompileFactory<T>()
-            {
-                return CompileLambda<T>(Body);
-            }
         }
         
         private class Lazy : Lazy<Expression>, IFactoryExpression
@@ -43,11 +43,6 @@ namespace Essence.Ioc.Resolution
             }
 
             public Expression Body => Value;
-
-            public Func<T> CompileFactory<T>()
-            {
-                return CompileLambda<T>(Body);
-            }
         }
     }
 }

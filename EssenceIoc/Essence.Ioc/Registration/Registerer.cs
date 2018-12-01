@@ -26,7 +26,7 @@ namespace Essence.Ioc.Registration
         {
             foreach (var serviceType in serviceTypes)
             {
-                RegisterTransient(implementationType, serviceType);                
+                RegisterTransient(implementationType, serviceType);
             }
         }
 
@@ -34,13 +34,14 @@ namespace Essence.Ioc.Registration
         {
             _registeredServices.MarkRegistered(serviceType);
 
-            var expression = CreateFactoryExpression(implementationType);
-            _factories.AddFactoryExpression(serviceType, expression);
+            var factoryExpression = CreateFactoryExpression(implementationType);
+            _factories.AddFactoryExpression(serviceType, factoryExpression);
         }
 
         public void RegisterSingleton(Type implementationType, IEnumerable<Type> serviceTypes)
         {
-            var factory = CreateFactoryExpression(implementationType).CompileFactory<object>();
+            var factoryExpression = CreateFactoryExpression(implementationType);
+            var factory = factoryExpression.Compile<object>();
             
             RegisterFactorySingleton(factory, serviceTypes);
         }
