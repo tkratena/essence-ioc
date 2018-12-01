@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Essence.Ioc.Expressions;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.Resolution;
 

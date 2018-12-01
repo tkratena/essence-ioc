@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Essence.Framework;
+using Essence.Ioc.Expressions;
 using Essence.Ioc.Registration.RegistrationExceptions;
-using Essence.Ioc.Resolution;
 using Essence.Ioc.TypeModel;
 
 namespace Essence.Ioc.Registration

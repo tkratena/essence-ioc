@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Essence.Ioc.Resolution
+namespace Essence.Ioc.Expressions
 {
     internal interface IFactoryExpression
     {

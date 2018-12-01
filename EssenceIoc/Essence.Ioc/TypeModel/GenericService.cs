@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Essence.Ioc.Expressions;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.Resolution;
 

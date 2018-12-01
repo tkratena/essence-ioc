@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Essence.Ioc.Expressions;
 using Essence.Ioc.Resolution;
 
 namespace Essence.Ioc.Registration

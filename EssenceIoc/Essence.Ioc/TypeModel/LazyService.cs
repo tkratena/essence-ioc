@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Essence.Framework;
+using Essence.Ioc.Expressions;
 using Essence.Ioc.Resolution;
 
 namespace Essence.Ioc.TypeModel
