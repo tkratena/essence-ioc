@@ -172,6 +172,27 @@ namespace Essence.Ioc
 
             Assert.That(resolvedServices, Is.Unique.And.All.InstanceOf<MultipleServiceImplementation>());
         }
+        
+        [Test]
+        public void MultipleServicesConstructedBySameCustomFactoryThatUsesContainerAsSingleton(
+            [ValueSource(nameof(MultipleServiceCases))] IReadOnlyCollection<Type> serviceInterfaces)
+        {
+            var resolvedServices = ResolveUsingContainerWithMultipleServiceRegistration(
+                serviceInterfaces,
+                callTarget =>
+                    Expression.Call(
+                        Expression.Call(
+                            callTarget,
+                            nameof(IService<object>.ConstructedBy),
+                            new[] { typeof(MultipleServiceImplementation) },
+                            Expression.Constant((Func<IContainer, MultipleServiceImplementation>) (_ => 
+                                new MultipleServiceImplementation()))),
+                        nameof(ILifeScope.AsSingleton),
+                        new Type[0]));
+
+            var first = resolvedServices.First();
+            Assert.That(resolvedServices, Is.All.InstanceOf<MultipleServiceImplementation>().And.SameAs(first));
+        }
 
         private static IReadOnlyCollection<object> ResolveUsingContainerWithMultipleServiceRegistration(
             IReadOnlyCollection<Type> serviceInterfaces,
