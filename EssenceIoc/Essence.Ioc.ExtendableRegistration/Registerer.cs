@@ -1,12 +1,29 @@
+using System;
+
 namespace Essence.Ioc.ExtendableRegistration
 {
     public abstract class Registerer
     {
-        protected abstract Registrations Registrations { get; }
-        
-        public static explicit operator Registrations(Registerer registerer)
+        protected abstract void AddRegistration(IRegistration registration);
+
+        public interface IRegistration
         {
-            return registerer.Registrations;
+            void Register(IRegisterer registerer);
+        }
+
+        public sealed class Registrations
+        {
+            private readonly Registerer _registerer;
+
+            public Registrations(Registerer registerer)
+            {
+                _registerer = registerer ?? throw new ArgumentNullException(nameof(registerer));
+            }
+        
+            public void Add(IRegistration registration)
+            {
+                _registerer.AddRegistration(registration);
+            }
         }
     }
 }

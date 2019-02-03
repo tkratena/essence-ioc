@@ -8,16 +8,16 @@ namespace Essence.Ioc.FluentRegistration
 {
     internal class GenericService : IGenericServices
     {
-        private readonly Registrations _registrations;
+        private readonly Registerer.Registrations _registrations;
         private readonly IEnumerable<Type> _genericServiceTypeDefinitions;
 
-        public GenericService(Registrations registrations, Type genericServiceTypeDefinition)
+        public GenericService(Registerer.Registrations registrations, Type genericServiceTypeDefinition)
             : this(registrations, genericServiceTypeDefinition.UnfoldToEnumerable())
         {
         }
             
         private GenericService(
-            Registrations registrations,
+            Registerer.Registrations registrations,
             IEnumerable<Type> genericServiceTypeDefinitions)
         {
             _registrations = registrations;
@@ -38,7 +38,7 @@ namespace Essence.Ioc.FluentRegistration
                 _genericServiceTypeDefinitions.Append(genericServiceTypeDefinition));
         }
             
-        private class GenericImplementation : IRegistration
+        private class GenericImplementation : Registerer.IRegistration
         {
             private readonly Type _implementationGenericTypeDefinition;
             private readonly IEnumerable<Type> _serviceGenericTypeDefinitions;

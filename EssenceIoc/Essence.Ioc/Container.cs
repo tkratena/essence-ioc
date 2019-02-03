@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using Essence.Ioc.ExtendableRegistration;
 using Essence.Ioc.Registration;
@@ -32,37 +31,19 @@ namespace Essence.Ioc
         
         private class ExtendableRegisterer : ExtendableRegistration.Registerer
         {
-            private readonly Registrations _registrations;
-
-            public ExtendableRegisterer(IRegisterer registerer)
-            {
-                _registrations = new Registrations(registerer);
-            }
-
-            public void ExecuteRegistrations()
-            {
-                _registrations.ExecuteRegistrations();
-            }
-
-            [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")] 
-            protected override ExtendableRegistration.Registrations Registrations => _registrations;
-        }
-        
-        private class Registrations : ExtendableRegistration.Registrations
-        {
             private readonly IRegisterer _registerer;
             private readonly ICollection<IRegistration> _registrations = new List<IRegistration>();
 
-            public Registrations(IRegisterer registerer)
+            public ExtendableRegisterer(IRegisterer registerer)
             {
                 _registerer = registerer;
             }
 
-            public override void Add(IRegistration registration)
+            protected override void AddRegistration(IRegistration registration)
             {
                 _registrations.Add(registration);
             }
-                
+
             public void ExecuteRegistrations()
             {
                 foreach (var registration in _registrations)

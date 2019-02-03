@@ -8,9 +8,9 @@ namespace Essence.Ioc.FluentRegistration
     {
         private readonly IEnumerable<Type> _serviceTypes;
             
-        protected Registrations Registrations { get; }
+        protected Registerer.Registrations Registrations { get; }
 
-        protected ServiceBase(Registrations registrations, IEnumerable<Type> serviceTypes)
+        protected ServiceBase(Registerer.Registrations registrations, IEnumerable<Type> serviceTypes)
         {
             Registrations = registrations;
             _serviceTypes = serviceTypes;
@@ -101,7 +101,7 @@ namespace Essence.Ioc.FluentRegistration
             }
         }
 
-        private abstract class RegistrationBase : IRegistration, ILifeScope
+        private abstract class RegistrationBase : Registerer.IRegistration, ILifeScope
         {
             private readonly IEnumerable<Type> _serviceTypes;
             private bool _asSingleton;
