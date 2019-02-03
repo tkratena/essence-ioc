@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
+using Essence.Ioc.ExtendableRegistration;
 
 namespace Essence.Ioc.FluentRegistration
 {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Reflection;
 using Essence.Ioc.Expressions;
+using Essence.Ioc.ExtendableRegistration;
 using Essence.Ioc.TypeModel;
 
 namespace Essence.Ioc.Resolution

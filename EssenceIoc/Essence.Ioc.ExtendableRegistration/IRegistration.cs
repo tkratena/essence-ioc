@@ -2,6 +2,6 @@
 {
     public interface IRegistration
     {
-        void Register(IBasicRegisterer registerer);
+        void Register(IRegisterer registerer);
     }
 }

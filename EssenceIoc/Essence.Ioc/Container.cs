@@ -17,11 +17,11 @@ namespace Essence.Ioc
             var factories = new Factories();
             _resolver = new Resolver(factories);
             
-            var basicRegisterer = new BasicRegisterer(factories, _resolver);
-            var registerer = new Registerer(basicRegisterer);
+            var registerer = new Registration.Registerer(factories, _resolver);
+            var extendableRegisterer = new ExtendableRegisterer(registerer);
             
-            serviceRegistration.Invoke(registerer);
-            registerer.ExecuteRegistrations();
+            serviceRegistration.Invoke(extendableRegisterer);
+            extendableRegisterer.ExecuteRegistrations();
         }
 
         [Pure]
@@ -30,13 +30,13 @@ namespace Essence.Ioc
             return _resolver.Resolve<TService>();
         }
         
-        private class Registerer : ExtendableRegistration.Registerer
+        private class ExtendableRegisterer : ExtendableRegistration.Registerer
         {
             private readonly Registrations _registrations;
 
-            public Registerer(IBasicRegisterer basicRegisterer)
+            public ExtendableRegisterer(IRegisterer registerer)
             {
-                _registrations = new Registrations(basicRegisterer);
+                _registrations = new Registrations(registerer);
             }
 
             public void ExecuteRegistrations()
@@ -50,12 +50,12 @@ namespace Essence.Ioc
         
         private class Registrations : ExtendableRegistration.Registrations
         {
-            private readonly IBasicRegisterer _basicRegisterer;
+            private readonly IRegisterer _registerer;
             private readonly ICollection<IRegistration> _registrations = new List<IRegistration>();
 
-            public Registrations(IBasicRegisterer basicRegisterer)
+            public Registrations(IRegisterer registerer)
             {
-                _basicRegisterer = basicRegisterer;
+                _registerer = registerer;
             }
 
             public override void Add(IRegistration registration)
@@ -67,7 +67,7 @@ namespace Essence.Ioc
             {
                 foreach (var registration in _registrations)
                 {
-                    registration.Register(_basicRegisterer);
+                    registration.Register(_registerer);
                 }
             }
         }

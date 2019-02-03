@@ -51,7 +51,7 @@ namespace Essence.Ioc.FluentRegistration
                 _serviceGenericTypeDefinitions = serviceGenericTypeDefinitions;
             }
 
-            public void Register(IBasicRegisterer registerer)
+            public void Register(IRegisterer registerer)
             {
                 registerer.RegisterGeneric(_implementationGenericTypeDefinition, _serviceGenericTypeDefinitions);
             }

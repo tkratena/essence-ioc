@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Essence.Ioc.ExtendableRegistration
 {
-    public interface IBasicRegisterer
+    public interface IRegisterer
     {
         void RegisterTransient(Type implementationType, IEnumerable<Type> serviceTypes);
         void RegisterSingleton(Type implementationType, IEnumerable<Type> serviceTypes);

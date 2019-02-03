@@ -10,5 +10,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Essence.Ioc\Essence.Ioc.csproj" />
+    <ProjectReference Include="..\Essence.Ioc.FluentRegistration\Essence.Ioc.FluentRegistration.csproj" />
   </ItemGroup>
 </Project>
