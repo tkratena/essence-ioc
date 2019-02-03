@@ -6,6 +6,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Essence.Framework\Essence.Framework.csproj" />
     <ProjectReference Include="..\Essence.Ioc\Essence.Ioc.csproj" />
+    <ProjectReference Include="..\Essence.Ioc.FluentRegistration\Essence.Ioc.FluentRegistration.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.1" />

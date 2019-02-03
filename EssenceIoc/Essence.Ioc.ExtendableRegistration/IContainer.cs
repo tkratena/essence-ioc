@@ -1,6 +1,6 @@
 using System.Diagnostics.Contracts;
 
-namespace Essence.Ioc
+namespace Essence.Ioc.ExtendableRegistration
 {
     public interface IContainer
     {

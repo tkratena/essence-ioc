@@ -9,6 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Essence.Framework\Essence.Framework.csproj" />
+    <ProjectReference Include="..\Essence.Ioc.ExtendableRegistration\Essence.Ioc.ExtendableRegistration.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
