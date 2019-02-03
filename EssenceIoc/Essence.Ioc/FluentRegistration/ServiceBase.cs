@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Essence.Ioc.Registration;
+using Essence.Ioc.ExtendableRegistration;
 
 namespace Essence.Ioc.FluentRegistration
 {
@@ -8,9 +8,9 @@ namespace Essence.Ioc.FluentRegistration
     {
         private readonly IEnumerable<Type> _serviceTypes;
             
-        protected ICollection<IRegistration> Registrations { get; }
+        protected Registrations Registrations { get; }
 
-        protected ServiceBase(ICollection<IRegistration> registrations, IEnumerable<Type> serviceTypes)
+        protected ServiceBase(Registrations registrations, IEnumerable<Type> serviceTypes)
         {
             Registrations = registrations;
             _serviceTypes = serviceTypes;
@@ -47,12 +47,12 @@ namespace Essence.Ioc.FluentRegistration
             {
             }
 
-            protected override void RegisterTransient(Registerer registerer, IEnumerable<Type> servicesTypes)
+            protected override void RegisterTransient(IBasicRegisterer registerer, IEnumerable<Type> servicesTypes)
             {
                 registerer.RegisterTransient(typeof(TImplementation), servicesTypes);
             }
 
-            protected override void RegisterSingleton(Registerer registerer, IEnumerable<Type> servicesTypes)
+            protected override void RegisterSingleton(IBasicRegisterer registerer, IEnumerable<Type> servicesTypes)
             {
                 registerer.RegisterSingleton(typeof(TImplementation), servicesTypes);
             }
@@ -68,12 +68,12 @@ namespace Essence.Ioc.FluentRegistration
                 _factory = factory;
             }
 
-            protected override void RegisterTransient(Registerer registerer, IEnumerable<Type> servicesTypes)
+            protected override void RegisterTransient(IBasicRegisterer registerer, IEnumerable<Type> servicesTypes)
             {
                 registerer.RegisterFactoryTransient(_factory, servicesTypes);
             }
 
-            protected override void RegisterSingleton(Registerer registerer, IEnumerable<Type> servicesTypes)
+            protected override void RegisterSingleton(IBasicRegisterer registerer, IEnumerable<Type> servicesTypes)
             {
                 registerer.RegisterFactorySingleton(_factory, servicesTypes);
             }
@@ -90,12 +90,12 @@ namespace Essence.Ioc.FluentRegistration
                 _factory = factory;
             }
 
-            protected override void RegisterTransient(Registerer registerer, IEnumerable<Type> servicesTypes)
+            protected override void RegisterTransient(IBasicRegisterer registerer, IEnumerable<Type> servicesTypes)
             {
                 registerer.RegisterFactoryTransient(_factory, servicesTypes);
             }
 
-            protected override void RegisterSingleton(Registerer registerer, IEnumerable<Type> servicesTypes)
+            protected override void RegisterSingleton(IBasicRegisterer registerer, IEnumerable<Type> servicesTypes)
             {
                 registerer.RegisterFactorySingleton(_factory, servicesTypes);
             }
@@ -116,7 +116,7 @@ namespace Essence.Ioc.FluentRegistration
                 _asSingleton = true;
             }
 
-            public void Register(Registerer registerer)
+            public void Register(IBasicRegisterer registerer)
             {
                 if (_asSingleton)
                 {
@@ -128,9 +128,9 @@ namespace Essence.Ioc.FluentRegistration
                 }
             }
 
-            protected abstract void RegisterTransient(Registerer registerer, IEnumerable<Type> servicesTypes);
+            protected abstract void RegisterTransient(IBasicRegisterer registerer, IEnumerable<Type> servicesTypes);
             
-            protected abstract void RegisterSingleton(Registerer registerer, IEnumerable<Type> servicesTypes);
+            protected abstract void RegisterSingleton(IBasicRegisterer registerer, IEnumerable<Type> servicesTypes);
         }
     }
 }

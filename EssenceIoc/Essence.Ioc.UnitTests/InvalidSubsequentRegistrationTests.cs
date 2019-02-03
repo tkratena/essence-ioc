@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Essence.Ioc.ExtendableRegistration;
 using Essence.Ioc.FluentRegistration;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using NUnit.Framework;
@@ -65,15 +66,15 @@ namespace Essence.Ioc
         public class Registration
         {
             private readonly string _description;
-            private readonly Action<IRegisterer> _registerServices;
+            private readonly Action<Registerer> _registerServices;
 
-            public Registration(string description, Action<IRegisterer> registerServices)
+            public Registration(string description, Action<Registerer> registerServices)
             {
                 _description = description;
                 _registerServices = registerServices;
             }
 
-            public void Invoke(IRegisterer registerer)
+            public void Invoke(Registerer registerer)
             {
                 _registerServices.Invoke(registerer);
             }
