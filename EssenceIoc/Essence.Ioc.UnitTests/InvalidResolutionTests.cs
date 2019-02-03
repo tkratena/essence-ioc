@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Essence.Ioc.FluentRegistration;
 using Essence.Ioc.Resolution;
 using NUnit.Framework;
 

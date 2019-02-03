@@ -2,22 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using Essence.Framework.Linq;
-using Essence.Ioc.Registration;
+using Essence.Ioc.ExtendableRegistration;
 
 namespace Essence.Ioc.FluentRegistration
 {
     internal class GenericService : IGenericServices
     {
-        private readonly ICollection<IRegistration> _registrations;
+        private readonly Registrations _registrations;
         private readonly IEnumerable<Type> _genericServiceTypeDefinitions;
 
-        public GenericService(ICollection<IRegistration> registrations, Type genericServiceTypeDefinition)
+        public GenericService(Registrations registrations, Type genericServiceTypeDefinition)
             : this(registrations, genericServiceTypeDefinition.UnfoldToEnumerable())
         {
         }
             
         private GenericService(
-            ICollection<IRegistration> registrations,
+            Registrations registrations,
             IEnumerable<Type> genericServiceTypeDefinitions)
         {
             _registrations = registrations;
@@ -51,7 +51,7 @@ namespace Essence.Ioc.FluentRegistration
                 _serviceGenericTypeDefinitions = serviceGenericTypeDefinitions;
             }
 
-            public void Register(Registerer registerer)
+            public void Register(IBasicRegisterer registerer)
             {
                 registerer.RegisterGeneric(_implementationGenericTypeDefinition, _serviceGenericTypeDefinitions);
             }

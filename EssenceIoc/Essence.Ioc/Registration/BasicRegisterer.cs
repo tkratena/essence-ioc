@@ -4,19 +4,20 @@ using System.Linq;
 using System.Reflection;
 using Essence.Framework;
 using Essence.Ioc.Expressions;
+using Essence.Ioc.ExtendableRegistration;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.TypeModel;
 
 namespace Essence.Ioc.Registration
 {
-    internal class Registerer
+    internal class BasicRegisterer : IBasicRegisterer
     {
         private readonly RegisteredServices _registeredServices = new RegisteredServices();
         private readonly RegisteredServices _registeredGenericServices = new RegisteredServices();
         private readonly Factories _factories;
         private readonly IContainer _container;
 
-        public Registerer(Factories factories, IContainer container)
+        public BasicRegisterer(Factories factories, IContainer container)
         {
             _factories = factories;
             _container = container;

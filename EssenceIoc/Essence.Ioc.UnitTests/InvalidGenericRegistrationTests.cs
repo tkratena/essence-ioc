@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Essence.Ioc.FluentRegistration;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using NUnit.Framework;
 

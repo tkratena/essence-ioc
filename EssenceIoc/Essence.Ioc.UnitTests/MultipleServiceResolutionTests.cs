@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using Essence.Ioc.ExtendableRegistration;
 using Essence.Ioc.FluentRegistration;
 using NUnit.Framework;
 
@@ -198,21 +199,25 @@ namespace Essence.Ioc
             IReadOnlyCollection<Type> serviceInterfaces,
             Func<Expression, Expression> implementedByCallExpressionProvider)
         {
-            var registererParameter = Expression.Parameter(typeof(IRegisterer));
+            var registererParameter = Expression.Parameter(typeof(Registerer));
 
             Expression registerServiceCall = registererParameter;
-            int i = 0;
             
-            foreach (var serviceInterface in serviceInterfaces)
+            registerServiceCall = Expression.Call(
+                typeof(FluentRegistererExtensions),
+                nameof(FluentRegistererExtensions.RegisterService),
+                new[] {serviceInterfaces.First()},
+                registerServiceCall);
+            
+            foreach (var serviceInterface in serviceInterfaces.Skip(1))
             {
-                var methodName = i == 0 ? nameof(IRegisterer.RegisterService) : nameof(IService<object>.AndService);
+                var methodName = nameof(IService<object>.AndService);
                 registerServiceCall = Expression.Call(registerServiceCall, methodName, new[] {serviceInterface});
-                i++;
             }
 
             var implementedByCall = implementedByCallExpressionProvider.Invoke(registerServiceCall);
 
-            var serviceRegistration = Expression.Lambda<Action<IRegisterer>>(implementedByCall, registererParameter);
+            var serviceRegistration = Expression.Lambda<Action<Registerer>>(implementedByCall, registererParameter);
             var container = new Container(serviceRegistration.Compile());
 
             var resolvedServices = serviceInterfaces.Select(serviceInterface =>

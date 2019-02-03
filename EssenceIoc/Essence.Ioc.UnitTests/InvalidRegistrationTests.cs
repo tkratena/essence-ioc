@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Essence.Ioc.ExtendableRegistration;
 using Essence.Ioc.FluentRegistration;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.Resolution;
@@ -153,7 +154,7 @@ namespace Essence.Ioc
         [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
         public void RegistrationIsNotPossibleAfterContainerIsCreated()
         {
-            IRegisterer registerer = null;
+            Registerer registerer = null;
             var container = new Container(r => registerer = r);
             registerer.RegisterService<IService>().ImplementedBy<ServiceImplementation>();
 
