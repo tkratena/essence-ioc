@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Essence.Framework;
+using Essence.Framework.System;
 using Essence.Ioc.Expressions;
 using Essence.Ioc.Resolution;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Essence.Framework.System;
 using NUnit.Framework;
 
 namespace Essence.Framework

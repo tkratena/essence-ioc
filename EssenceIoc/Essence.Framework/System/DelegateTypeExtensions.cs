@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Essence.Framework
+namespace Essence.Framework.System
 {
     public static class DelegateTypeExtensions
     {
