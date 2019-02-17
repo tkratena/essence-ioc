@@ -9,7 +9,7 @@ namespace Essence.Ioc
 {
     public class Container : IContainer
     {
-        private readonly IContainer _resolver;
+        private readonly Resolver _resolver;
 
         public Container(Action<ExtendableRegistration.Registerer> serviceRegistration)
         {
@@ -41,14 +41,20 @@ namespace Essence.Ioc
 
             protected override void AddRegistration(IRegistration registration)
             {
-                _registrations.Add(registration);
+                lock (_registrations)
+                {
+                    _registrations.Add(registration);
+                }
             }
 
             public void ExecuteRegistrations()
             {
-                foreach (var registration in _registrations)
+                lock (_registrations)
                 {
-                    registration.Register(_registerer);
+                    foreach (var registration in _registrations)
+                    {
+                        registration.Register(_registerer);
+                    }
                 }
             }
         }

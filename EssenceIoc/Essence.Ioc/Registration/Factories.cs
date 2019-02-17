@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Essence.Ioc.Expressions;
 using Essence.Ioc.Resolution;
@@ -7,10 +8,10 @@ namespace Essence.Ioc.Registration
 {
     internal class Factories : IFactoryFinder
     {
-        private readonly IDictionary<Type, Delegate> _factories = new Dictionary<Type, Delegate>();
-        private readonly IDictionary<Type, IFactoryExpression> _factoryExpressions =
-            new Dictionary<Type, IFactoryExpression>();
-        private readonly IDictionary<Type, Type> _genericImplementations = new Dictionary<Type, Type>();
+        private readonly IDictionary<Type, Delegate> _factories = new ConcurrentDictionary<Type, Delegate>();
+        private readonly IDictionary<Type, IFactoryExpression> _factoryExpressions = 
+            new ConcurrentDictionary<Type, IFactoryExpression>();
+        private readonly IDictionary<Type, Type> _genericImplementations = new ConcurrentDictionary<Type, Type>();
 
         public void AddFactory(Type serviceType, Delegate factory)
         {
