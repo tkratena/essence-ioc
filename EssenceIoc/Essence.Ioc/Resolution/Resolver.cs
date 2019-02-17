@@ -43,9 +43,15 @@ namespace Essence.Ioc.Resolution
             }
         }
 
-        private Func<T> Cast<T>(Delegate factory)
+        private static Func<T> Cast<T>(Delegate sourceDelegate)
         {
-            return factory as Func<T> ?? (() => (T)((Func<object>)factory).Invoke());
+            if (sourceDelegate is Func<T> targetDelegate)
+            {
+                return targetDelegate;
+            }
+
+            var function = (Func<object>) sourceDelegate;
+            return () => (T)function.Invoke();
         }
 
         private IFactoryExpression GetFactoryExpression(Type serviceType)
