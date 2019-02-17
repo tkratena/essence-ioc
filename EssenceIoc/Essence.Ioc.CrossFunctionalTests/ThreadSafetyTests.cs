@@ -14,7 +14,7 @@ namespace Essence.Ioc
         [Test]
         public void ConcurrentResolution()
         {
-            const int tryCount = 100000;
+            const int tryCount = 100_000;
             const int parallelResolutionCount = 8;
 
             for (var j = 0; j < tryCount; j++)
@@ -32,7 +32,7 @@ namespace Essence.Ioc
         [Test]
         public void ConcurrentRegistration()
         {
-            const int tryCount = 10000;
+            const int tryCount = 10_000;
             var parallelRegistrations = new Action<Registerer>[]
             {
                 r => r.RegisterService<IService1>().ImplementedBy<ServiceImplementation>(),

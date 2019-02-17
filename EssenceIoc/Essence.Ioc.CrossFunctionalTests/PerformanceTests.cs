@@ -28,6 +28,8 @@ namespace Essence.Ioc
                 containerStopWatch.Stop();
 
                 var milliseconds = containerStopWatch.ElapsedMilliseconds / (double)TryCount;
+                TestContext.WriteLine($"Container performance: {milliseconds} ms");
+                
                 Assert.Less(milliseconds, 0.5);
             }
         }
@@ -85,7 +87,7 @@ namespace Essence.Ioc
                 var containerDuration = containerStopWatch.ElapsedMilliseconds;
 
                 var containerPerformancePercentage = (double) containerDuration / manualInjectionDuration * 100;
-                TestContext.WriteLine("Container performance: {0:0}%", containerPerformancePercentage);
+                TestContext.WriteLine($"Container performance: {containerPerformancePercentage:0}%");
 
                 Assert.Less(containerPerformancePercentage, 200);
             }
