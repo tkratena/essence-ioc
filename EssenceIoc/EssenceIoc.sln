@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Essence.Framework", "Essenc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Essence.Framework.UnitTests", "Essence.Framework.UnitTests\Essence.Framework.UnitTests.csproj", "{BFE3591B-5715-429C-8F57-03F14F9EDEC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Essence.Ioc.PerformanceTests", "Essence.Ioc.PerformanceTests\Essence.Ioc.PerformanceTests.csproj", "{ABA1068F-B695-4216-A7FE-FE1FD73D2977}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Essence.Ioc.CrossFunctionalTests", "Essence.Ioc.CrossFunctionalTests\Essence.Ioc.CrossFunctionalTests.csproj", "{ABA1068F-B695-4216-A7FE-FE1FD73D2977}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Essence.Ioc.FluentRegistration", "Essence.Ioc.FluentRegistration\Essence.Ioc.FluentRegistration.csproj", "{88B1C021-1199-4EC3-8D61-DABAE7B1F1D3}"
 EndProject
