@@ -27,18 +27,20 @@ namespace Essence.Ioc.Resolution
         private Func<TService> GetCompiledFactory<TService>()
         {
             var serviceType = typeof(TService);
-
-            if (_compiledFactories.TryGetValue(serviceType, out var factory)
-                || _factoryFinder.TryGetFactory(serviceType, out factory))
+            lock (serviceType)
             {
-                return Cast<TService>(factory);
+                if (_compiledFactories.TryGetValue(serviceType, out var factory)
+                    || _factoryFinder.TryGetFactory(serviceType, out factory))
+                {
+                    return Cast<TService>(factory);
+                }
+
+                var factoryExpression = GetFactoryExpression(serviceType);
+                factory = factoryExpression.Compile<TService>();
+                _compiledFactories[serviceType] = factory;
+
+                return (Func<TService>) factory;
             }
-
-            var factoryExpression = GetFactoryExpression(serviceType);
-            factory = factoryExpression.Compile<TService>();
-            _compiledFactories[serviceType] = factory;
-
-            return (Func<TService>) factory;
         }
 
         private Func<T> Cast<T>(Delegate factory)
