@@ -10,12 +10,15 @@ namespace Essence.Ioc.Registration
         
         public void MarkRegistered(Type serviceType)
         {
-            if (_registeredServices.Contains(serviceType))
+            lock (serviceType)
             {
-                throw new AlreadyRegisteredException(serviceType);
-            }
+                if (_registeredServices.Contains(serviceType))
+                {
+                    throw new AlreadyRegisteredException(serviceType);
+                }
             
-            _registeredServices.Add(serviceType);
+                _registeredServices.Add(serviceType);
+            }
         }
     }
 }
