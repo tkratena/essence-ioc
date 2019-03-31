@@ -10,4 +10,7 @@
         <RepositoryUrl>https://github.com/tkratena/essence-ioc.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
+    </ItemGroup>
 </Project>
