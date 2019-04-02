@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Essence.Framework.Model;
 using NUnit.Framework;
 
 namespace Essence.Framework
@@ -9,7 +10,32 @@ namespace Essence.Framework
     public class ResultExtensionsTests
     {
         [TestFixture]
-        public class DifferentValueAndErrorTypes
+        public class ResultWithValue
+        {
+            [Test]
+            public void ValueOfSuccess()
+            {
+                var expectedValue = new Value();
+                Result<Value> success = Result.Success(expectedValue); // implicit conversion
+
+                var value = success.ValueOrThrow();
+
+                Assert.AreSame(expectedValue, value);
+            }
+
+            [Test]
+            public void ValueOfFailureThrows()
+            {
+                Result<Value> failure = Result.Failure(); // implicit conversion
+
+                TestDelegate when = () => failure.ValueOrThrow();
+
+                Assert.Catch<Exception>(when);
+            }
+        }
+
+        [TestFixture]
+        public class ResultWithValueAndError
         {
             [Test]
             public void ValueOfSuccess()
@@ -54,61 +80,13 @@ namespace Essence.Framework
 
                 Assert.Catch<Exception>(when);
             }
-        }
-        
-        [TestFixture]
-        public class SameValueAndErrorTypes
-        {
-            [Test]
-            public void ValueOfSuccess()
+            
+            private class Error
             {
-                var expectedValue = new Value();
-                Result<Value> success = Result.Success(expectedValue); // implicit conversion
-
-                var value = success.ValueOrThrow();
-
-                Assert.AreSame(expectedValue, value);
-            }
-
-            [Test]
-            public void ErrorOfSuccessThrows()
-            {
-                var value = new Value();
-                Result<Value> success = Result.Success(value); // implicit conversion
-
-                TestDelegate when = () => success.ErrorOrThrow();
-
-                Assert.Catch<Exception>(when);
-            }
-
-            [Test]
-            public void ErrorOfFailure()
-            {
-                var expectedError = new Value();
-                Result<Value> failure = Result.Failure(expectedError); // implicit conversion
-
-                var error = failure.ErrorOrThrow();
-
-                Assert.AreSame(expectedError, error);
-            }
-
-            [Test]
-            public void ValueOfFailureThrows()
-            {
-                var error = new Value();
-                Result<Value> failure = Result.Failure(error); // implicit conversion
-
-                TestDelegate when = () => failure.ValueOrThrow();
-
-                Assert.Catch<Exception>(when);
             }
         }
 
         private class Value
-        {
-        }
-
-        private class Error
         {
         }
     }

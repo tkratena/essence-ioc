@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.Contracts;
 
-namespace Essence.Framework
+namespace Essence.Framework.Model
 {
     public static class ResultExtensions
     {
@@ -22,7 +22,7 @@ namespace Essence.Framework
         }
 
         /// <summary>
-        /// Returns the error when the result is a failure. When it is a success, throws. <para/>
+        /// Returns the error when the result is a failure. When it is a success, throws.<para/>
         /// To be able to process both cases, use
         /// <see cref="Result{TValue,TError}.Case(Action{TValue},Action{TError})"/> or
         /// <see cref="Result{TValue,TError}.Case{T}(Func{TValue,T},Func{TError,T})"/>.
@@ -40,39 +40,30 @@ namespace Essence.Framework
         /// <summary>
         /// Returns the value when the result is a success. When it is a failure, throws.<para/>
         /// To be able to process both cases, use
-        /// <see cref="Result{T}.Case(Action{T},Action{T})"/> or
-        /// <see cref="Result{T}.Case{TResult}(Func{T,TResult},Func{T,TResult})"/>.
+        /// <see cref="Result{TValue}.Case(Action{TValue},Action)"/> or
+        /// <see cref="Result{TValue}.Case{TResult}(Func{TValue,TResult},Func{TResult})"/>.
         /// </summary>
         /// <returns>The value when the result is a success</returns>
         /// <exception cref="Exception">Thrown when the result is a failure</exception>
         [Pure]
-        public static T ValueOrThrow<T>(this Result<T> result)
+        public static TValue ValueOrThrow<TValue>(this Result<TValue> result)
         {
             return result.Case(
                 success: value => value,
-                failure: error => throw new ValueNotAvailableForFailure<T>(error));
-        }
-
-        /// <summary>
-        /// Returns the error when the result is a failure. When it is a success, throws. <para/>
-        /// To be able to process both cases, use
-        /// <see cref="Result{T}.Case(Action{T},Action{T})"/> or
-        /// <see cref="Result{T}.Case{TResult}(Func{T,TResult},Func{T,TResult})"/>.
-        /// <returns>The error when the result is a failure</returns>
-        /// <exception cref="Exception">Thrown when the result is a success</exception>
-        /// </summary>
-        [Pure]
-        public static T ErrorOrThrow<T>(this Result<T> result)
-        {
-            return result.Case(
-                success: value => throw new ErrorNotAvailableForSuccess<T>(value),
-                failure: error => error);
+                failure: () => throw new ValueNotAvailableForFailure());
         }
 
         private class ValueNotAvailableForFailure<TError> : Exception
         {
             public ValueNotAvailableForFailure(TError error)
                 : base($"Result is a failure with error {error}")
+            {
+            }
+        }
+        
+        private class ValueNotAvailableForFailure : Exception
+        {
+            public ValueNotAvailableForFailure() : base("Result is a failure")
             {
             }
         }
