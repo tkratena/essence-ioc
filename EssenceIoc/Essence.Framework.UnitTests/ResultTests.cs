@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Essence.Framework.Model;
 using NUnit.Framework;
 
 namespace Essence.Framework
@@ -8,7 +9,189 @@ namespace Essence.Framework
     public class ResultTests
     {
         [TestFixture]
-        public class DifferentValueAndErrorTypes
+        public class ResultWithoutValue
+        {
+            [Test]
+            public void ResultCannotBeNull()
+            {
+                var result = default(Result);
+
+                Assert.IsNotNull(result);
+            }
+
+            [Test]
+            public void Success()
+            {
+                Result success = Result.Success();
+
+                var isSuccess = success.Case(success: () => true, failure: () => false);
+                Assert.IsTrue(isSuccess);
+
+                success.Case(
+                    success: Assert.Pass,
+                    failure: () => Assert.Fail("Wrong delegate called"));
+
+                Assert.Fail("No delegate called");
+            }
+
+            [Test]
+            public void Failure()
+            {
+                Result failure = Result.Failure(); // implicit conversion
+
+                var isFailure = failure.Case(success: () => false, failure: () => true);
+                Assert.IsTrue(isFailure);
+
+                failure.Case(
+                    success: () => Assert.Fail("Wrong delegate called"),
+                    failure: Assert.Pass);
+
+                Assert.Fail("No delegate called");
+            }
+            
+            [Test]
+            public void SuccessesAreEqual()
+            {
+                Result success1 = Result.Success();
+                Result success2 = Result.Success();
+                
+                Assert.AreEqual(success1, success2);
+                Assert.AreEqual(success1.GetHashCode(), success2.GetHashCode());
+            }
+            
+            [Test]
+            public void FailuresAreEqual()
+            {
+                Result failure1 = Result.Failure(); // implicit conversion
+                Result failure2 = Result.Failure(); // implicit conversion
+                
+                Assert.AreEqual(failure1, failure2);
+                Assert.AreEqual(failure1.GetHashCode(), failure2.GetHashCode());
+            }
+            
+            [Test]
+            public void SuccessAndFailureAreNotEqual()
+            {
+                Result success = Result.Success();
+                Result failure = Result.Failure(); // implicit conversion
+                
+                Assert.AreNotEqual(success, failure);
+                Assert.AreNotEqual(success.GetHashCode(), failure.GetHashCode());
+            }
+        }
+        
+        [TestFixture]
+        public class ResultWithValue
+        {
+            [Test]
+            public void ResultCannotBeNull()
+            {
+                var result = default(Result<ValueObject>);
+
+                Assert.IsNotNull(result);
+            }
+
+            [Test]
+            public void Success()
+            {
+                var expectedValue = new ValueObject();
+                Result<ValueObject> success = expectedValue; // implicit conversion
+
+                var returnedValue = success.Case(success: value => value, failure: () => null);
+                Assert.AreSame(expectedValue, returnedValue);
+
+                success.Case(
+                    success: value =>
+                    {
+                        Assert.AreSame(expectedValue, value);
+                        Assert.Pass();
+                    },
+                    failure: () => Assert.Fail("Wrong delegate called"));
+
+                Assert.Fail("No delegate called");
+            }
+
+            [Test]
+            public void Failure()
+            {
+                Result<ValueObject> failure = Result.Failure(); // implicit conversion
+
+                var isError = failure.Case(success: value => false, failure: () => true);
+                Assert.IsTrue(isError);
+
+                failure.Case(
+                    success: value => Assert.Fail("Wrong delegate called"),
+                    failure: Assert.Pass);
+
+                Assert.Fail("No delegate called");
+            }
+
+
+            [Test]
+            public void ToStringOfSuccessContainsTheValue()
+            {
+                var valueString = "ToString() method result of value object";
+                var value = new ToStringObjectStub(valueString);
+                Result<ToStringObjectStub> success = Result.Success(value); // implicit conversion
+
+                var successString = success.ToString();
+
+                StringAssert.Contains(valueString, successString);
+            }
+
+            [Test]
+            public void ToStringOfNullSuccessDoesNotThrow()
+            {
+                Result<object> success = null; // implicit conversion
+
+                TestDelegate when = () => success.ToString();
+
+                Assert.DoesNotThrow(when);
+            }
+            
+            [Test]
+            public void SuccessesWithEqualValuesAreEqual()
+            {
+                Result<string> success1 = "value"; // implicit conversion
+                Result<string> success2 = "value"; // implicit conversion
+                
+                Assert.AreEqual(success1, success2);
+                Assert.AreEqual(success1.GetHashCode(), success2.GetHashCode());
+            }
+            
+            [Test]
+            public void SuccessesWithDifferentValuesAreNotEqual()
+            {
+                Result<string> success1 = "value"; // implicit conversion
+                Result<string> success2 = "different value"; // implicit conversion
+                
+                Assert.AreNotEqual(success1, success2);
+                Assert.AreNotEqual(success1.GetHashCode(), success2.GetHashCode());
+            }
+            
+            [Test]
+            public void FailuresAreEqual()
+            {
+                Result<string> failure1 = Result.Failure(); // implicit conversion
+                Result<string> failure2 = Result.Failure(); // implicit conversion
+                
+                Assert.AreEqual(failure1, failure2);
+                Assert.AreEqual(failure1.GetHashCode(), failure2.GetHashCode());
+            }
+            
+            [Test]
+            public void SuccessAndFailureAreNotEqual()
+            {
+                Result<string> success = null; // implicit conversion
+                Result<string> failure = Result.Failure(); // implicit conversion
+                
+                Assert.AreNotEqual(success, failure);
+                Assert.AreNotEqual(success.GetHashCode(), failure.GetHashCode());
+            }
+        }
+
+        [TestFixture]
+        public class ResultWithValueAndError
         {
             [Test]
             public void ResultCannotBeNull()
@@ -101,103 +284,55 @@ namespace Essence.Framework
 
                 Assert.DoesNotThrow(when);
             }
-        }
-
-        [TestFixture]
-        public class SameValueAndErrorTypes
-        {
+            
             [Test]
-            public void ResultCannotBeNull()
+            public void SuccessesWithEqualValuesAreEqual()
             {
-                var result = default(Result<ValueObject>);
-
-                Assert.IsNotNull(result);
+                Result<string, DummyStructure> success1 = "value"; // implicit conversion
+                Result<string, DummyStructure> success2 = "value"; // implicit conversion
+                
+                Assert.AreEqual(success1, success2);
+                Assert.AreEqual(success1.GetHashCode(), success2.GetHashCode());
             }
-
-
+            
             [Test]
-            public void Success()
+            public void SuccessesWithDifferentValuesAreNotEqual()
             {
-                var expectedValue = new ValueObject();
-                Result<ValueObject> success = Result.Success(expectedValue); // implicit conversion
-
-                var returnedValue = success.Case(success: value => value, failure: error => null);
-                Assert.AreSame(expectedValue, returnedValue);
-
-                success.Case(
-                    success: value =>
-                    {
-                        Assert.AreSame(expectedValue, value);
-                        Assert.Pass();
-                    },
-                    failure: error => Assert.Fail("Wrong delegate called"));
-
-                Assert.Fail("No delegate called");
+                Result<string, DummyStructure> success1 = "value"; // implicit conversion
+                Result<string, DummyStructure> success2 = "different value"; // implicit conversion
+                
+                Assert.AreNotEqual(success1, success2);
+                Assert.AreNotEqual(success1.GetHashCode(), success2.GetHashCode());
             }
-
+            
             [Test]
-            public void Failure()
+            public void FailuresWithEqualErrorsAreEqual()
             {
-                var expectedError = new ValueObject();
-                Result<ValueObject> failure = Result.Failure(expectedError); // implicit conversion
-
-                var returnedError = failure.Case(success: value => null, failure: error => error);
-                Assert.AreSame(expectedError, returnedError);
-
-                failure.Case(
-                    success: value => Assert.Fail("Wrong delegate called"),
-                    failure: error =>
-                    {
-                        Assert.AreSame(expectedError, error);
-                        Assert.Pass();
-                    });
-
-                Assert.Fail("No delegate called");
+                Result<DummyStructure, string> failure1 = "error"; // implicit conversion
+                Result<DummyStructure, string> failure2 = "error"; // implicit conversion
+                
+                Assert.AreEqual(failure1, failure2);
+                Assert.AreEqual(failure1.GetHashCode(), failure2.GetHashCode());
             }
-
-
+            
             [Test]
-            public void ToStringOfSuccessContainsTheValue()
+            public void FailuresWithDifferentErrorsAreNotEqual()
             {
-                var valueString = "ToString() method result of value object";
-                var value = new ToStringObjectStub(valueString);
-                Result<ToStringObjectStub> success = Result.Success(value); // implicit conversion
-
-                var successString = success.ToString();
-
-                StringAssert.Contains(valueString, successString);
+                Result<DummyStructure, string> failure1 = "error"; // implicit conversion
+                Result<DummyStructure, string> failure2 = "a different error"; // implicit conversion
+                
+                Assert.AreNotEqual(failure1, failure2);
+                Assert.AreNotEqual(failure1.GetHashCode(), failure2.GetHashCode());
             }
-
+            
             [Test]
-            public void ToStringOfFailureContainsTheError()
+            public void SuccessAndFailureWithEqualValueAndErrorAreNotEqual()
             {
-                var errorString = "ToString() method result of error object";
-                var error = new ToStringObjectStub(errorString);
-                Result<ToStringObjectStub> failure = Result.Failure(error); // implicit conversion
-
-                var failureString = failure.ToString();
-
-                StringAssert.Contains(errorString, failureString);
-            }
-
-            [Test]
-            public void ToStringOfNullSuccessDoesNotThrow()
-            {
-                Result<object> success = Result.Success<object>(null); // implicit conversion
-
-                TestDelegate when = () => success.ToString();
-
-                Assert.DoesNotThrow(when);
-            }
-
-            [Test]
-            public void ToStringOfNullFailureDoesNotThrow()
-            {
-                Result<object> failure = Result.Failure<object>(null); // implicit conversion
-
-                TestDelegate when = () => failure.ToString();
-
-                Assert.DoesNotThrow(when);
+                Result<string, string> success = Result.Success("value"); // implicit conversion
+                Result<string, string> failure = Result.Failure("value"); // implicit conversion
+                
+                Assert.AreNotEqual(success, failure);
+                Assert.AreNotEqual(success.GetHashCode(), failure.GetHashCode());
             }
         }
 
