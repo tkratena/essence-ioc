@@ -4,7 +4,7 @@ namespace Essence.Framework.Model
     {
         public TValue Value { get; }
 
-        public Success(TValue value)
+        internal Success(TValue value)
         {
             Value = value;
         }

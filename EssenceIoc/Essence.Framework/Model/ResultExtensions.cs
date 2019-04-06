@@ -36,22 +36,6 @@ namespace Essence.Framework.Model
                 success: value => throw new ErrorNotAvailableForSuccess<TValue>(value),
                 failure: error => error);
         }
-        
-        /// <summary>
-        /// Returns the value when the result is a success. When it is a failure, throws.<para/>
-        /// To be able to process both cases, use
-        /// <see cref="Result{TValue}.Case(Action{TValue},Action)"/> or
-        /// <see cref="Result{TValue}.Case{TResult}(Func{TValue,TResult},Func{TResult})"/>.
-        /// </summary>
-        /// <returns>The value when the result is a success</returns>
-        /// <exception cref="Exception">Thrown when the result is a failure</exception>
-        [Pure]
-        public static TValue ValueOrThrow<TValue>(this Result<TValue> result)
-        {
-            return result.Case(
-                success: value => value,
-                failure: () => throw new ValueNotAvailableForFailure());
-        }
 
         private class ValueNotAvailableForFailure<TError> : Exception
         {
@@ -61,13 +45,6 @@ namespace Essence.Framework.Model
             }
         }
         
-        private class ValueNotAvailableForFailure : Exception
-        {
-            public ValueNotAvailableForFailure() : base("Result is a failure")
-            {
-            }
-        }
-
         private class ErrorNotAvailableForSuccess<TValue> : Exception
         {
             public ErrorNotAvailableForSuccess(TValue value)
