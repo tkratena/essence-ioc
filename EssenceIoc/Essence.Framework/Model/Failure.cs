@@ -4,13 +4,9 @@ namespace Essence.Framework.Model
     {
         public TError Error { get; }
 
-        public Failure(TError error)
+        internal Failure(TError error)
         {
             Error = error;
         }
-    }
-    
-    public struct Failure
-    {
     }
 }

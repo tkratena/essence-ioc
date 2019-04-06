@@ -9,84 +9,55 @@ namespace Essence.Framework
     [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
     public class ResultExtensionsTests
     {
-        [TestFixture]
-        public class ResultWithValue
+        [Test]
+        public void ValueOfSuccess()
         {
-            [Test]
-            public void ValueOfSuccess()
-            {
-                var expectedValue = new Value();
-                Result<Value> success = Result.Success(expectedValue); // implicit conversion
+            var expectedValue = new Value();
+            Result<Value, Error> success = expectedValue; // implicit conversion
 
-                var value = success.ValueOrThrow();
+            var value = success.ValueOrThrow();
 
-                Assert.AreSame(expectedValue, value);
-            }
-
-            [Test]
-            public void ValueOfFailureThrows()
-            {
-                Result<Value> failure = Result.Failure(); // implicit conversion
-
-                TestDelegate when = () => failure.ValueOrThrow();
-
-                Assert.Catch<Exception>(when);
-            }
+            Assert.AreSame(expectedValue, value);
         }
 
-        [TestFixture]
-        public class ResultWithValueAndError
+        [Test]
+        public void ErrorOfSuccessThrows()
         {
-            [Test]
-            public void ValueOfSuccess()
-            {
-                var expectedValue = new Value();
-                Result<Value, Error> success = expectedValue; // implicit conversion
+            var value = new Value();
+            Result<Value, Error> success = value; // implicit conversion
 
-                var value = success.ValueOrThrow();
+            TestDelegate when = () => success.ErrorOrThrow();
 
-                Assert.AreSame(expectedValue, value);
-            }
+            Assert.Catch<Exception>(when);
+        }
 
-            [Test]
-            public void ErrorOfSuccessThrows()
-            {
-                var value = new Value();
-                Result<Value, Error> success = value; // implicit conversion
+        [Test]
+        public void ErrorOfFailure()
+        {
+            var expectedError = new Error();
+            Result<Value, Error> failure = expectedError; // implicit conversion
 
-                TestDelegate when = () => success.ErrorOrThrow();
+            var error = failure.ErrorOrThrow();
 
-                Assert.Catch<Exception>(when);
-            }
+            Assert.AreSame(expectedError, error);
+        }
 
-            [Test]
-            public void ErrorOfFailure()
-            {
-                var expectedError = new Error();
-                Result<Value, Error> failure = expectedError; // implicit conversion
+        [Test]
+        public void ValueOfFailureThrows()
+        {
+            var error = new Error();
+            Result<Value, Error> failure = error; // implicit conversion
 
-                var error = failure.ErrorOrThrow();
+            TestDelegate when = () => failure.ValueOrThrow();
 
-                Assert.AreSame(expectedError, error);
-            }
-
-            [Test]
-            public void ValueOfFailureThrows()
-            {
-                var error = new Error();
-                Result<Value, Error> failure = error; // implicit conversion
-
-                TestDelegate when = () => failure.ValueOrThrow();
-
-                Assert.Catch<Exception>(when);
-            }
-            
-            private class Error
-            {
-            }
+            Assert.Catch<Exception>(when);
         }
 
         private class Value
+        {
+        }
+
+        private class Error
         {
         }
     }
