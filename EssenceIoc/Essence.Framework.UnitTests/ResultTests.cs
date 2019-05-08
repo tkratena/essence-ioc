@@ -130,20 +130,60 @@ namespace Essence.Framework
         public void FailuresWithDifferentErrorsAreNotEqual()
         {
             Result<DummyStructure, string> failure1 = "error"; // implicit conversion
-            Result<DummyStructure, string> failure2 = "a different error"; // implicit conversion
+            Result<DummyStructure, string> failure2 = "different error"; // implicit conversion
 
             Assert.AreNotEqual(failure1, failure2);
             Assert.AreNotEqual(failure1.GetHashCode(), failure2.GetHashCode());
         }
 
         [Test]
-        public void SuccessAndFailureWithEqualValueAndErrorAreNotEqual()
+        public void SuccessAndFailureWithEqualValuesAndErrorsAreNotEqual()
         {
             Result<string, string> success = Result.Success("value"); // implicit conversion
             Result<string, string> failure = Result.Failure("value"); // implicit conversion
 
             Assert.AreNotEqual(success, failure);
             Assert.AreNotEqual(success.GetHashCode(), failure.GetHashCode());
+        }
+        
+        [Test]
+        public void SuccessfulResultAndSuccessWithEqualValueAreEqual()
+        {
+            Result<string, DummyStructure> result = Result.Success("value"); // implicit conversion
+            Success<string> success = Result.Success("value");
+            
+            Assert.AreEqual(result, success);
+            Assert.AreEqual(success, result);
+        }
+        
+        [Test]
+        public void SuccessfulResultAndSuccessWithDifferentValuesAreNotEqual()
+        {
+            Result<string, DummyStructure> result = Result.Success("value"); // implicit conversion
+            Success<string> success = Result.Success("different value");
+            
+            Assert.AreNotEqual(result, success);
+            Assert.AreNotEqual(success, result);
+        }
+        
+        [Test]
+        public void FailingResultAndFailureWithEqualErrorAreEqual()
+        {
+            Result<DummyStructure, string> result = Result.Failure("error"); // implicit conversion
+            Failure<string> failure = Result.Failure("error");
+            
+            Assert.AreEqual(result, failure);
+            Assert.AreEqual(failure, result);
+        }
+        
+        [Test]
+        public void FailingResultAndFailureWithDifferentErrorsAreNotEqual()
+        {
+            Result<DummyStructure, string> result = Result.Failure("error"); // implicit conversion
+            Failure<string> failure = Result.Failure("different error");
+            
+            Assert.AreNotEqual(result, failure);
+            Assert.AreNotEqual(failure, result);
         }
 
         [Test]
