@@ -147,6 +147,26 @@ namespace Essence.Framework
         }
         
         [Test]
+        public void SuccessAndItsValueAreNotEqual()
+        {
+            var value = "value";
+            Result<string, string> success = Result.Success(value); // implicit conversion
+
+            Assert.AreNotEqual(success, value);
+            Assert.AreNotEqual(success.GetHashCode(), value.GetHashCode());
+        }
+        
+        [Test]
+        public void FailureAndItsErrorAreNotEqual()
+        {
+            var error = "error";
+            Result<string, string> failure = Result.Failure(error); // implicit conversion
+
+            Assert.AreNotEqual(failure, error);
+            Assert.AreNotEqual(failure.GetHashCode(), error.GetHashCode());
+        }
+        
+        [Test]
         public void SuccessfulResultAndSuccessWithEqualValueAreEqual()
         {
             Result<string, DummyStructure> result = Result.Success("value"); // implicit conversion
