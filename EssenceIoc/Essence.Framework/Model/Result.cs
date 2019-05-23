@@ -32,7 +32,8 @@ namespace Essence.Framework.Model
     /// <see cref="Result{TValue,TError}.Case(Action{TValue},Action{TError})"/> or
     /// <see cref="Result{TValue,TError}.Case{TResult}(Func{TValue,TResult},Func{TError,TResult})"/>.
     /// </summary>
-    public struct Result<TValue, TError> : IEquatable<Success<TValue>>, IEquatable<Failure<TError>>
+    public struct Result<TValue, TError>
+        : IEquatable<Result<TValue, TError>>, IEquatable<Success<TValue>>, IEquatable<Failure<TError>>
     {
         private readonly TValue _value;
         private readonly TError _error;
@@ -106,6 +107,11 @@ namespace Essence.Framework.Model
                 default:
                     return base.Equals(obj);
             }
+        }
+        
+        public bool Equals(Result<TValue, TError> other)
+        {
+            return Equals((object) other);
         }
 
         public bool Equals(Success<TValue> other)
