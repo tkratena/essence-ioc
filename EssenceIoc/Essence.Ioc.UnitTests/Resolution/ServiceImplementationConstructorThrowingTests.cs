@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Essence.Ioc.FluentRegistration;
 using NUnit.Framework;
@@ -9,41 +10,53 @@ namespace Essence.Ioc.Resolution
     [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
     public class ServiceImplementationConstructorThrowingTests
     {
-        private Container _container;
-
-        [SetUp]
-        public void SetUp()
+        public static IEnumerable TestCases = new[]
         {
-            _container = new Container(r =>
-                r.RegisterService<IService>().ImplementedBy<ServiceImplementationWithThrowingConstructor>());
+            new TestCaseData(
+                    new Container(r => r.RegisterService<IService>()
+                        .ImplementedBy<ServiceImplementationWithThrowingConstructor>()))
+                .SetName("Transient"),
+            
+            new TestCaseData(
+                    new Container(r => r.RegisterService<IService>()
+                        .ImplementedBy<ServiceImplementationWithThrowingConstructor>()
+                        .AsSingleton()))
+                .SetName("Singleton")
+        };
+
+        [Test]
+        [TestCaseSource(nameof(TestCases))]
+        public void Service(Container container)
+        {
+            Assert.Throws<ConstructorException>(() => container.Resolve<IService>());
         }
 
         [Test]
-        public void Service()
+        [TestCaseSource(nameof(TestCases))]
+        public void LazyService(Container container)
         {
-            Assert.Throws<ConstructorException>(() => _container.Resolve<IService>());
+            var lazyService = container.Resolve<Lazy<IService>>();
+
+            Assert.Throws<ConstructorException>(() =>
+            {
+                var _ = lazyService.Value;
+            });
         }
 
         [Test]
-        public void LazyService()
+        [TestCaseSource(nameof(TestCases))]
+        public void ServiceFactory(Container container)
         {
-            var lazyService = _container.Resolve<Lazy<IService>>();
-
-            Assert.Throws<ConstructorException>(() => { var _ = lazyService.Value; });
-        }
-
-        [Test]
-        public void ServiceFactory()
-        {
-            var serviceFactory = _container.Resolve<Func<IService>>();
+            var serviceFactory = container.Resolve<Func<IService>>();
 
             Assert.Throws<ConstructorException>(() => serviceFactory.Invoke());
         }
 
         [Test]
-        public void ServiceFactoryDelegate()
+        [TestCaseSource(nameof(TestCases))]
+        public void ServiceFactoryDelegate(Container container)
         {
-            var serviceFactory = _container.Resolve<DelegateReturningService>();
+            var serviceFactory = container.Resolve<DelegateReturningService>();
 
             Assert.Throws<ConstructorException>(() => serviceFactory.Invoke());
         }
