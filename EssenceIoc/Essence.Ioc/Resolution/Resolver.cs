@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Reflection;
+using Essence.Framework.System;
 using Essence.Ioc.Expressions;
 using Essence.Ioc.ExtendableRegistration;
 using Essence.Ioc.TypeModel;
@@ -32,7 +33,7 @@ namespace Essence.Ioc.Resolution
                 if (_compiledFactories.TryGetValue(serviceType, out var factory)
                     || _factoryFinder.TryGetFactory(serviceType, out factory))
                 {
-                    return Cast<TService>(factory);
+                    return CastFactory<TService>(factory);
                 }
 
                 var factoryExpression = GetFactoryExpression(serviceType);
@@ -43,7 +44,7 @@ namespace Essence.Ioc.Resolution
             }
         }
 
-        private static Func<T> Cast<T>(Delegate sourceDelegate)
+        private static Func<T> CastFactory<T>(Delegate sourceDelegate)
         {
             if (sourceDelegate is Func<T> targetDelegate)
             {
@@ -60,9 +61,20 @@ namespace Essence.Ioc.Resolution
             {
                 return expression;
             }
+            
+            var delegateInfo = serviceType.AsDelegate();
+            if (delegateInfo != null)
+            {
+                return new ServiceFactory(delegateInfo).Resolve(_factoryFinder);
+            }
 
             if (serviceType.GetTypeInfo().IsGenericType)
             {
+                if (typeof(Lazy<>) == serviceType.GetGenericTypeDefinition())
+                {
+                    return new LazyService(serviceType).Resolve(_factoryFinder);
+                }
+                
                 return new GenericService(serviceType).Resolve(_factoryFinder);
             }
 
