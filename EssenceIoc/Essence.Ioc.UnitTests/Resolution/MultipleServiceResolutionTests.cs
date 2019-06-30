@@ -8,7 +8,7 @@ using Essence.Ioc.ExtendableRegistration;
 using Essence.Ioc.FluentRegistration;
 using NUnit.Framework;
 
-namespace Essence.Ioc
+namespace Essence.Ioc.Resolution
 {
     [TestFixture]
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]

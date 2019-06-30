@@ -4,7 +4,7 @@ using Essence.Ioc.FluentRegistration;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using NUnit.Framework;
 
-namespace Essence.Ioc
+namespace Essence.Ioc.Registration
 {
     [TestFixture]
     [SuppressMessage("ReSharper", "ObjectCreationAsStatement")]

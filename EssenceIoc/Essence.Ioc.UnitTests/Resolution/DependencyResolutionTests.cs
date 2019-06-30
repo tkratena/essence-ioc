@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Essence.Ioc.FluentRegistration;
 using NUnit.Framework;
 
-namespace Essence.Ioc
+namespace Essence.Ioc.Resolution
 {
     [TestFixture]
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]

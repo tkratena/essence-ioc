@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Essence.Ioc.ExtendableRegistration;
 using Essence.Ioc.FluentRegistration;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using NUnit.Framework;
 
-namespace Essence.Ioc
+namespace Essence.Ioc.Registration
 {
     [TestFixture]
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
@@ -66,15 +65,15 @@ namespace Essence.Ioc
         public class Registration
         {
             private readonly string _description;
-            private readonly Action<Registerer> _registerServices;
+            private readonly Action<ExtendableRegistration.Registerer> _registerServices;
 
-            public Registration(string description, Action<Registerer> registerServices)
+            public Registration(string description, Action<ExtendableRegistration.Registerer> registerServices)
             {
                 _description = description;
                 _registerServices = registerServices;
             }
 
-            public void Invoke(Registerer registerer)
+            public void Invoke(ExtendableRegistration.Registerer registerer)
             {
                 _registerServices.Invoke(registerer);
             }
