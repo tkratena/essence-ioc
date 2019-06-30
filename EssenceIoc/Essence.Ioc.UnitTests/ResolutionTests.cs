@@ -7,7 +7,6 @@ namespace Essence.Ioc
 {
     [TestFixture]
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     public class ResolutionTests
     {
         [Test]
@@ -20,263 +19,101 @@ namespace Essence.Ioc
 
             Assert.IsInstanceOf<ConcreteService>(service);
         }
-
-        private class ConcreteService
-        {
-        }
-
-        [Test]
-        public void ClassWithoutDependencies()
-        {
-            var container = new Container(r =>
-                r.RegisterService<IService>().ImplementedBy<ServiceImplementationWithoutDependencies>());
-
-            var service = container.Resolve<IService>();
-
-            Assert.IsInstanceOf<ServiceImplementationWithoutDependencies>(service);
-        }
-
-        private class ServiceImplementationWithoutDependencies : IService
-        {
-        }
-
-        [Test]
-        public void ClassDependentOnService()
-        {
-            var container = new Container(r =>
-            {
-                r.RegisterService<IServiceDependency>().ImplementedBy<DependencyImplementation>();
-                r.RegisterService<IService>().ImplementedBy<SpyServiceImplementationDependentOnService>();
-            });
-
-            var service = container.Resolve<IService>();
-
-            Assert.IsInstanceOf<SpyServiceImplementationDependentOnService>(service);
-            var dependency = ((SpyServiceImplementationDependentOnService) service).Dependency;
-            Assert.IsInstanceOf<DependencyImplementation>(dependency);
-        }
-
-        [Test]
-        public void ClassDependentOnServiceConstructedByCustomFactory()
-        {
-            var container = new Container(r =>
-            {
-                r.RegisterService<IServiceDependency>().ConstructedBy(() => new DependencyImplementation());
-                r.RegisterService<IService>().ImplementedBy<SpyServiceImplementationDependentOnService>();
-            });
-
-            var service = container.Resolve<IService>();
-
-            Assert.IsInstanceOf<SpyServiceImplementationDependentOnService>(service);
-            var dependency = ((SpyServiceImplementationDependentOnService) service).Dependency;
-            Assert.IsInstanceOf<DependencyImplementation>(dependency);
-        }
-
-        private class SpyServiceImplementationDependentOnService : IService
-        {
-            public IServiceDependency Dependency { get; }
-
-            public SpyServiceImplementationDependentOnService(IServiceDependency dependency)
-            {
-                Dependency = dependency;
-            }
-        }
-
-        [Test]
-        public void ClassDependentOnServiceFactory()
-        {
-            var container = new Container(r =>
-            {
-                r.RegisterService<IServiceDependency>().ImplementedBy<DependencyImplementation>();
-                r.RegisterService<IService>().ImplementedBy<SpyServiceImplementationDependentOnServiceFactory>();
-            });
-
-            var service = container.Resolve<IService>();
-
-            Assert.IsInstanceOf<SpyServiceImplementationDependentOnServiceFactory>(service);
-            var dependency = ((SpyServiceImplementationDependentOnServiceFactory) service).Dependency;
-            Assert.IsInstanceOf<DependencyImplementation>(dependency.Invoke());
-        }
-
-        private class SpyServiceImplementationDependentOnServiceFactory : IService
-        {
-            public Func<IServiceDependency> Dependency { get; }
-
-            public SpyServiceImplementationDependentOnServiceFactory(Func<IServiceDependency> dependency)
-            {
-                Dependency = dependency;
-            }
-        }
-
-        [Test]
-        public void ClassDependentOnServiceFactoryDelegate()
-        {
-            var container = new Container(r =>
-            {
-                r.RegisterService<IServiceDependency>()
-                    .ImplementedBy<DependencyImplementation>();
-                r.RegisterService<IService>()
-                    .ImplementedBy<SpyServiceImplementationDependentOnServiceFactoryDelegate>();
-            });
-
-            var service = container.Resolve<IService>();
-
-            Assert.IsInstanceOf<SpyServiceImplementationDependentOnServiceFactoryDelegate>(service);
-            var dependency = ((SpyServiceImplementationDependentOnServiceFactoryDelegate) service).Dependency;
-            Assert.IsInstanceOf<DependencyImplementation>(dependency.Invoke());
-        }
-
-        private class SpyServiceImplementationDependentOnServiceFactoryDelegate : IService
-        {
-            public delegate IServiceDependency DependencyFactory();
-
-            public DependencyFactory Dependency { get; }
-
-            public SpyServiceImplementationDependentOnServiceFactoryDelegate(DependencyFactory dependency)
-            {
-                Dependency = dependency;
-            }
-        }
         
-        [Test]
-        public void ClassDependentOnGenericServiceFactoryDelegate()
+        [TestFixture]
+        public class ServiceTests
         {
-            var container = new Container(r =>
+            private Container _container;
+
+            [SetUp]
+            public void SetUp()
             {
-                r.RegisterService<IServiceDependency>()
-                    .ImplementedBy<DependencyImplementation>();
-                r.RegisterService<IService>()
-                    .ImplementedBy<SpyServiceImplementationDependentOnGenericServiceFactoryDelegate>();
-            });
-
-            var service = container.Resolve<IService>();
-
-            Assert.IsInstanceOf<SpyServiceImplementationDependentOnGenericServiceFactoryDelegate>(service);
-            var dependency = ((SpyServiceImplementationDependentOnGenericServiceFactoryDelegate) service).Dependency;
-            Assert.IsInstanceOf<DependencyImplementation>(dependency.Invoke());
-        }
-        
-        private class SpyServiceImplementationDependentOnGenericServiceFactoryDelegate : IService
-        {
-            public delegate T DependencyFactory<out T>();
-
-            public DependencyFactory<IServiceDependency> Dependency { get; }
-
-            public SpyServiceImplementationDependentOnGenericServiceFactoryDelegate(
-                DependencyFactory<IServiceDependency> dependency)
-            {
-                Dependency = dependency;
+                _container = new Container(r =>
+                    r.RegisterService<IService>().ImplementedBy<ServiceImplementation>());
             }
-        }
 
-        [Test]
-        public void ClassDependentOnLazyService()
-        {
-            var container = new Container(r =>
+            [Test]
+            public void Service()
             {
-                r.RegisterService<IServiceDependency>().ImplementedBy<DependencyImplementation>();
-                r.RegisterService<IService>().ImplementedBy<SpyServiceImplementationDependentOnLazyService>();
-            });
+                var service = _container.Resolve<IService>();
 
-            var service = container.Resolve<IService>();
-
-            Assert.IsInstanceOf<SpyServiceImplementationDependentOnLazyService>(service);
-            var dependency = ((SpyServiceImplementationDependentOnLazyService) service).Dependency;
-            Assert.IsFalse(dependency.IsValueCreated);
-            Assert.IsInstanceOf<DependencyImplementation>(dependency.Value);
-        }
-
-        private class SpyServiceImplementationDependentOnLazyService : IService
-        {
-            public Lazy<IServiceDependency> Dependency { get; }
-
-            public SpyServiceImplementationDependentOnLazyService(Lazy<IServiceDependency> dependency)
-            {
-                Dependency = dependency;
+                Assert.IsInstanceOf<ServiceImplementation>(service);
             }
-        }
 
-        private class DependencyImplementation : IServiceDependency
-        {
-        }
-
-        private interface IServiceDependency
-        {
-        }
-
-        [Test]
-        public void ClassDependentOnGenericService()
-        {
-            var container = new Container(r =>
+            [Test]
+            public void LazyService()
             {
-                r.RegisterService<IService<IActualGenericArg>>()
-                    .ImplementedBy<ServiceImplementation<IActualGenericArg>>();
-                r.RegisterService<IService>().ImplementedBy<SpyServiceImplementationDependentOnGenericService>();
-            });
-
-            var service = container.Resolve<IService>();
-
-            Assert.IsInstanceOf<SpyServiceImplementationDependentOnGenericService>(service);
-            var dependency = ((SpyServiceImplementationDependentOnGenericService) service).Dependency;
-            Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(dependency);
-        }
-
-        [Test]
-        public void ClassDependentOnGenericallyRegisteredGenericService()
-        {
-            var container = new Container(r =>
-            {
-                r.GenericallyRegisterService(typeof(IService<>)).ImplementedBy(typeof(ServiceImplementation<>));
-                r.RegisterService<IService>().ImplementedBy<SpyServiceImplementationDependentOnGenericService>();
-            });
-
-            var service = container.Resolve<IService>();
-
-            Assert.IsInstanceOf<SpyServiceImplementationDependentOnGenericService>(service);
-            var dependency = ((SpyServiceImplementationDependentOnGenericService) service).Dependency;
-            Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(dependency);
-        }
-
-        private class SpyServiceImplementationDependentOnGenericService : IService
-        {
-            public IService<IActualGenericArg> Dependency { get; }
-
-            public SpyServiceImplementationDependentOnGenericService(IService<IActualGenericArg> dependency)
-            {
-                Dependency = dependency;
+                var lazyService = _container.Resolve<Lazy<IService>>();
+            
+                Assert.IsFalse(lazyService.IsValueCreated);
+                Assert.IsInstanceOf<ServiceImplementation>(lazyService.Value);
             }
-        }
 
-        [Test]
-        public void ServiceConstructedByCustomFactory()
-        {
-            var container = new Container(r =>
-                r.RegisterService<IService>().ConstructedBy(() => new ServiceImplementation()));
-
-            var service = container.Resolve<IService>();
-
-            Assert.IsInstanceOf<ServiceImplementation>(service);
-        }
-        
-        [Test]
-        public void ServiceConstructedByCustomFactoryThatUsesContainer()
-        {
-            var container = new Container(r =>
+            [Test]
+            public void ServiceFactory()
             {
-                r.RegisterService<IServiceDependency>().ImplementedBy<DependencyImplementation>();
-                r.RegisterService<IService>()
-                    .ConstructedBy(c => new SpyServiceImplementationDependentOnService(c.Resolve<IServiceDependency>()));
-            });
+                var serviceFactory = _container.Resolve<Func<IService>>();
+            
+                Assert.IsInstanceOf<ServiceImplementation>(serviceFactory.Invoke());
+            }
 
-            var service = container.Resolve<IService>();
+            [Test]
+            public void ServiceFactoryDelegate()
+            {
+                var serviceFactory = _container.Resolve<DelegateReturningService>();
+            
+                Assert.IsInstanceOf<ServiceImplementation>(serviceFactory.Invoke());
+            }
 
-            Assert.IsInstanceOf<SpyServiceImplementationDependentOnService>(service);
-            var dependency = ((SpyServiceImplementationDependentOnService) service).Dependency;
-            Assert.IsInstanceOf<DependencyImplementation>(dependency);
+            private delegate IService DelegateReturningService();
         }
 
-        private class ServiceImplementation : IService
+        [TestFixture]
+        public class GenericallyRegisteredGenericServiceTests
         {
+            private Container _container;
+
+            [SetUp]
+            public void SetUp()
+            {
+                _container = new Container(r =>
+                    r.GenericallyRegisterService(typeof(IService<>)).ImplementedBy(typeof(ServiceImplementation<>)));
+            }
+            
+            [Test]
+            public void Service()
+            {
+                var service = _container.Resolve<IService<IActualGenericArg>>();
+
+                Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(service);
+            }
+            
+            [Test]
+            public void LazyService()
+            {
+                var lazyService = _container.Resolve<Lazy<IService<IActualGenericArg>>>();
+
+                Assert.IsFalse(lazyService.IsValueCreated);
+                Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(lazyService.Value);
+            }
+            
+            [Test]
+            public void ServiceFactory()
+            {
+                var serviceFactory = _container.Resolve<Func<IService<IActualGenericArg>>>();
+            
+                Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(serviceFactory.Invoke());
+            }
+
+            [Test]
+            public void ServiceFactoryDelegate()
+            {
+                var serviceFactory = _container.Resolve<DelegateReturningService>();
+            
+                Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(serviceFactory.Invoke());
+            }
+
+            private delegate IService<IActualGenericArg> DelegateReturningService();
         }
 
         [Test]
@@ -291,17 +128,6 @@ namespace Essence.Ioc
             Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(service);
         }
 
-        [Test]
-        public void GenericallyRegisteredGenericService()
-        {
-            var container = new Container(r =>
-                r.GenericallyRegisterService(typeof(IService<>)).ImplementedBy(typeof(ServiceImplementation<>)));
-
-            var service = container.Resolve<IService<IActualGenericArg>>();
-
-            Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(service);
-        }
-        
         [Test]
         public void GenericallyRegisteredGenericServiceImplementationNestedInAGenericClass()
         {
@@ -320,91 +146,7 @@ namespace Essence.Ioc
             {
             }
         }
-        
-        [Test]
-        public void GenericallyRegisteredGenericServiceWithDependencyOfTheGenericArgumentType()
-        {
-            var container = new Container(r =>
-            {
-                r.RegisterService<IService>()
-                    .ImplementedBy<ServiceImplementation>();
-                r.GenericallyRegisterService(typeof(IService<>))
-                    .ImplementedBy(typeof(ServiceImplementationDependentOn<>));
-            });
 
-            var service = container.Resolve<IService<IService>>();
-
-            Assert.IsInstanceOf<ServiceImplementationDependentOn<IService>>(service);
-        }
-
-        private class ServiceImplementationDependentOn<TDependency> : IService<TDependency>
-            where TDependency : IService
-        {
-            public ServiceImplementationDependentOn(TDependency dependency)
-            {
-            }
-        }
-
-        [Test]
-        public void SubsequentlyRegisteredServiceWithDifferentGenericParameter()
-        {
-            var container = new Container(r =>
-            {
-                r.RegisterService<IService<IActualGenericArg>>()
-                    .ImplementedBy<ServiceImplementation<IActualGenericArg>>();
-                r.RegisterService<IService<IAnotherActualGenericArg>>()
-                    .ImplementedBy<ServiceImplementation<IAnotherActualGenericArg>>();
-            });
-
-            var service = container.Resolve<IService<IAnotherActualGenericArg>>();
-
-            Assert.IsInstanceOf<ServiceImplementation<IAnotherActualGenericArg>>(service);
-        }
-
-        private interface IAnotherActualGenericArg
-        {
-        }
-
-        [Test]
-        public void ServiceRegisteredGenericallyAndNonGenericallyAtTheSameTime()
-        {
-            var container = new Container(r =>
-            {
-                r.GenericallyRegisterService(typeof(IService<>))
-                    .ImplementedBy(typeof(ServiceImplementation<>));
-                r.RegisterService<IService<INonGenericallyRegisteredGenericArg>>()
-                    .ImplementedBy<NonGenericallyRegisteredGenericServiceImplementation>();
-            });
-
-            var genericallyRegistered = container.Resolve<IService<IActualGenericArg>>();
-            var nonGenericallyRegistered = container.Resolve<IService<INonGenericallyRegisteredGenericArg>>();
-
-            Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(genericallyRegistered);
-            Assert.IsInstanceOf<NonGenericallyRegisteredGenericServiceImplementation>(nonGenericallyRegistered);
-        }
-        
-        [SuppressMessage("ReSharper", "UnusedTypeParameter")]
-        private interface IService<T>
-        {
-        }
-
-        private interface IActualGenericArg
-        {
-        }
-
-        private class ServiceImplementation<T> : IService<T>
-        {
-        }
-
-        private interface INonGenericallyRegisteredGenericArg
-        {
-        }
-
-        private class NonGenericallyRegisteredGenericServiceImplementation
-            : IService<INonGenericallyRegisteredGenericArg>
-        {
-        }
-        
         [Test]
         public void GenericallyRegisteredGenericServiceWithTwoGenericArguments()
         {
@@ -415,48 +157,46 @@ namespace Essence.Ioc
 
             Assert.IsInstanceOf<ServiceImplementation<IFirstActualGenericArg, ISecondActualGenericArg>>(service);
         }
-        
-        [SuppressMessage("ReSharper", "UnusedTypeParameter")]
-        private interface IService<TFirst, TSecond>
-        {
-        }
-        
-        private class ServiceImplementation<TFirst, TSecond> : IService<TFirst, TSecond>
-        {
-        }
-        
+
         private interface IFirstActualGenericArg
         {
         }
-        
+
         private interface ISecondActualGenericArg
         {
         }
 
-        [Test]
-        [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
-        public void ServiceCanBeResolvedAfterDependencyOfItsImplementationHasBeenResolved()
+        private interface IActualGenericArg
         {
-            var container = new Container(r =>
-            {
-                r.RegisterService<IServiceDependency>().ImplementedBy<DependencyImplementation>();
-                r.RegisterService<IService>().ImplementedBy<ServiceImplementationDependentOnService>();
-            });
-            
-            container.Resolve<IServiceDependency>();
-            var service = container.Resolve<IService>();
-
-            Assert.IsInstanceOf<ServiceImplementationDependentOnService>(service);
         }
 
-        private class ServiceImplementationDependentOnService : IService
+        private class ServiceImplementation<TFirst, TSecond> : IService<TFirst, TSecond>
         {
-            public ServiceImplementationDependentOnService(IServiceDependency dependency)
-            {
-            }
+        }
+
+        private class ServiceImplementation<T> : IService<T>
+        {
+        }
+
+        private class ServiceImplementation : IService
+        {
+        }
+
+        [SuppressMessage("ReSharper", "UnusedTypeParameter")]
+        private interface IService<TFirst, TSecond>
+        {
+        }
+
+        [SuppressMessage("ReSharper", "UnusedTypeParameter")]
+        private interface IService<T>
+        {
         }
 
         private interface IService
+        {
+        }
+
+        private class ConcreteService
         {
         }
     }
