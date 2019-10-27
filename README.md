@@ -1,6 +1,6 @@
 # Essence IoC
 
-[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/github/tkratena/essence-ioc?branch=master&svg=true)](https://ci.appveyor.com/project/tkratena/essence-ioc?branch=master)[![NuGet Version and Downloads count](https://buildstats.info/nuget/Essence.Ioc.FluentRegistration)](https://www.nuget.org/packages/Essence.Ioc.FluentRegistration)
+[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/github/tkratena/essence-ioc?branch=master&svg=true)](https://ci.appveyor.com/project/tkratena/essence-ioc?branch=master) [![NuGet Version and Downloads count](https://buildstats.info/nuget/Essence.Ioc.FluentRegistration)](https://www.nuget.org/packages/Essence.Ioc.FluentRegistration)
 
 "From injection to design"
 
