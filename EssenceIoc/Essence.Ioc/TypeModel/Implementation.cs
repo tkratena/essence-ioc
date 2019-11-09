@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Essence.Framework.System;
 using Essence.Ioc.Expressions;
+using Essence.Ioc.LifeCycleManagement;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.Resolution;
 
@@ -19,23 +20,36 @@ namespace Essence.Ioc.TypeModel
             _type = implementationType;
         }
 
-        public IFactoryExpression Resolve(IFactoryFinder factoryFinder)
+        public IFactoryExpression Resolve(IFactoryFinder factoryFinder, InstanceTracker tracker)
         {
             if (!IsConcreteClass(_type))
             {
                 throw new NonConcreteClassException(_type);
             }
 
+            var constructor = GetSinglePublicConstructor(_type);
+            var resolvedDependencies = ResolveDependencies(constructor, factoryFinder, tracker).ToList();
+
             if (typeof(IDisposable).GetTypeInfo().IsAssignableFrom(_type))
             {
-                throw new DisposableClassException(_type);
+                return FactoryExpression.CreateLazy(
+                    () => Expression.Call(
+                        typeof(Implementation)
+                            .GetTypeInfo()
+                            .GetMethod(nameof(RegisterDisposable), BindingFlags.Static | BindingFlags.NonPublic)
+                            .MakeGenericMethod(_type),
+                        Expression.New(constructor, resolvedDependencies.Select(d => d.Body)),
+                        Expression.Constant(tracker)));
             }
-
-            var constructor = GetSinglePublicConstructor(_type);
-            var resolvedDependencies = ResolveDependencies(constructor, factoryFinder).ToList();
-
+            
             return FactoryExpression.CreateLazy(
                 () => Expression.New(constructor, resolvedDependencies.Select(d => d.Body)));
+        }
+        
+        private static T RegisterDisposable<T>(T instance, InstanceTracker tracker) where T : IDisposable
+        {
+            tracker.TrackDisposable(instance);
+            return instance;
         }
 
         private static bool IsConcreteClass(Type implementationType)
@@ -62,9 +76,10 @@ namespace Essence.Ioc.TypeModel
 
         private IEnumerable<IFactoryExpression> ResolveDependencies(
             ConstructorInfo constructor,
-            IFactoryFinder factoryFinder)
+            IFactoryFinder factoryFinder, 
+            InstanceTracker tracker)
         {
-            return GetDependencies(constructor).Select(d => ResolveDependency(d, factoryFinder));
+            return GetDependencies(constructor).Select(d => ResolveDependency(d, factoryFinder, tracker));
         }
 
         private IEnumerable<Type> GetDependencies(ConstructorInfo constructor)
@@ -83,22 +98,22 @@ namespace Essence.Ioc.TypeModel
             return parameters.Select(p => p.ParameterType);
         }
 
-        private IFactoryExpression ResolveDependency(Type type, IFactoryFinder factoryFinder)
+        private IFactoryExpression ResolveDependency(Type type, IFactoryFinder factoryFinder, InstanceTracker tracker)
         {
             try
             {
                 if (type.GetTypeInfo().IsGenericType && typeof(Lazy<>) == type.GetGenericTypeDefinition())
                 {
-                    return new LazyService(type).Resolve(factoryFinder);
+                    return new LazyService(type).Resolve(factoryFinder, tracker);
                 }
 
                 var delegateInfo = type.AsDelegate();
                 if (delegateInfo != null)
                 {
-                    return new ServiceFactory(delegateInfo).Resolve(factoryFinder);
+                    return new ServiceFactory(delegateInfo).Resolve(factoryFinder, tracker);
                 }
 
-                return new Service(type).Resolve(factoryFinder);
+                return new Service(type).Resolve(factoryFinder, tracker);
             }
             catch (RegistrationException e)
             {

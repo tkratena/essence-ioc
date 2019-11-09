@@ -5,6 +5,7 @@ using System.Reflection;
 using Essence.Framework.System;
 using Essence.Ioc.Expressions;
 using Essence.Ioc.ExtendableRegistration;
+using Essence.Ioc.LifeCycleManagement;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.TypeModel;
 
@@ -16,11 +17,13 @@ namespace Essence.Ioc.Registration
         private readonly RegisteredServices _registeredGenericServices = new RegisteredServices();
         private readonly Factories _factories;
         private readonly IContainer _container;
+        private readonly InstanceTracker _tracker;
 
-        public Registerer(Factories factories, IContainer container)
+        public Registerer(Factories factories, IContainer container, InstanceTracker tracker)
         {
             _factories = factories;
             _container = container;
+            _tracker = tracker;
         }
 
         public void RegisterTransient(Type implementationType, IEnumerable<Type> serviceTypes)
@@ -65,7 +68,7 @@ namespace Essence.Ioc.Registration
         
         private IFactoryExpression CreateFactoryExpression(Type implementationType)
         {
-            return new Implementation(implementationType).Resolve(_factories);
+            return new Implementation(implementationType).Resolve(_factories, _tracker);
         }
         
         public void RegisterFactoryTransient<TImplementation>(
@@ -89,11 +92,6 @@ namespace Essence.Ioc.Registration
 
         private void RegisterFactoryTransient(Delegate factory, Type serviceType)
         {
-            if (typeof(IDisposable).GetTypeInfo().IsAssignableFrom(serviceType))
-            {
-                throw new DisposableClassException(serviceType);
-            }
-
             _registeredServices.MarkRegistered(serviceType);
             _factories.AddFactory(serviceType, factory);
         }

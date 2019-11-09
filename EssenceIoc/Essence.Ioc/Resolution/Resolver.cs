@@ -5,6 +5,7 @@ using System.Reflection;
 using Essence.Framework.System;
 using Essence.Ioc.Expressions;
 using Essence.Ioc.ExtendableRegistration;
+using Essence.Ioc.LifeCycleManagement;
 using Essence.Ioc.TypeModel;
 
 namespace Essence.Ioc.Resolution
@@ -13,10 +14,12 @@ namespace Essence.Ioc.Resolution
     {
         private readonly IDictionary<Type, Delegate> _compiledFactories = new Dictionary<Type, Delegate>();
         private readonly IFactoryFinder _factoryFinder;
+        private readonly InstanceTracker _tracker;
 
-        public Resolver(IFactoryFinder factoryFinder)
+        public Resolver(IFactoryFinder factoryFinder, InstanceTracker tracker)
         {
             _factoryFinder = factoryFinder;
+            _tracker = tracker;
         }
 
         [Pure]
@@ -65,17 +68,17 @@ namespace Essence.Ioc.Resolution
             var delegateInfo = serviceType.AsDelegate();
             if (delegateInfo != null)
             {
-                return new ServiceFactory(delegateInfo).Resolve(_factoryFinder);
+                return new ServiceFactory(delegateInfo).Resolve(_factoryFinder, _tracker);
             }
 
             if (serviceType.GetTypeInfo().IsGenericType)
             {
                 if (typeof(Lazy<>) == serviceType.GetGenericTypeDefinition())
                 {
-                    return new LazyService(serviceType).Resolve(_factoryFinder);
+                    return new LazyService(serviceType).Resolve(_factoryFinder, _tracker);
                 }
                 
-                return new GenericService(serviceType).Resolve(_factoryFinder);
+                return new GenericService(serviceType).Resolve(_factoryFinder, _tracker);
             }
 
             throw new NotRegisteredServiceException(serviceType);
