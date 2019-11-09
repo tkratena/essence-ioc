@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Essence.Framework.System;
 using Essence.Ioc.Expressions;
+using Essence.Ioc.LifeCycleManagement;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.Resolution;
 
@@ -17,7 +18,7 @@ namespace Essence.Ioc.TypeModel
             _delegateInfo = delegateInfo;
         }
 
-        public IFactoryExpression Resolve(IFactoryFinder factoryFinder)
+        public IFactoryExpression Resolve(IFactoryFinder factoryFinder, InstanceTracker tracker)
         {
             var constructedType = _delegateInfo.InvokeMethod.ReturnType;
             if (constructedType == typeof(void) || _delegateInfo.InvokeMethod.GetParameters().Any())
@@ -25,13 +26,8 @@ namespace Essence.Ioc.TypeModel
                 throw new NonFactoryDelegateException(_delegateInfo);
             }
 
-            var service = ResolveService(constructedType, factoryFinder);
+            var service = new Service(constructedType).Resolve(factoryFinder, tracker);
             return FactoryExpression.CreateLazy(() => CreateLambdaExpression(service.Body, _delegateInfo.Type));
-        }
-
-        private static IFactoryExpression ResolveService(Type serviceType, IFactoryFinder factoryFinder)
-        {
-            return new Service(serviceType).Resolve(factoryFinder);
         }
 
         private static Expression CreateLambdaExpression(Expression body, Type delegateType)

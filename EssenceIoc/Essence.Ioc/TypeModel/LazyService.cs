@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Essence.Framework.System;
 using Essence.Ioc.Expressions;
+using Essence.Ioc.LifeCycleManagement;
 using Essence.Ioc.Resolution;
 
 namespace Essence.Ioc.TypeModel
@@ -16,12 +17,12 @@ namespace Essence.Ioc.TypeModel
             _lazyType = lazyType;
         }
 
-        public IFactoryExpression Resolve(IFactoryFinder factoryFinder)
+        public IFactoryExpression Resolve(IFactoryFinder factoryFinder, InstanceTracker tracker)
         {
             var serviceType = _lazyType.GenericTypeArguments[0];
             var serviceFactoryDelegateInfo = typeof(Func<>).MakeGenericType(serviceType).AsDelegate();
 
-            var factory = new ServiceFactory(serviceFactoryDelegateInfo).Resolve(factoryFinder);
+            var factory = new ServiceFactory(serviceFactoryDelegateInfo).Resolve(factoryFinder, tracker);
 
             return FactoryExpression.CreateLazy(() =>
             {
