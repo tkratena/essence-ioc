@@ -35,8 +35,7 @@ namespace Essence.Framework.Model
     public struct Result<TValue, TError>
         : IEquatable<Result<TValue, TError>>, IEquatable<Success<TValue>>, IEquatable<Failure<TError>>
     {
-        private readonly TValue _value;
-        private readonly TError _error;
+        private readonly object _result;
         private readonly bool _isSuccess;
 
         public static implicit operator Result<TValue, TError>(TValue value)
@@ -61,37 +60,39 @@ namespace Essence.Framework.Model
 
         private static Result<TValue, TError> Success(TValue value)
         {
-            return new Result<TValue, TError>(value, default(TError), isSuccess: true);
+            return new Result<TValue, TError>(value, isSuccess: true);
         }
 
         private static Result<TValue, TError> Failure(TError error)
         {
-            return new Result<TValue, TError>(default(TValue), error, isSuccess: false);
+            return new Result<TValue, TError>(error, isSuccess: false);
         }
 
-        private Result(TValue value, TError error, bool isSuccess)
+        private Result(object result, bool isSuccess)
         {
-            _value = value;
-            _error = error;
+            _result = result;
             _isSuccess = isSuccess;
         }
+        
+        private TValue Value => (TValue)_result;
+        private TError Error => (TError)_result;
 
         public void Case(Action<TValue> success, Action<TError> failure)
         {
             if (_isSuccess)
             {
-                success(_value);
+                success(Value);
             }
             else
             {
-                failure(_error);
+                failure(Error);
             }
         }
 
         [Pure]
         public TResult Case<TResult>(Func<TValue, TResult> success, Func<TError, TResult> failure)
         {
-            return _isSuccess ? success(_value) : failure(_error);
+            return _isSuccess ? success(Value) : failure(Error);
         }
 
         public override bool Equals(object obj)
@@ -116,12 +117,12 @@ namespace Essence.Framework.Model
 
         public bool Equals(Success<TValue> other)
         {
-            return _isSuccess && EqualityComparer<TValue>.Default.Equals(_value, other.Value);
+            return _isSuccess && EqualityComparer<TValue>.Default.Equals(Value, other.Value);
         }
 
         public bool Equals(Failure<TError> other)
         {
-            return !_isSuccess && EqualityComparer<TError>.Default.Equals(_error, other.Error);
+            return !_isSuccess && EqualityComparer<TError>.Default.Equals(Error, other.Error);
         }
 
         [Pure]
@@ -129,8 +130,9 @@ namespace Essence.Framework.Model
         {
             unchecked
             {
-                var hashCode = EqualityComparer<TValue>.Default.GetHashCode(_value);
-                hashCode = (hashCode * 397) ^ EqualityComparer<TError>.Default.GetHashCode(_error);
+                var hashCode = _isSuccess 
+                    ? EqualityComparer<TValue>.Default.GetHashCode(Value) 
+                    : EqualityComparer<TError>.Default.GetHashCode(Error);
                 hashCode = (hashCode * 397) ^ _isSuccess.GetHashCode();
                 return hashCode;
             }
@@ -139,7 +141,7 @@ namespace Essence.Framework.Model
         [Pure]
         public override string ToString()
         {
-            return _isSuccess ? $"Success:{_value}" : $"Failure:{_error}";
+            return _isSuccess ? $"Success:{Value}" : $"Failure:{Error}";
         }
     }
 }
