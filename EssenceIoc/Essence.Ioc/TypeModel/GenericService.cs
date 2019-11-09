@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Essence.Ioc.Expressions;
+using Essence.Ioc.LifeCycleManagement;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.Resolution;
 
@@ -17,7 +18,7 @@ namespace Essence.Ioc.TypeModel
             _type = type;
         }
 
-        public IFactoryExpression Resolve(IFactoryFinder factoryFinder)
+        public IFactoryExpression Resolve(IFactoryFinder factoryFinder, InstanceTracker tracker)
         {
             if (!factoryFinder.TryGetGenericType(_type.GetGenericTypeDefinition(), out var implementationTypeDefinition))
             {
@@ -30,7 +31,7 @@ namespace Essence.Ioc.TypeModel
             }
 
             var implementationType = implementationTypeDefinition.MakeGenericType(_type.GetTypeInfo().GetGenericArguments());
-            return new Implementation(implementationType).Resolve(factoryFinder);
+            return new Implementation(implementationType).Resolve(factoryFinder, tracker);
         }
 
         private bool IsGenericSequence(Type type)

@@ -21,7 +21,6 @@ namespace Essence.Ioc.Registration
         [TestFixture(typeof(ClassWithMultipleConstructors), typeof(AmbiguousConstructorsException))]
         [TestFixture(typeof(AbstractClass), typeof(NonConcreteClassException))]
         [TestFixture(typeof(IInterface), typeof(NonConcreteClassException))]
-        [TestFixture(typeof(DisposableClass), typeof(DisposableClassException))]
         [TestFixture(typeof(ClassWithRefConstructorParameter), typeof(UnsupportedConstructorParametersException))]
         [TestFixture(typeof(ClassWithOutConstructorParameter), typeof(UnsupportedConstructorParametersException))]
         [TestFixture(typeof(ClassWithOptionalConstructorParameter), typeof(UnsupportedConstructorParametersException))]
@@ -83,15 +82,6 @@ namespace Essence.Ioc.Registration
                     Throws.Exception.InstanceOf<DependencyRegistrationException>()
                         .With.InnerException.InstanceOf<TExpectedException>());
             }
-        }
-        
-        [Test]
-        public void RegisteringCustomDisposableServiceThrows()
-        {
-            TestDelegate when = () => new Container(r => 
-                r.RegisterService<IDisposableService>().ConstructedBy(() => (IDisposableService)null));
-
-            Assert.That(when, Throws.Exception.InstanceOf<DisposableClassException>());
         }
 
         [TestFixture(typeof(IEnumerable<IDummy>))]
@@ -194,13 +184,6 @@ namespace Essence.Ioc.Registration
 
         private interface IInterface : IService
         {
-        }
-
-        private class DisposableClass : IService, IDisposable
-        {
-            public void Dispose()
-            {
-            }
         }
 
         private class ClassWithRefConstructorParameter : IService
@@ -309,10 +292,6 @@ namespace Essence.Ioc.Registration
         }
         
         private interface IActualGenericArg
-        {
-        }
-
-        private interface IDisposableService : IDisposable
         {
         }
 

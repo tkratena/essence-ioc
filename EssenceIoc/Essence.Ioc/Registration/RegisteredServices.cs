@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Essence.Ioc.Registration.RegistrationExceptions;
 
 namespace Essence.Ioc.Registration
@@ -10,6 +11,11 @@ namespace Essence.Ioc.Registration
         
         public void MarkRegistered(Type serviceType)
         {
+            if (typeof(IDisposable).GetTypeInfo().IsAssignableFrom(serviceType))
+            {
+                throw new DisposableServiceException(serviceType);
+            }
+            
             lock (serviceType)
             {
                 if (_registeredServices.Contains(serviceType))
