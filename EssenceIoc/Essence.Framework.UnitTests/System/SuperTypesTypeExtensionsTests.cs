@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using Essence.Framework.System;
 using NUnit.Framework;
 
-namespace Essence.Framework
+namespace Essence.Framework.System
 {
     [TestFixture]
     [SuppressMessage("ReSharper", "RedundantExtendsListEntry")]

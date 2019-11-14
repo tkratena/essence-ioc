@@ -1,9 +1,8 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Essence.Framework.Model;
 using NUnit.Framework;
 
-namespace Essence.Framework
+namespace Essence.Framework.Model
 {
     [TestFixture]
     [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq;
-using Essence.Framework.System;
 using NUnit.Framework;
 
-namespace Essence.Framework
+namespace Essence.Framework.System
 {
     [TestFixture]
     public class DelegateTypeExtensionsTests
