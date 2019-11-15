@@ -42,9 +42,7 @@ namespace Essence.Ioc.Registration
         public void RegisterSingleton(Type implementationType, IEnumerable<Type> serviceTypes)
         {
             var factoryExpression = CreateFactoryExpression(implementationType);
-            var factory = factoryExpression.Compile<object>();
-            
-            RegisterFactorySingleton(factory, serviceTypes);
+            RegisterFactorySingleton(() => factoryExpression.Compile<object>().Invoke(), serviceTypes);
         }
         
         public void RegisterFactorySingleton<TImplementation>(
