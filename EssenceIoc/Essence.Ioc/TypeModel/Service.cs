@@ -19,14 +19,7 @@ namespace Essence.Ioc.TypeModel
         
         public IFactoryExpression Resolve(IFactoryFinder factoryFinder, InstanceTracker tracker)
         {
-            if (factoryFinder.TryGetFactory(_type, out var factory))
-            {
-                var expression = Expression.Convert(Expression.Invoke(Expression.Constant(factory)), _type);
-                
-                return FactoryExpression.Create(expression);
-            }
-
-            if (factoryFinder.TryGetFactoryExpression(_type, out var factoryExpression))
+            if (factoryFinder.TryGetFactory(_type, out var factoryExpression))
             {
                 return factoryExpression;
             }
