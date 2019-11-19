@@ -8,34 +8,22 @@ namespace Essence.Ioc.Registration
 {
     internal class Factories : IFactoryFinder
     {
-        private readonly IDictionary<Type, Delegate> _factories = new ConcurrentDictionary<Type, Delegate>();
-        private readonly IDictionary<Type, IFactoryExpression> _factoryExpressions = 
-            new ConcurrentDictionary<Type, IFactoryExpression>();
+        private readonly IDictionary<Type, IFactoryExpression> _factories = new ConcurrentDictionary<Type, IFactoryExpression>();
         private readonly IDictionary<Type, Type> _genericImplementations = new ConcurrentDictionary<Type, Type>();
 
-        public void AddFactory(Type serviceType, Delegate factory)
+        public void AddFactory(Type serviceType, IFactoryExpression factoryExpression)
         {
-            _factories.Add(serviceType, factory);
-        }
-
-        public void AddFactoryExpression(Type serviceType, IFactoryExpression factoryExpression)
-        {
-            _factoryExpressions.Add(serviceType, factoryExpression);
+            _factories.Add(serviceType, factoryExpression);
         }
 
         public void AddGenericImplementation(Type serviceType, Type implementationType)
         {
             _genericImplementations.Add(serviceType, implementationType);
         }
-
-        public bool TryGetFactory(Type constructedType, out Delegate factory)
-        {
-            return _factories.TryGetValue(constructedType, out factory);
-        }
         
-        public bool TryGetFactoryExpression(Type constructedType, out IFactoryExpression factoryExpression)
+        public bool TryGetFactory(Type constructedType, out IFactoryExpression factoryExpression)
         {
-            return _factoryExpressions.TryGetValue(constructedType, out factoryExpression);
+            return _factories.TryGetValue(constructedType, out factoryExpression);
         }
 
         public bool TryGetGenericType(Type genericServiceTypeDefinition, out Type genericImplementationTypeDefinition)
