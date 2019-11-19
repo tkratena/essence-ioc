@@ -5,36 +5,16 @@ namespace Essence.Ioc.Expressions
 {
     internal static class FactoryExpression
     {
-        public static IFactoryExpression Create(Expression body)
-        {
-            return new Value(body);
-        }
-
         public static IFactoryExpression CreateLazy(Func<Expression> body)
         {
             return new Lazy(body);
         }
         
-        public static Func<T> Compile<T>(this IFactoryExpression factoryExpression)
+        public static IFactoryExpression CreateCompiled<T>(Func<T> factory, Type serviceType)
         {
-            return CompileLambda<T>(factoryExpression.Body);
+            return new Compiled(factory, serviceType);
         }
 
-        private static Func<T> CompileLambda<T>(Expression body)
-        {
-            return Expression.Lambda<Func<T>>(body).Compile();
-        }
-
-        private class Value : IFactoryExpression
-        {
-            public Value(Expression body)
-            {
-                Body = body;
-            }
-
-            public Expression Body { get; }
-        }
-        
         private class Lazy : Lazy<Expression>, IFactoryExpression
         {
             public Lazy(Func<Expression> bodyProvider)
@@ -43,6 +23,33 @@ namespace Essence.Ioc.Expressions
             }
 
             public Expression Body => Value;
+            
+            public Func<T> Compile<T>() => CompileLambda<T>(Body);
+
+            private static Func<T> CompileLambda<T>(Expression body)
+            {
+                return Expression.Lambda<Func<T>>(body).Compile();
+            }
+        }
+
+        private class Compiled : IFactoryExpression
+        {
+            private readonly Func<object> _factory;
+            private readonly Type _constructedType;
+
+            public Compiled(Delegate factory, Type constructedType)
+            {
+                _factory = (Func<object>)factory;
+                _constructedType = constructedType;
+            }
+
+            public Expression Body => 
+                Expression.Convert(Expression.Invoke(Expression.Constant(_factory)), _constructedType);
+
+            public Func<T> Compile<T>()
+            {
+                return () => (T) _factory.Invoke();
+            }
         }
     }
 }

@@ -33,8 +33,7 @@ namespace Essence.Ioc.Resolution
             var serviceType = typeof(TService);
             lock (serviceType)
             {
-                if (_compiledFactories.TryGetValue(serviceType, out var factory)
-                    || _factoryFinder.TryGetFactory(serviceType, out factory))
+                if (_compiledFactories.TryGetValue(serviceType, out var factory))
                 {
                     return CastFactory<TService>(factory);
                 }
@@ -60,9 +59,9 @@ namespace Essence.Ioc.Resolution
 
         private IFactoryExpression GetFactoryExpression(Type serviceType)
         {
-            if (_factoryFinder.TryGetFactoryExpression(serviceType, out var expression))
+            if (_factoryFinder.TryGetFactory(serviceType, out var factoryExpression))
             {
-                return expression;
+                return factoryExpression;
             }
             
             var delegateInfo = serviceType.AsDelegate();

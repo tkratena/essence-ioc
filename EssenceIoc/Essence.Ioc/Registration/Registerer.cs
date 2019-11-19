@@ -39,7 +39,7 @@ namespace Essence.Ioc.Registration
             _registeredServices.MarkRegistered(serviceType);
 
             var factoryExpression = CreateFactoryExpression(implementationType);
-            _factories.AddFactoryExpression(serviceType, factoryExpression);
+            _factories.AddFactory(serviceType, factoryExpression);
         }
 
         public void RegisterSingleton(Type implementationType, IEnumerable<Type> serviceTypes)
@@ -90,10 +90,10 @@ namespace Essence.Ioc.Registration
             }
         }
 
-        private void RegisterFactoryTransient(Delegate factory, Type serviceType)
+        private void RegisterFactoryTransient<TImplementation>(Func<TImplementation> factory, Type serviceType)
         {
             _registeredServices.MarkRegistered(serviceType);
-            _factories.AddFactory(serviceType, factory);
+            _factories.AddFactory(serviceType, FactoryExpression.CreateCompiled(factory, serviceType));
         }
 
         public void RegisterGeneric(
