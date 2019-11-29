@@ -8,11 +8,11 @@ namespace Essence.Ioc.FluentRegistration
     {
         private readonly IEnumerable<Type> _serviceTypes;
             
-        protected Registerer.Registrations Registrations { get; }
+        protected Registerer Registerer { get; }
 
-        protected ServiceBase(Registerer.Registrations registrations, IEnumerable<Type> serviceTypes)
+        protected ServiceBase(Registerer registerer, IEnumerable<Type> serviceTypes)
         {
-            Registrations = registrations;
+            Registerer = registerer;
             _serviceTypes = serviceTypes;
         }
 
@@ -20,7 +20,7 @@ namespace Essence.Ioc.FluentRegistration
             where TServiceImplementation : class
         {
             var registration = new Implementation<TServiceImplementation>(_serviceTypes);
-            Registrations.Add(registration);
+            Registerer.AddRegistration(Registerer, registration);
             return registration;
         }
 
@@ -28,7 +28,7 @@ namespace Essence.Ioc.FluentRegistration
             where TServiceImplementation : class
         {
             var registration = new Factory<TServiceImplementation>(factory, _serviceTypes);
-            Registrations.Add(registration);
+            Registerer.AddRegistration(Registerer, registration);
             return registration;
         }
 
@@ -36,7 +36,7 @@ namespace Essence.Ioc.FluentRegistration
             where TServiceImplementation : class
         {
             var registration = new FactoryUsingContainer<TServiceImplementation>(factory, _serviceTypes);
-            Registrations.Add(registration);
+            Registerer.AddRegistration(Registerer, registration);
             return registration;
         }
             
@@ -101,7 +101,7 @@ namespace Essence.Ioc.FluentRegistration
             }
         }
 
-        private abstract class RegistrationBase : Registerer.IRegistration, ILifeScope
+        private abstract class RegistrationBase : IRegistration, ILifeScope
         {
             private readonly IEnumerable<Type> _serviceTypes;
             private bool _asSingleton;
