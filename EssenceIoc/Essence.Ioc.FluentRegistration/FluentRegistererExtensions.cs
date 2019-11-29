@@ -9,7 +9,7 @@ namespace Essence.Ioc.FluentRegistration
         [Pure]
         public static IService<TService> RegisterService<TService>(this Registerer registerer) where TService : class
         {
-            return new Service<TService>(new Registerer.Registrations(registerer));
+            return new Service<TService>(registerer);
         }
 
         [Pure]
@@ -17,7 +17,7 @@ namespace Essence.Ioc.FluentRegistration
             this Registerer registerer, 
             Type genericServiceTypeDefinition)
         {
-            return new GenericService(new Registerer.Registrations(registerer), genericServiceTypeDefinition);
+            return new GenericService(registerer, genericServiceTypeDefinition);
         }
     }
 }

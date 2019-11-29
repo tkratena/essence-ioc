@@ -6,24 +6,14 @@ namespace Essence.Ioc.ExtendableRegistration
     {
         protected abstract void AddRegistration(IRegistration registration);
 
-        public interface IRegistration
+        public static void AddRegistration(Registerer registerer, IRegistration registration)
         {
-            void Register(IRegisterer registerer);
-        }
-
-        public sealed class Registrations
-        {
-            private readonly Registerer _registerer;
-
-            public Registrations(Registerer registerer)
+            if (registerer == null)
             {
-                _registerer = registerer ?? throw new ArgumentNullException(nameof(registerer));
+                throw new ArgumentNullException(nameof(registerer));
             }
-        
-            public void Add(IRegistration registration)
-            {
-                _registerer.AddRegistration(registration);
-            }
+            
+            registerer.AddRegistration(registration);
         }
     }
 }

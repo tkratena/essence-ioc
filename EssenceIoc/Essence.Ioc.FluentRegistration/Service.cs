@@ -5,8 +5,8 @@ namespace Essence.Ioc.FluentRegistration
 {
     internal class Service<T1> : ServiceBase, IService<T1>
     {
-        public Service(Registerer.Registrations registrations) 
-            : base(registrations, new[] {typeof(T1)})
+        public Service(Registerer registerer) 
+            : base(registerer, new[] {typeof(T1)})
         {
         }
 
@@ -30,14 +30,14 @@ namespace Essence.Ioc.FluentRegistration
 
         public IService<T1, T> AndService<T>() where T : class
         {
-            return new Service<T1, T>(Registrations);
+            return new Service<T1, T>(Registerer);
         }
     }
 
     internal class Service<T1, T2> : ServiceBase, IService<T1, T2>
     {
-        public Service(Registerer.Registrations registrations) 
-            : base(registrations, new[] {typeof(T1), typeof(T2)})
+        public Service(Registerer registerer) 
+            : base(registerer, new[] {typeof(T1), typeof(T2)})
         {
         }
 
@@ -61,14 +61,14 @@ namespace Essence.Ioc.FluentRegistration
 
         public IService<T1, T2, T> AndService<T>() where T : class
         {
-            return new Service<T1, T2, T>(Registrations);
+            return new Service<T1, T2, T>(Registerer);
         }
     }
 
     internal class Service<T1, T2, T3> : ServiceBase, IService<T1, T2, T3>
     {
-        public Service(Registerer.Registrations registrations) 
-            : base(registrations, new[] {typeof(T1), typeof(T2), typeof(T3)})
+        public Service(Registerer registerer) 
+            : base(registerer, new[] {typeof(T1), typeof(T2), typeof(T3)})
         {
         }
 
@@ -92,14 +92,14 @@ namespace Essence.Ioc.FluentRegistration
 
         public IService<T1, T2, T3, T> AndService<T>() where T : class
         {
-            return new Service<T1, T2, T3, T>(Registrations);
+            return new Service<T1, T2, T3, T>(Registerer);
         }
     }
     
     internal class Service<T1, T2, T3, T4> : ServiceBase, IService<T1, T2, T3, T4>
     {
-        public Service(Registerer.Registrations registrations) 
-            : base(registrations, new[] {typeof(T1), typeof(T2), typeof(T3), typeof(T4)})
+        public Service(Registerer registerer) 
+            : base(registerer, new[] {typeof(T1), typeof(T2), typeof(T3), typeof(T4)})
         {
         }
 
@@ -123,14 +123,14 @@ namespace Essence.Ioc.FluentRegistration
 
         public IService<T1, T2, T3, T4, T> AndService<T>() where T : class
         {
-            return new Service<T1, T2, T3, T4, T>(Registrations);
+            return new Service<T1, T2, T3, T4, T>(Registerer);
         }
     }
 
     internal class Service<T1, T2, T3, T4, T5> : ServiceBase, IService<T1, T2, T3, T4, T5>
     {
-        public Service(Registerer.Registrations registrations) 
-            : base(registrations, new[] {typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5)})
+        public Service(Registerer registerer) 
+            : base(registerer, new[] {typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5)})
         {
         }
 
@@ -154,14 +154,14 @@ namespace Essence.Ioc.FluentRegistration
 
         public IService<T1, T2, T3, T4, T5, T> AndService<T>() where T : class
         {
-            return new Service<T1, T2, T3, T4, T5, T>(Registrations);
+            return new Service<T1, T2, T3, T4, T5, T>(Registerer);
         }
     }
 
     internal class Service<T1, T2, T3, T4, T5, T6> : ServiceBase, IService<T1, T2, T3, T4, T5, T6>
     {
-        public Service(Registerer.Registrations registrations) 
-            : base(registrations, new[] {typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6)})
+        public Service(Registerer registerer) 
+            : base(registerer, new[] {typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6)})
         {
         }
 
@@ -185,14 +185,14 @@ namespace Essence.Ioc.FluentRegistration
 
         public IService<T1, T2, T3, T4, T5, T6, T> AndService<T>() where T : class
         {
-            return new Service<T1, T2, T3, T4, T5, T6, T>(Registrations);
+            return new Service<T1, T2, T3, T4, T5, T6, T>(Registerer);
         }
     }
 
     internal class Service<T1, T2, T3, T4, T5, T6, T7> : ServiceBase, IService<T1, T2, T3, T4, T5, T6, T7>
     {
-        public Service(Registerer.Registrations registrations) : base(
-            registrations, 
+        public Service(Registerer registerer) : base(
+            registerer, 
             new[] {typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7)})
         {
         }
@@ -217,14 +217,14 @@ namespace Essence.Ioc.FluentRegistration
 
         public IService<T1, T2, T3, T4, T5, T6, T7, T> AndService<T>() where T : class
         {
-            return new Service<T1, T2, T3, T4, T5, T6, T7, T>(Registrations);
+            return new Service<T1, T2, T3, T4, T5, T6, T7, T>(Registerer);
         }
     }
 
     internal class Service<T1, T2, T3, T4, T5, T6, T7, T8> : ServiceBase, IService<T1, T2, T3, T4, T5, T6, T7, T8>
     {
-        public Service(Registerer.Registrations registrations) : base(
-            registrations, 
+        public Service(Registerer registerer) : base(
+            registerer, 
             new[] {typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7), typeof(T8)})
         {
         }
@@ -249,7 +249,7 @@ namespace Essence.Ioc.FluentRegistration
 
         public IService<T1, T2, T3, T4, T5, T6, T7, T8, T> AndService<T>() where T : class
         {
-            return new Service<T1, T2, T3, T4, T5, T6, T7, T8, T>(Registrations);
+            return new Service<T1, T2, T3, T4, T5, T6, T7, T8, T>(Registerer);
         }
     }
 
@@ -257,8 +257,8 @@ namespace Essence.Ioc.FluentRegistration
         ServiceBase, 
         IService<T1, T2, T3, T4, T5, T6, T7, T8, T9>
     {
-        public Service(Registerer.Registrations registrations) : base(
-            registrations, 
+        public Service(Registerer registerer) : base(
+            registerer, 
             new[]
             {
                 typeof(T1), 
@@ -294,7 +294,7 @@ namespace Essence.Ioc.FluentRegistration
 
         public IService<T1, T2, T3, T4, T5, T6, T7, T8, T9, T> AndService<T>() where T : class
         {
-            return new Service<T1, T2, T3, T4, T5, T6, T7, T8, T9, T>(Registrations);
+            return new Service<T1, T2, T3, T4, T5, T6, T7, T8, T9, T>(Registerer);
         }
     }
 
@@ -302,8 +302,8 @@ namespace Essence.Ioc.FluentRegistration
         ServiceBase,
         IService<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
     {
-        public Service(Registerer.Registrations registrations) : base(
-            registrations, 
+        public Service(Registerer registerer) : base(
+            registerer, 
             new[]
             {
                 typeof(T1), 
