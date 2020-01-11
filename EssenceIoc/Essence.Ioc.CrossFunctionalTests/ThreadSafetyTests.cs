@@ -23,7 +23,7 @@ namespace Essence.Ioc
                     r.RegisterService<IService>().ImplementedBy<ServiceImplementation>());
 
                 var services = new IService[parallelResolutionCount];
-                Parallel.For(0, parallelResolutionCount, i => services[i] = container.Resolve<IService>());
+                Parallel.For(0, parallelResolutionCount, i => container.Resolve(out services[i]));
 
                 Assert.That(services, Is.All.InstanceOf<ServiceImplementation>());
             }
@@ -47,22 +47,21 @@ namespace Essence.Ioc
 
             for (var j = 0; j < tryCount; j++)
             {
-                var container = new Container(r => 
+                var container = new Container(r =>
                     Parallel.ForEach(parallelRegistrations, registration => registration.Invoke(r)));
 
-                var services = new object[]
-                {
-                    container.Resolve<IService1>(),
-                    container.Resolve<IService2>(),
-                    container.Resolve<IService3>(),
-                    container.Resolve<IService4>(),
-                    container.Resolve<IService5>(),
-                    container.Resolve<IService6>(),
-                    container.Resolve<IService7>(),
-                    container.Resolve<IService8>()
-                };
+                container.Resolve<IService1>(out var s1);
+                container.Resolve<IService2>(out var s2);
+                container.Resolve<IService3>(out var s3);
+                container.Resolve<IService4>(out var s4);
+                container.Resolve<IService5>(out var s5);
+                container.Resolve<IService6>(out var s6);
+                container.Resolve<IService7>(out var s7);
+                container.Resolve<IService8>(out var s8);
 
-                Assert.That(services, Is.All.InstanceOf<ServiceImplementation>());
+                Assert.That(
+                    new object[] {s1, s2, s3, s4, s5, s6, s7, s8},
+                    Is.All.InstanceOf<ServiceImplementation>());
             }
         }
 

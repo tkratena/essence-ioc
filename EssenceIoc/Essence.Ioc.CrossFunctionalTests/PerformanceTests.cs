@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Essence.Ioc.ExtendableRegistration;
 using Essence.Ioc.FluentRegistration;
 using NUnit.Framework;
 
@@ -14,7 +13,17 @@ namespace Essence.Ioc
         public class RegistrationPerformanceTests
         {
             private const int TryCount = 1_000;
-            
+
+            [SetUp]
+            public void WarmUp()
+            {
+                for (var i = 0; i < TryCount; i++)
+                {
+                    var container = CreateContainerWithRegisteredServices();
+                    container.Dispose();
+                }
+            }
+
             [Test]
             public void RegisteringToContainerIsNegligible()
             {
@@ -25,12 +34,13 @@ namespace Essence.Ioc
                 {
                     CreateContainerWithRegisteredServices();
                 }
+                
                 containerStopWatch.Stop();
 
-                var milliseconds = containerStopWatch.ElapsedMilliseconds / (double)TryCount;
+                var milliseconds = containerStopWatch.ElapsedMilliseconds / (double) TryCount;
                 TestContext.WriteLine($"Container performance: {milliseconds} ms");
-                
-                Assert.Less(milliseconds, 0.5);
+
+                Assert.Less(milliseconds, 0.05);
             }
         }
 
@@ -39,18 +49,27 @@ namespace Essence.Ioc
         {
             private const int TryCount = 5_000_000;
             private const int TryCountChunk = 1_000;
-            
+
             [SetUp]
             public void WarmUp()
             {
-                var container = CreateContainerWithRegisteredServices();
-                for (var i = 0; i < TryCount; i++)
+                using (var container = CreateContainerWithRegisteredServices())
                 {
-                    new RootServiceImplementation(CreateTestServiceDependencyManually()).Use();
-                    container.Resolve<IRootService>().Use();
+                    for (var i = 0; i < TryCount; i++)
+                    {
+                        using (var instance = new RootServiceImplementation(CreateTestServiceDependencyManually()))
+                        {
+                            instance.Use();
+                        }
+                        
+                        using (container.Resolve<IRootService>(out var instance))
+                        {
+                            instance.Use();
+                        }
+                    }
                 }
             }
-        
+
             [Test]
             [Explicit]
             public void CreatingAnInstanceByContainerIsComparablyFastAsInjectingDependenciesManually()
@@ -59,28 +78,34 @@ namespace Essence.Ioc
                 var containerStopWatch = new Stopwatch();
 
                 containerStopWatch.Start();
-                var container = CreateContainerWithRegisteredServices();
-                containerStopWatch.Stop();
-
-                for (var i = 0; i < TryCount / TryCountChunk; i++)
+                using (var container = CreateContainerWithRegisteredServices())
                 {
-                    IRootService instance;
-                    
-                    manualInjectionStopWatch.Start();
-                    for (var j = 0; j < TryCountChunk; j++)
-                    {
-                        instance = new RootServiceImplementation(CreateTestServiceDependencyManually());
-                        instance.Use();
-                    }
-                    manualInjectionStopWatch.Stop();
-
-                    containerStopWatch.Start();
-                    for (var j = 0; j < TryCountChunk; j++)
-                    {
-                        instance = container.Resolve<IRootService>();
-                        instance.Use();
-                    }
                     containerStopWatch.Stop();
+
+                    for (var i = 0; i < TryCount / TryCountChunk; i++)
+                    {
+                        manualInjectionStopWatch.Start();
+                        for (var j = 0; j < TryCountChunk; j++)
+                        {
+                            using (var service = new RootServiceImplementation(CreateTestServiceDependencyManually()))
+                            {
+                                service.Use();
+                            }
+                        }
+
+                        manualInjectionStopWatch.Stop();
+
+                        containerStopWatch.Start();
+                        for (var j = 0; j < TryCountChunk; j++)
+                        {
+                            using (container.Resolve<IRootService>(out var serviceFromContainer))
+                            {
+                                serviceFromContainer.Use();
+                            }
+                        }
+
+                        containerStopWatch.Stop();
+                    }
                 }
 
                 var manualInjectionDuration = manualInjectionStopWatch.ElapsedMilliseconds;
@@ -91,11 +116,11 @@ namespace Essence.Ioc
 
                 Assert.Less(containerPerformancePercentage, 200);
             }
-            
+
             private static IRootServiceDependency CreateTestServiceDependencyManually()
             {
                 var terminalServiceSingleton = new TerminalService();
-                
+
                 return new RootServiceDependency(
                     new Lazy<ILazyService>(() => new LazyService(terminalServiceSingleton)),
                     () => new FactoryService(terminalServiceSingleton),
@@ -105,7 +130,7 @@ namespace Essence.Ioc
             }
         }
 
-        private static IContainer CreateContainerWithRegisteredServices()
+        private static Container CreateContainerWithRegisteredServices()
         {
             var container = new Container(r =>
             {
@@ -119,7 +144,7 @@ namespace Essence.Ioc
                 r.RegisterService<IRootServiceDependency>().ImplementedBy<RootServiceDependency>();
                 r.RegisterService<IRootService>().ImplementedBy<RootServiceImplementation>();
             });
-            
+
             return container;
         }
     }
@@ -131,7 +156,7 @@ namespace Essence.Ioc
     public interface IFactoryService : IUsableService
     {
     }
-    
+
     public interface ICustomService : IUsableService
     {
     }
@@ -158,9 +183,9 @@ namespace Essence.Ioc
         void Use();
     }
 
-    public class RootServiceImplementation : IRootService
+    public class RootServiceImplementation : IRootService, IDisposable
     {
-        private readonly IRootServiceDependency _dependency;
+        private IRootServiceDependency _dependency;
 
         public RootServiceImplementation(IRootServiceDependency dependency)
         {
@@ -170,6 +195,11 @@ namespace Essence.Ioc
         public void Use()
         {
             _dependency.Use();
+        }
+
+        public void Dispose()
+        {
+            _dependency = null;
         }
     }
 

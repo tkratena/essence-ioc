@@ -10,19 +10,19 @@ namespace Essence.Ioc.FluentRegistration
         {
         }
 
-        public ILifeScope ImplementedBy<TServiceImplementation>() 
+        public ILifeStyle ImplementedBy<TServiceImplementation>() 
             where TServiceImplementation : class, T1
         {
             return AddImplementation<TServiceImplementation>();
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
             where TServiceImplementation : class, T1
         {
             return AddFactory(factory);
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
             where TServiceImplementation : class, T1
         {
             return AddFactory(factory);
@@ -41,19 +41,19 @@ namespace Essence.Ioc.FluentRegistration
         {
         }
 
-        public ILifeScope ImplementedBy<TServiceImplementation>()
+        public ILifeStyle ImplementedBy<TServiceImplementation>()
             where TServiceImplementation : class, T1, T2
         {
             return AddImplementation<TServiceImplementation>();
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2
         {
             return AddFactory(factory);
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2
         {
             return AddFactory(factory);
@@ -72,19 +72,19 @@ namespace Essence.Ioc.FluentRegistration
         {
         }
 
-        public ILifeScope ImplementedBy<TServiceImplementation>() 
+        public ILifeStyle ImplementedBy<TServiceImplementation>() 
             where TServiceImplementation : class, T1, T2, T3
         {
             return AddImplementation<TServiceImplementation>();
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2, T3
         {
             return AddFactory(factory);
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2, T3
         {
             return AddFactory(factory);
@@ -103,19 +103,19 @@ namespace Essence.Ioc.FluentRegistration
         {
         }
 
-        public ILifeScope ImplementedBy<TServiceImplementation>() 
+        public ILifeStyle ImplementedBy<TServiceImplementation>() 
             where TServiceImplementation : class, T1, T2, T3, T4
         {
             return AddImplementation<TServiceImplementation>();
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2, T3, T4
         {
             return AddFactory(factory);
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2, T3, T4
         {
             return AddFactory(factory);
@@ -134,19 +134,19 @@ namespace Essence.Ioc.FluentRegistration
         {
         }
 
-        public ILifeScope ImplementedBy<TServiceImplementation>() 
+        public ILifeStyle ImplementedBy<TServiceImplementation>() 
             where TServiceImplementation : class, T1, T2, T3, T4, T5
         {
             return AddImplementation<TServiceImplementation>();
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2, T3, T4, T5
         {
             return AddFactory(factory);
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory) 
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory) 
             where TServiceImplementation : class, T1, T2, T3, T4, T5
         {
             return AddFactory(factory);
@@ -165,19 +165,19 @@ namespace Essence.Ioc.FluentRegistration
         {
         }
 
-        public ILifeScope ImplementedBy<TServiceImplementation>()
+        public ILifeStyle ImplementedBy<TServiceImplementation>()
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6
         {
             return AddImplementation<TServiceImplementation>();
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6
         {
             return AddFactory(factory);
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6
         {
             return AddFactory(factory);
@@ -197,19 +197,19 @@ namespace Essence.Ioc.FluentRegistration
         {
         }
 
-        public ILifeScope ImplementedBy<TServiceImplementation>()
+        public ILifeStyle ImplementedBy<TServiceImplementation>()
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6, T7
         {
             return AddImplementation<TServiceImplementation>();
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6, T7
         {
             return AddFactory(factory);
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6, T7
         {
             return AddFactory(factory);
@@ -229,19 +229,19 @@ namespace Essence.Ioc.FluentRegistration
         {
         }
 
-        public ILifeScope ImplementedBy<TServiceImplementation>()
+        public ILifeStyle ImplementedBy<TServiceImplementation>()
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6, T7, T8
         {
             return AddImplementation<TServiceImplementation>();
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6, T7, T8
         {
             return AddFactory(factory);
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6, T7, T8
         {
             return AddFactory(factory);
@@ -274,19 +274,19 @@ namespace Essence.Ioc.FluentRegistration
         {
         }
 
-        public ILifeScope ImplementedBy<TServiceImplementation>() 
+        public ILifeStyle ImplementedBy<TServiceImplementation>() 
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6, T7, T8, T9
         {
             return AddImplementation<TServiceImplementation>();
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6, T7, T8, T9
         {
             return AddFactory(factory);
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory)
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6, T7, T8, T9
         {
             return AddFactory(factory);
@@ -320,19 +320,19 @@ namespace Essence.Ioc.FluentRegistration
         {
         }
 
-        public ILifeScope ImplementedBy<TServiceImplementation>()
+        public ILifeStyle ImplementedBy<TServiceImplementation>()
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10
         {
             return AddImplementation<TServiceImplementation>();
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory) 
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<TServiceImplementation> factory) 
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10
         {
             return AddFactory(factory);
         }
 
-        public ILifeScope ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory) 
+        public ILifeStyle ConstructedBy<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory) 
             where TServiceImplementation : class, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10
         {
             return AddFactory(factory);

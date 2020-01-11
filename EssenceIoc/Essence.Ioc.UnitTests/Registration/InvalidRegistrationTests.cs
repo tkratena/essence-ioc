@@ -147,7 +147,7 @@ namespace Essence.Ioc.Registration
             var container = new Container(r => registerer = r);
             registerer.RegisterService<IService>().ImplementedBy<ServiceImplementation>();
 
-            TestDelegate when = () => container.Resolve<IService>();
+            TestDelegate when = () => container.Resolve<IService>(out _);
 
             Assert.That(when, Throws.Exception.InstanceOf<NotRegisteredServiceException>());
         }

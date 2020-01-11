@@ -7,7 +7,7 @@ namespace Essence.Ioc.Resolution
 {
     [TestFixture]
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-    public class ResolutionLifeScopeTests
+    public class ResolutionLifeStyleTests
     {
         [Test]
         public void ContainerCreatesNewInstancesOfTransientService()
@@ -15,8 +15,8 @@ namespace Essence.Ioc.Resolution
             var container = new Container(r => 
                 r.RegisterService<IService>().ImplementedBy<ServiceImplementation>());
 
-            var firstInstance = container.Resolve<IService>();
-            var secondInstance = container.Resolve<IService>();
+            container.Resolve<IService>(out var firstInstance);
+            container.Resolve<IService>(out var secondInstance);
             
             Assert.AreNotSame(firstInstance, secondInstance);
         }
@@ -32,10 +32,10 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<SpyClassDependentTwiceOnService>(); 
             });
 
-            var spy = container.Resolve<SpyClassDependentTwiceOnService>();
+            container.Resolve<SpyClassDependentTwiceOnService>(out var spy);
+
             var firstInstance = spy.FirstDependency;
             var secondInstance = spy.SecondDependency;
-            
             Assert.AreNotSame(firstInstance, secondInstance);
         }
         
@@ -50,10 +50,10 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<SpyClassDependentOnServiceFactory>();
             });
 
-            var spy = container.Resolve<SpyClassDependentOnServiceFactory>();
+            container.Resolve<SpyClassDependentOnServiceFactory>(out var spy);
+            
             var firstInstance = spy.Dependency.Invoke();
             var secondInstance = spy.Dependency.Invoke();
-            
             Assert.AreNotSame(firstInstance, secondInstance);
         }
         
@@ -68,10 +68,10 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<SpyClassDependentOnServiceFactoryDelegate>(); 
             });
 
-            var spy = container.Resolve<SpyClassDependentOnServiceFactoryDelegate>();
+            container.Resolve<SpyClassDependentOnServiceFactoryDelegate>(out var spy);
+
             var firstInstance = spy.Dependency.Invoke();
             var secondInstance = spy.Dependency.Invoke();
-            
             Assert.AreNotSame(firstInstance, secondInstance);
         }
 
@@ -81,8 +81,8 @@ namespace Essence.Ioc.Resolution
             var container = new Container(r => 
                 r.RegisterService<IService>().ImplementedBy<ServiceImplementation>().AsSingleton());
 
-            var firstInstance = container.Resolve<IService>();
-            var secondInstance = container.Resolve<IService>();
+            container.Resolve<IService>(out var firstInstance);
+            container.Resolve<IService>(out var secondInstance);
             
             Assert.AreSame(firstInstance, secondInstance);
         }
@@ -98,10 +98,10 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<SpyClassDependentTwiceOnService>();
             });
 
-            var spy = container.Resolve<SpyClassDependentTwiceOnService>();
+            container.Resolve<SpyClassDependentTwiceOnService>(out var spy);
+
             var firstInstance = spy.FirstDependency;
             var secondInstance = spy.SecondDependency;
-            
             Assert.AreSame(firstInstance, secondInstance);
         }
         
@@ -116,10 +116,10 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<SpyClassDependentOnServiceFactory>();
             });
 
-            var spy = container.Resolve<SpyClassDependentOnServiceFactory>();
+            container.Resolve<SpyClassDependentOnServiceFactory>(out var spy);
+
             var firstInstance = spy.Dependency.Invoke();
             var secondInstance = spy.Dependency.Invoke();
-            
             Assert.AreSame(firstInstance, secondInstance);
         }
         
@@ -134,10 +134,10 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<SpyClassDependentOnServiceFactoryDelegate>();
             });
 
-            var spy = container.Resolve<SpyClassDependentOnServiceFactoryDelegate>();
+            container.Resolve<SpyClassDependentOnServiceFactoryDelegate>(out var spy);
+
             var firstInstance = spy.Dependency.Invoke();
             var secondInstance = spy.Dependency.Invoke();
-            
             Assert.AreSame(firstInstance, secondInstance);
         }
         
@@ -147,8 +147,10 @@ namespace Essence.Ioc.Resolution
             var container = new Container(r => 
                 r.RegisterService<IService>().ConstructedBy(() => new ServiceImplementation()).AsSingleton());
 
-            var firstInstance = container.Resolve<IService>();
-            var secondInstance = container.Resolve<IService>();
+            container.Resolve<IService>(out var instance);
+            var firstInstance = instance;
+            container.Resolve<IService>(out var instance1);
+            var secondInstance = instance1;
             
             Assert.AreSame(firstInstance, secondInstance);
         }
@@ -164,10 +166,10 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<SpyClassDependentTwiceOnService>();
             });
 
-            var spy = container.Resolve<SpyClassDependentTwiceOnService>();
+            container.Resolve<SpyClassDependentTwiceOnService>(out var spy);
+
             var firstInstance = spy.FirstDependency;
             var secondInstance = spy.SecondDependency;
-            
             Assert.AreSame(firstInstance, secondInstance);
         }
         
@@ -182,10 +184,10 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<SpyClassDependentOnServiceFactory>();
             });
 
-            var spy = container.Resolve<SpyClassDependentOnServiceFactory>();
+            container.Resolve<SpyClassDependentOnServiceFactory>(out var spy);
+            
             var firstInstance = spy.Dependency.Invoke();
             var secondInstance = spy.Dependency.Invoke();
-            
             Assert.AreSame(firstInstance, secondInstance);
         }
         
@@ -200,10 +202,10 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<SpyClassDependentOnServiceFactoryDelegate>();
             });
 
-            var spy = container.Resolve<SpyClassDependentOnServiceFactoryDelegate>();
+            container.Resolve<SpyClassDependentOnServiceFactoryDelegate>(out var spy);
+
             var firstInstance = spy.Dependency.Invoke();
             var secondInstance = spy.Dependency.Invoke();
-            
             Assert.AreSame(firstInstance, secondInstance);
         }
         
@@ -220,10 +222,10 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<SpyClassDependentTwiceOnService>();
             });
 
-            var spy = container.Resolve<SpyClassDependentTwiceOnService>();
+            container.Resolve<SpyClassDependentTwiceOnService>(out var spy);
+            
             var firstInstance = spy.FirstDependency;
             var secondInstance = spy.SecondDependency;
-            
             Assert.AreSame(firstInstance, secondInstance);
         }
 

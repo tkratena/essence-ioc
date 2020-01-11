@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Essence.Ioc.LifeCycleManagement;
 
 namespace Essence.Ioc.Expressions
 {
     internal interface IFactoryExpression
     {
-        Expression Body { get; }
-        Func<T> Compile<T>();
+        Expression GetBody(Expression lifeScope);
+        Func<ILifeScope, TService> Compile<TService>();
     }
 }

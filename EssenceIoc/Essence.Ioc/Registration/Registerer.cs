@@ -7,6 +7,7 @@ using Essence.Ioc.Expressions;
 using Essence.Ioc.ExtendableRegistration;
 using Essence.Ioc.LifeCycleManagement;
 using Essence.Ioc.Registration.RegistrationExceptions;
+using Essence.Ioc.Resolution;
 using Essence.Ioc.TypeModel;
 
 namespace Essence.Ioc.Registration
@@ -16,14 +17,14 @@ namespace Essence.Ioc.Registration
         private readonly RegisteredServices _registeredServices = new RegisteredServices();
         private readonly RegisteredServices _registeredGenericServices = new RegisteredServices();
         private readonly Factories _factories;
-        private readonly IContainer _container;
-        private readonly InstanceTracker _tracker;
+        private readonly Resolver _resolver;
+        private readonly ILifeScope _singletonLifeScope;
 
-        public Registerer(Factories factories, IContainer container, InstanceTracker tracker)
+        public Registerer(Factories factories, Resolver resolver, ILifeScope singletonLifeScope)
         {
             _factories = factories;
-            _container = container;
-            _tracker = tracker;
+            _resolver = resolver;
+            _singletonLifeScope = singletonLifeScope;
         }
 
         public void RegisterTransient(Type implementationType, IEnumerable<Type> serviceTypes)
@@ -42,18 +43,35 @@ namespace Essence.Ioc.Registration
             _factories.AddFactory(serviceType, factoryExpression);
         }
 
+        private IFactoryExpression CreateFactoryExpression(Type implementationType)
+        {
+            return new Implementation(implementationType).Resolve(_factories);
+        }
+
         public void RegisterSingleton(Type implementationType, IEnumerable<Type> serviceTypes)
         {
             var factoryExpression = CreateFactoryExpression(implementationType);
-            RegisterFactorySingleton(() => factoryExpression.Compile<object>().Invoke(), serviceTypes);
+            var singleton = new Lazy<object>(() =>
+            {
+                var factory = factoryExpression.Compile<object>();
+                return factory.Invoke(_singletonLifeScope);
+            });
+            
+            RegisterFactory(transientLifeScope => singleton.Value, serviceTypes);
         }
-        
+
         public void RegisterFactorySingleton<TImplementation>(
-            Func<IContainer, TImplementation> factory, 
+            Func<IContainer, TImplementation> factory,
             IEnumerable<Type> serviceTypes)
             where TImplementation : class
         {
-            RegisterFactorySingleton(() => factory.Invoke(_container), serviceTypes);
+            var container = CreateContainer(_singletonLifeScope);
+            RegisterFactorySingleton(() => factory.Invoke(container), serviceTypes);
+        }
+
+        private IContainer CreateContainer(ILifeScope lifeScope)
+        {
+            return new LifeScopedResolver(lifeScope, _resolver);
         }
 
         public void RegisterFactorySingleton<TImplementation>(
@@ -61,39 +79,48 @@ namespace Essence.Ioc.Registration
             IEnumerable<Type> serviceTypes)
             where TImplementation : class
         {
-            var singleton = new Lazy<TImplementation>(factory.Invoke);
+            Func<object> scopedFactory = () => factory.ConstructWithTracking(_singletonLifeScope);
+            var singleton = new Lazy<object>(scopedFactory);
+            
+            RegisterFactory(transientLifeScope => singleton.Value, serviceTypes);
+        }
 
-            RegisterFactoryTransient(() => singleton.Value, serviceTypes);
-        }
-        
-        private IFactoryExpression CreateFactoryExpression(Type implementationType)
-        {
-            return new Implementation(implementationType).Resolve(_factories, _tracker);
-        }
-        
         public void RegisterFactoryTransient<TImplementation>(
-            Func<IContainer, TImplementation> factory, 
+            Func<IContainer, TImplementation> factory,
             IEnumerable<Type> serviceTypes)
             where TImplementation : class
         {
-            RegisterFactoryTransient(() => factory.Invoke(_container), serviceTypes);
+            RegisterFactoryTransient(lifeScope => factory.Invoke(CreateContainer(lifeScope)), serviceTypes);
         }
 
         public void RegisterFactoryTransient<TImplementation>(
             Func<TImplementation> factory,
             IEnumerable<Type> serviceTypes)
             where TImplementation : class
+        {
+            RegisterFactoryTransient((ILifeScope _) => factory.Invoke(), serviceTypes);
+        }
+        
+        private void RegisterFactoryTransient<TImplementation>(
+            Func<ILifeScope, TImplementation> factory,
+            IEnumerable<Type> serviceTypes)
+            where TImplementation : class
+        {
+            RegisterFactory(factory.ConstructWithTracking, serviceTypes);
+        }
+
+        private void RegisterFactory(Func<ILifeScope, object> factory, IEnumerable<Type> serviceTypes)
         {
             foreach (var serviceType in serviceTypes)
             {
-                RegisterFactoryTransient(factory, serviceType);
+                RegisterFactory(factory, serviceType);
             }
         }
 
-        private void RegisterFactoryTransient<TImplementation>(Func<TImplementation> factory, Type serviceType)
+        private void RegisterFactory(Func<ILifeScope, object> factory, Type serviceType)
         {
             _registeredServices.MarkRegistered(serviceType);
-            _factories.AddFactory(serviceType, FactoryExpression.CreateCompiled(factory, serviceType));
+            _factories.AddFactory(serviceType, new CompiledFactoryExpression(factory, serviceType));
         }
 
         public void RegisterGeneric(
@@ -104,7 +131,7 @@ namespace Essence.Ioc.Registration
             {
                 throw new ImplementationTypeNotGenericTypeDefinitionException(implementationGenericTypeDefinition);
             }
-            
+
             foreach (var serviceGenericTypeDefinition in serviceGenericTypeDefinitions)
             {
                 RegisterGeneric(implementationGenericTypeDefinition, serviceGenericTypeDefinition);
@@ -123,7 +150,7 @@ namespace Essence.Ioc.Registration
                 implementationGenericTypeDefinition))
             {
                 throw new ImplementationTypeNotImplementingGenericService(
-                    implementationGenericTypeDefinition, 
+                    implementationGenericTypeDefinition,
                     serviceGenericTypeDefinition);
             }
 
