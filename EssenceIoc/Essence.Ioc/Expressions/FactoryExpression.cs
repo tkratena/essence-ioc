@@ -1,55 +1,26 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Essence.Ioc.LifeCycleManagement;
 
 namespace Essence.Ioc.Expressions
 {
-    internal static class FactoryExpression
+    internal class FactoryExpression : IFactoryExpression
     {
-        public static IFactoryExpression CreateLazy(Func<Expression> body)
-        {
-            return new Lazy(body);
-        }
-        
-        public static IFactoryExpression CreateCompiled<T>(Func<T> factory, Type serviceType)
-        {
-            return new Compiled(factory, serviceType);
-        }
+        public delegate Expression FactoryBodyProvider(Expression lifeScope);
 
-        private class Lazy : Lazy<Expression>, IFactoryExpression
+        private readonly FactoryBodyProvider _bodyProvider;
+
+        public FactoryExpression(FactoryBodyProvider bodyProvider)
         {
-            public Lazy(Func<Expression> bodyProvider)
-                : base(bodyProvider)
-            {
-            }
-
-            public Expression Body => Value;
-            
-            public Func<T> Compile<T>() => CompileLambda<T>(Body);
-
-            private static Func<T> CompileLambda<T>(Expression body)
-            {
-                return Expression.Lambda<Func<T>>(body).Compile();
-            }
+            _bodyProvider = bodyProvider;
         }
 
-        private class Compiled : IFactoryExpression
+        public Expression GetBody(Expression lifeScope) => _bodyProvider.Invoke(lifeScope);
+
+        public Func<ILifeScope, T> Compile<T>()
         {
-            private readonly Func<object> _factory;
-            private readonly Type _constructedType;
-
-            public Compiled(Delegate factory, Type constructedType)
-            {
-                _factory = (Func<object>)factory;
-                _constructedType = constructedType;
-            }
-
-            public Expression Body => 
-                Expression.Convert(Expression.Invoke(Expression.Constant(_factory)), _constructedType);
-
-            public Func<T> Compile<T>()
-            {
-                return () => (T) _factory.Invoke();
-            }
+            var lifeScope = Expression.Parameter(typeof(ILifeScope), "lifeScope");
+            return Expression.Lambda<Func<ILifeScope, T>>(GetBody(lifeScope), lifeScope).Compile();
         }
     }
 }

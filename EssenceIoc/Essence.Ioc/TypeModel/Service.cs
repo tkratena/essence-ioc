@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq.Expressions;
 using System.Reflection;
 using Essence.Ioc.Expressions;
-using Essence.Ioc.LifeCycleManagement;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.Resolution;
 
@@ -17,7 +15,7 @@ namespace Essence.Ioc.TypeModel
             _type = type;
         }
         
-        public IFactoryExpression Resolve(IFactoryFinder factoryFinder, InstanceTracker tracker)
+        public IFactoryExpression Resolve(IFactoryFinder factoryFinder)
         {
             if (factoryFinder.TryGetFactory(_type, out var factoryExpression))
             {
@@ -26,7 +24,7 @@ namespace Essence.Ioc.TypeModel
             
             if (_type.GetTypeInfo().IsGenericType)
             {
-                return new GenericService(_type).Resolve(factoryFinder, tracker);
+                return new GenericService(_type).Resolve(factoryFinder);
             }
             
             throw new NotRegisteredDependencyException(_type);

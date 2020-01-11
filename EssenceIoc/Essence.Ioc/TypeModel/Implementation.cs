@@ -20,7 +20,7 @@ namespace Essence.Ioc.TypeModel
             _type = implementationType;
         }
 
-        public IFactoryExpression Resolve(IFactoryFinder factoryFinder, InstanceTracker tracker)
+        public IFactoryExpression Resolve(IFactoryFinder factoryFinder)
         {
             if (!IsConcreteClass(_type))
             {
@@ -28,28 +28,44 @@ namespace Essence.Ioc.TypeModel
             }
 
             var constructor = GetSinglePublicConstructor(_type);
-            var resolvedDependencies = ResolveDependencies(constructor, factoryFinder, tracker).ToList();
-
+            var resolvedDependencies = ResolveDependencies(constructor, factoryFinder).ToList();
+            
             if (typeof(IDisposable).GetTypeInfo().IsAssignableFrom(_type))
             {
-                return FactoryExpression.CreateLazy(
-                    () => Expression.Call(
-                        typeof(Implementation)
-                            .GetTypeInfo()
-                            .GetMethod(nameof(RegisterDisposable), BindingFlags.Static | BindingFlags.NonPublic)
-                            .MakeGenericMethod(_type),
-                        Expression.New(constructor, resolvedDependencies.Select(d => d.Body)),
-                        Expression.Constant(tracker)));
+                return ResolveDisposable(constructor, resolvedDependencies);
             }
-            
-            return FactoryExpression.CreateLazy(
-                () => Expression.New(constructor, resolvedDependencies.Select(d => d.Body)));
+
+            return ResolveNonDisposable(constructor, resolvedDependencies);
         }
-        
-        private static T RegisterDisposable<T>(T instance, InstanceTracker tracker) where T : IDisposable
+
+        private IFactoryExpression ResolveDisposable(
+            ConstructorInfo constructor, 
+            IEnumerable<IFactoryExpression> dependencies)
         {
-            tracker.TrackDisposable(instance);
-            return instance;
+            var trackMethod = typeof(ILifeScope).GetTypeInfo().GetMethod(nameof(ILifeScope.TrackDisposable));
+
+            return new FactoryExpression(lifeScope =>
+            {
+                var constructorCall =
+                    Expression.New(constructor, dependencies.Select(d => d.GetBody(lifeScope)));
+
+                var instanceVariable = Expression.Variable(_type, "instance");
+                var returnTarget = Expression.Label(_type);
+
+                return Expression.Block(
+                    new[] {instanceVariable},
+                    Expression.Assign(instanceVariable, constructorCall),
+                    Expression.Call(lifeScope, trackMethod, instanceVariable),
+                    Expression.Label(returnTarget, instanceVariable));
+            });
+        }
+
+        private static IFactoryExpression ResolveNonDisposable(
+            ConstructorInfo constructor, 
+            IEnumerable<IFactoryExpression> dependencies)
+        {
+            return new FactoryExpression(lifeScope => 
+                Expression.New(constructor, dependencies.Select(d => d.GetBody(lifeScope))));
         }
 
         private static bool IsConcreteClass(Type implementationType)
@@ -76,10 +92,9 @@ namespace Essence.Ioc.TypeModel
 
         private IEnumerable<IFactoryExpression> ResolveDependencies(
             ConstructorInfo constructor,
-            IFactoryFinder factoryFinder, 
-            InstanceTracker tracker)
+            IFactoryFinder factoryFinder)
         {
-            return GetDependencies(constructor).Select(d => ResolveDependency(d, factoryFinder, tracker));
+            return GetDependencies(constructor).Select(d => ResolveDependency(d, factoryFinder));
         }
 
         private IEnumerable<Type> GetDependencies(ConstructorInfo constructor)
@@ -98,22 +113,22 @@ namespace Essence.Ioc.TypeModel
             return parameters.Select(p => p.ParameterType);
         }
 
-        private IFactoryExpression ResolveDependency(Type type, IFactoryFinder factoryFinder, InstanceTracker tracker)
+        private IFactoryExpression ResolveDependency(Type type, IFactoryFinder factoryFinder)
         {
             try
             {
                 if (type.GetTypeInfo().IsGenericType && typeof(Lazy<>) == type.GetGenericTypeDefinition())
                 {
-                    return new LazyService(type).Resolve(factoryFinder, tracker);
+                    return new LazyService(type).Resolve(factoryFinder);
                 }
 
                 var delegateInfo = type.AsDelegate();
                 if (delegateInfo != null)
                 {
-                    return new ServiceFactory(delegateInfo).Resolve(factoryFinder, tracker);
+                    return new ServiceFactory(delegateInfo).Resolve(factoryFinder);
                 }
 
-                return new Service(type).Resolve(factoryFinder, tracker);
+                return new Service(type).Resolve(factoryFinder);
             }
             catch (RegistrationException e)
             {

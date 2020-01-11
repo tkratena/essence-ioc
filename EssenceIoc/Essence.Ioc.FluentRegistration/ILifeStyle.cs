@@ -1,6 +1,6 @@
 ﻿namespace Essence.Ioc.FluentRegistration
 {
-    public interface ILifeScope
+    public interface ILifeStyle
     {
         void AsSingleton();
     }

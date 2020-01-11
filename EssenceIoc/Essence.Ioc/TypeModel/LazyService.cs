@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Essence.Framework.System;
 using Essence.Ioc.Expressions;
-using Essence.Ioc.LifeCycleManagement;
 using Essence.Ioc.Resolution;
 
 namespace Essence.Ioc.TypeModel
@@ -17,20 +16,15 @@ namespace Essence.Ioc.TypeModel
             _lazyType = lazyType;
         }
 
-        public IFactoryExpression Resolve(IFactoryFinder factoryFinder, InstanceTracker tracker)
+        public IFactoryExpression Resolve(IFactoryFinder factoryFinder)
         {
             var serviceType = _lazyType.GenericTypeArguments[0];
             var serviceFactoryDelegateInfo = typeof(Func<>).MakeGenericType(serviceType).AsDelegate();
-
-            var factory = new ServiceFactory(serviceFactoryDelegateInfo).Resolve(factoryFinder, tracker);
-
-            return FactoryExpression.CreateLazy(() =>
-            {
-                var constructor = _lazyType.GetTypeInfo().GetConstructor(new[] {serviceFactoryDelegateInfo.Type});
-
-                // ReSharper disable once AssignNullToNotNullAttribute
-                return Expression.New(constructor, factory.Body);
-            });
+            var constructor = _lazyType.GetTypeInfo().GetConstructor(new[] {serviceFactoryDelegateInfo.Type});
+            
+            var factory = new ServiceFactory(serviceFactoryDelegateInfo).Resolve(factoryFinder);
+            
+            return new FactoryExpression(lifeScope => Expression.New(constructor, factory.GetBody(lifeScope)));
         }
     }
 }

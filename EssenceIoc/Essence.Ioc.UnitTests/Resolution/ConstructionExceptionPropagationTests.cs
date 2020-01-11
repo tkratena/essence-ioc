@@ -8,19 +8,16 @@ namespace Essence.Ioc.Resolution
 {
     [TestFixture]
     [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
-    public class ServiceImplementationConstructorThrowingTests
+    public class ConstructionExceptionPropagationTests
     {
         public static IEnumerable TestCases = new[]
         {
-            new TestCaseData(
-                    new Container(r => r.RegisterService<IService>()
-                        .ImplementedBy<ServiceImplementationWithThrowingConstructor>()))
+            new TestCaseData(new Container(r => 
+                    r.RegisterService<IService>().ImplementedBy<ImplementationWithThrowingConstructor>()))
                 .SetName("Transient"),
             
-            new TestCaseData(
-                    new Container(r => r.RegisterService<IService>()
-                        .ImplementedBy<ServiceImplementationWithThrowingConstructor>()
-                        .AsSingleton()))
+            new TestCaseData(new Container(r => 
+                    r.RegisterService<IService>().ImplementedBy<ImplementationWithThrowingConstructor>().AsSingleton()))
                 .SetName("Singleton")
         };
 
@@ -28,14 +25,14 @@ namespace Essence.Ioc.Resolution
         [TestCaseSource(nameof(TestCases))]
         public void Service(Container container)
         {
-            Assert.Throws<ConstructorException>(() => container.Resolve<IService>());
+            Assert.Throws<ConstructorException>(() => container.Resolve<IService>(out _));
         }
 
         [Test]
         [TestCaseSource(nameof(TestCases))]
         public void LazyService(Container container)
         {
-            var lazyService = container.Resolve<Lazy<IService>>();
+            container.Resolve<Lazy<IService>>(out var lazyService);
 
             Assert.Throws<ConstructorException>(() =>
             {
@@ -47,7 +44,7 @@ namespace Essence.Ioc.Resolution
         [TestCaseSource(nameof(TestCases))]
         public void ServiceFactory(Container container)
         {
-            var serviceFactory = container.Resolve<Func<IService>>();
+            container.Resolve<Func<IService>>(out var serviceFactory);
 
             Assert.Throws<ConstructorException>(() => serviceFactory.Invoke());
         }
@@ -56,7 +53,7 @@ namespace Essence.Ioc.Resolution
         [TestCaseSource(nameof(TestCases))]
         public void ServiceFactoryDelegate(Container container)
         {
-            var serviceFactory = container.Resolve<DelegateReturningService>();
+            container.Resolve<DelegateReturningService>(out var serviceFactory);
 
             Assert.Throws<ConstructorException>(() => serviceFactory.Invoke());
         }
@@ -64,9 +61,9 @@ namespace Essence.Ioc.Resolution
         private delegate IService DelegateReturningService();
 
         [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-        private class ServiceImplementationWithThrowingConstructor : IService
+        private class ImplementationWithThrowingConstructor : IService
         {
-            public ServiceImplementationWithThrowingConstructor()
+            public ImplementationWithThrowingConstructor()
             {
                 throw new ConstructorException();
             }
