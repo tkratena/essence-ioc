@@ -16,7 +16,7 @@ namespace Essence.Ioc.FluentRegistration
             _serviceTypes = serviceTypes;
         }
 
-        protected ILifeScope AddImplementation<TServiceImplementation>()
+        protected ILifeStyle AddImplementation<TServiceImplementation>()
             where TServiceImplementation : class
         {
             var registration = new Implementation<TServiceImplementation>(_serviceTypes);
@@ -24,7 +24,7 @@ namespace Essence.Ioc.FluentRegistration
             return registration;
         }
 
-        protected ILifeScope AddFactory<TServiceImplementation>(Func<TServiceImplementation> factory)
+        protected ILifeStyle AddFactory<TServiceImplementation>(Func<TServiceImplementation> factory)
             where TServiceImplementation : class
         {
             var registration = new Factory<TServiceImplementation>(factory, _serviceTypes);
@@ -32,7 +32,7 @@ namespace Essence.Ioc.FluentRegistration
             return registration;
         }
 
-        protected ILifeScope AddFactory<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory) 
+        protected ILifeStyle AddFactory<TServiceImplementation>(Func<IContainer, TServiceImplementation> factory) 
             where TServiceImplementation : class
         {
             var registration = new FactoryUsingContainer<TServiceImplementation>(factory, _serviceTypes);
@@ -101,7 +101,7 @@ namespace Essence.Ioc.FluentRegistration
             }
         }
 
-        private abstract class RegistrationBase : IRegistration, ILifeScope
+        private abstract class RegistrationBase : IRegistration, ILifeStyle
         {
             private readonly IEnumerable<Type> _serviceTypes;
             private bool _asSingleton;

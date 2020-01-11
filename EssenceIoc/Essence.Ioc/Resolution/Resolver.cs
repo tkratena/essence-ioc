@@ -4,31 +4,28 @@ using System.Diagnostics.Contracts;
 using System.Reflection;
 using Essence.Framework.System;
 using Essence.Ioc.Expressions;
-using Essence.Ioc.ExtendableRegistration;
 using Essence.Ioc.LifeCycleManagement;
 using Essence.Ioc.TypeModel;
 
 namespace Essence.Ioc.Resolution
 {
-    internal class Resolver : IContainer
+    internal class Resolver
     {
         private readonly IDictionary<Type, Delegate> _compiledFactories = new Dictionary<Type, Delegate>();
         private readonly IFactoryFinder _factoryFinder;
-        private readonly InstanceTracker _tracker;
 
-        public Resolver(IFactoryFinder factoryFinder, InstanceTracker tracker)
+        public Resolver(IFactoryFinder factoryFinder)
         {
             _factoryFinder = factoryFinder;
-            _tracker = tracker;
         }
 
         [Pure]
-        public TService Resolve<TService>() where TService : class
+        public TService Resolve<TService>(ILifeScope lifeScope) where TService : class
         {
-            return GetCompiledFactory<TService>().Invoke();
+            return GetCompiledFactory<TService>().Invoke(lifeScope);
         }
 
-        private Func<TService> GetCompiledFactory<TService>()
+        private Func<ILifeScope, TService> GetCompiledFactory<TService>()
         {
             var serviceType = typeof(TService);
             lock (serviceType)
@@ -42,19 +39,19 @@ namespace Essence.Ioc.Resolution
                 factory = factoryExpression.Compile<TService>();
                 _compiledFactories[serviceType] = factory;
 
-                return (Func<TService>) factory;
+                return (Func<ILifeScope, TService>) factory;
             }
         }
 
-        private static Func<T> CastFactory<T>(Delegate sourceDelegate)
+        private static Func<ILifeScope, T> CastFactory<T>(Delegate sourceDelegate)
         {
-            if (sourceDelegate is Func<T> targetDelegate)
+            if (sourceDelegate is Func<ILifeScope, T> targetDelegate)
             {
                 return targetDelegate;
             }
 
-            var function = (Func<object>) sourceDelegate;
-            return () => (T)function.Invoke();
+            var function = (Func<ILifeScope, object>) sourceDelegate;
+            return lifeScope => (T)function.Invoke(lifeScope);
         }
 
         private IFactoryExpression GetFactoryExpression(Type serviceType)
@@ -67,17 +64,17 @@ namespace Essence.Ioc.Resolution
             var delegateInfo = serviceType.AsDelegate();
             if (delegateInfo != null)
             {
-                return new ServiceFactory(delegateInfo).Resolve(_factoryFinder, _tracker);
+                return new ServiceFactory(delegateInfo).Resolve(_factoryFinder);
             }
 
             if (serviceType.GetTypeInfo().IsGenericType)
             {
                 if (typeof(Lazy<>) == serviceType.GetGenericTypeDefinition())
                 {
-                    return new LazyService(serviceType).Resolve(_factoryFinder, _tracker);
+                    return new LazyService(serviceType).Resolve(_factoryFinder);
                 }
                 
-                return new GenericService(serviceType).Resolve(_factoryFinder, _tracker);
+                return new GenericService(serviceType).Resolve(_factoryFinder);
             }
 
             throw new NotRegisteredServiceException(serviceType);

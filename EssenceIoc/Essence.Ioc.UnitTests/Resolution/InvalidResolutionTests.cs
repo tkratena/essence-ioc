@@ -14,7 +14,7 @@ namespace Essence.Ioc.Resolution
         {
             var container = new Container(_ => { });
 
-            TestDelegate when = () => container.Resolve<INotImplementedService>();
+            TestDelegate when = () => container.Resolve<INotImplementedService>(out _);
 
             Assert.That(when, Throws.Exception.InstanceOf<NotRegisteredServiceException>());
         }
@@ -30,7 +30,7 @@ namespace Essence.Ioc.Resolution
                 r.RegisterService<IRegisteredService>()
                     .ImplementedBy<ImplementationOfRegisteredAndNotRegisteredServices>());
 
-            TestDelegate when = () => container.Resolve<INotRegisteredService>();
+            TestDelegate when = () => container.Resolve<INotRegisteredService>(out _);
 
             Assert.That(when, Throws.Exception.InstanceOf<NotRegisteredServiceException>());
         }
@@ -54,7 +54,7 @@ namespace Essence.Ioc.Resolution
                 r.RegisterService<IDerivedRegisteredService>()
                     .ImplementedBy<ImplementationDerivedRegisteredService>());
 
-            TestDelegate when = () => container.Resolve<INotRegisteredBaseOfRegisteredService>();
+            TestDelegate when = () => container.Resolve<INotRegisteredBaseOfRegisteredService>(out _);
 
             Assert.That(when, Throws.Exception.InstanceOf<NotRegisteredServiceException>());
         }

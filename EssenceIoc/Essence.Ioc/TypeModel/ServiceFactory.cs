@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Essence.Framework.System;
@@ -18,7 +18,7 @@ namespace Essence.Ioc.TypeModel
             _delegateInfo = delegateInfo;
         }
 
-        public IFactoryExpression Resolve(IFactoryFinder factoryFinder, InstanceTracker tracker)
+        public IFactoryExpression Resolve(IFactoryFinder factoryFinder)
         {
             var constructedType = _delegateInfo.InvokeMethod.ReturnType;
             if (constructedType == typeof(void) || _delegateInfo.InvokeMethod.GetParameters().Any())
@@ -26,13 +26,28 @@ namespace Essence.Ioc.TypeModel
                 throw new NonFactoryDelegateException(_delegateInfo);
             }
 
-            var service = new Service(constructedType).Resolve(factoryFinder, tracker);
-            return FactoryExpression.CreateLazy(() => CreateLambdaExpression(service.Body, _delegateInfo.Type));
+            var service = new Service(constructedType).Resolve(factoryFinder);
+
+            return new FactoryExpression(lifeScope =>
+            {
+                var closure = Expression.Constant(new Closure());
+                var lifeScopeClosure = Expression.Property(closure, nameof(Closure.LifeScope));
+                    
+                var body = service.GetBody(lifeScopeClosure);
+                var factory = Expression.Lambda(_delegateInfo.Type, body).Compile();
+
+                var returnTarget = Expression.Label(_delegateInfo.Type);
+                return Expression.Block(
+                    Expression.Assign(lifeScopeClosure, lifeScope),
+                    Expression.Label(returnTarget, Expression.Constant(factory)));
+            });
         }
 
-        private static Expression CreateLambdaExpression(Expression body, Type delegateType)
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local", Justification = "Used by the expression")]
+        [SuppressMessage("ReSharper", "MemberCanBePrivate.Local", Justification = "Used by the expression")]
+        private class Closure
         {
-            return Expression.Constant(Expression.Lambda(delegateType, body).Compile());
+            public ILifeScope LifeScope { get; set; }
         }
     }
 }

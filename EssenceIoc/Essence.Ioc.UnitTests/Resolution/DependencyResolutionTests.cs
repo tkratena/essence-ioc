@@ -19,7 +19,7 @@ namespace Essence.Ioc.Resolution
                 r.RegisterService<IService>().ImplementedBy<SpyServiceImplementationDependentOnService>();
             });
 
-            var service = container.Resolve<IService>();
+            container.Resolve<IService>(out var service);
 
             Assert.IsInstanceOf<SpyServiceImplementationDependentOnService>(service);
             var dependency = ((SpyServiceImplementationDependentOnService) service).Dependency;
@@ -35,7 +35,7 @@ namespace Essence.Ioc.Resolution
                 r.RegisterService<IService>().ImplementedBy<SpyServiceImplementationDependentOnService>();
             });
 
-            var service = container.Resolve<IService>();
+            container.Resolve<IService>(out var service);
 
             Assert.IsInstanceOf<SpyServiceImplementationDependentOnService>(service);
             var dependency = ((SpyServiceImplementationDependentOnService) service).Dependency;
@@ -61,7 +61,7 @@ namespace Essence.Ioc.Resolution
                 r.RegisterService<IService>().ImplementedBy<SpyServiceImplementationDependentOnServiceFactory>();
             });
 
-            var service = container.Resolve<IService>();
+            container.Resolve<IService>(out var service);
 
             Assert.IsInstanceOf<SpyServiceImplementationDependentOnServiceFactory>(service);
             var dependency = ((SpyServiceImplementationDependentOnServiceFactory) service).Dependency;
@@ -89,7 +89,7 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<SpyServiceImplementationDependentOnServiceFactoryDelegate>();
             });
 
-            var service = container.Resolve<IService>();
+            container.Resolve<IService>(out var service);
 
             Assert.IsInstanceOf<SpyServiceImplementationDependentOnServiceFactoryDelegate>(service);
             var dependency = ((SpyServiceImplementationDependentOnServiceFactoryDelegate) service).Dependency;
@@ -119,7 +119,7 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<SpyServiceImplementationDependentOnGenericServiceFactoryDelegate>();
             });
 
-            var service = container.Resolve<IService>();
+            container.Resolve<IService>(out var service);
 
             Assert.IsInstanceOf<SpyServiceImplementationDependentOnGenericServiceFactoryDelegate>(service);
             var dependency = ((SpyServiceImplementationDependentOnGenericServiceFactoryDelegate) service).Dependency;
@@ -148,7 +148,7 @@ namespace Essence.Ioc.Resolution
                 r.RegisterService<IService>().ImplementedBy<SpyServiceImplementationDependentOnLazyService>();
             });
 
-            var service = container.Resolve<IService>();
+            container.Resolve<IService>(out var service);
 
             Assert.IsInstanceOf<SpyServiceImplementationDependentOnLazyService>(service);
             var dependency = ((SpyServiceImplementationDependentOnLazyService) service).Dependency;
@@ -184,7 +184,7 @@ namespace Essence.Ioc.Resolution
                 r.RegisterService<IService>().ImplementedBy<SpyServiceImplementationDependentOnGenericService>();
             });
 
-            var service = container.Resolve<IService>();
+            container.Resolve<IService>(out var service);
 
             Assert.IsInstanceOf<SpyServiceImplementationDependentOnGenericService>(service);
             var dependency = ((SpyServiceImplementationDependentOnGenericService) service).Dependency;
@@ -200,7 +200,7 @@ namespace Essence.Ioc.Resolution
                 r.RegisterService<IService>().ImplementedBy<SpyServiceImplementationDependentOnGenericService>();
             });
 
-            var service = container.Resolve<IService>();
+            container.Resolve<IService>(out var service);
 
             Assert.IsInstanceOf<SpyServiceImplementationDependentOnGenericService>(service);
             var dependency = ((SpyServiceImplementationDependentOnGenericService) service).Dependency;
@@ -223,7 +223,7 @@ namespace Essence.Ioc.Resolution
             var container = new Container(r =>
                 r.RegisterService<IService>().ConstructedBy(() => new ServiceImplementation()));
 
-            var service = container.Resolve<IService>();
+            container.Resolve<IService>(out var service);
 
             Assert.IsInstanceOf<ServiceImplementation>(service);
         }
@@ -238,7 +238,7 @@ namespace Essence.Ioc.Resolution
                     .ConstructedBy(c => new SpyServiceImplementationDependentOnService(c.Resolve<IServiceDependency>()));
             });
 
-            var service = container.Resolve<IService>();
+            container.Resolve<IService>(out var service);
 
             Assert.IsInstanceOf<SpyServiceImplementationDependentOnService>(service);
             var dependency = ((SpyServiceImplementationDependentOnService) service).Dependency;
@@ -260,7 +260,7 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy(typeof(ServiceImplementationDependentOn<>));
             });
 
-            var service = container.Resolve<IService<IService>>();
+            container.Resolve<IService<IService>>(out var service);
 
             Assert.IsInstanceOf<ServiceImplementationDependentOn<IService>>(service);
         }
@@ -284,7 +284,7 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<ServiceImplementation<IAnotherActualGenericArg>>();
             });
 
-            var service = container.Resolve<IService<IAnotherActualGenericArg>>();
+            container.Resolve<IService<IAnotherActualGenericArg>>(out var service);
 
             Assert.IsInstanceOf<ServiceImplementation<IAnotherActualGenericArg>>(service);
         }
@@ -304,8 +304,8 @@ namespace Essence.Ioc.Resolution
                     .ImplementedBy<NonGenericallyRegisteredGenericServiceImplementation>();
             });
 
-            var genericallyRegistered = container.Resolve<IService<IActualGenericArg>>();
-            var nonGenericallyRegistered = container.Resolve<IService<INonGenericallyRegisteredGenericArg>>();
+            container.Resolve<IService<IActualGenericArg>>(out var genericallyRegistered);
+            container.Resolve<IService<INonGenericallyRegisteredGenericArg>>(out var nonGenericallyRegistered);
 
             Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(genericallyRegistered);
             Assert.IsInstanceOf<NonGenericallyRegisteredGenericServiceImplementation>(nonGenericallyRegistered);
@@ -342,9 +342,9 @@ namespace Essence.Ioc.Resolution
                 r.RegisterService<IServiceDependency>().ImplementedBy<DependencyImplementation>();
                 r.RegisterService<IService>().ImplementedBy<ServiceImplementationDependentOnService>();
             });
-            
-            container.Resolve<IServiceDependency>();
-            var service = container.Resolve<IService>();
+
+            container.Resolve<IServiceDependency>(out _);
+            container.Resolve<IService>(out var service);
 
             Assert.IsInstanceOf<ServiceImplementationDependentOnService>(service);
         }

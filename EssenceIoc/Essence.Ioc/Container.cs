@@ -8,19 +8,19 @@ using Essence.Ioc.Resolution;
 
 namespace Essence.Ioc
 {
-    public sealed class Container : IContainer, IDisposable
+    public sealed class Container : IDisposable
     {
         private readonly Resolver _resolver;
-        private readonly InstanceTracker _tracker = new InstanceTracker();
+        private readonly LifeScope _singletonLifeScope = new LifeScope();
         private bool _isDisposed;
 
         public Container(Action<ExtendableRegistration.Registerer> serviceRegistration)
         {
             var factories = new Factories();
 
-            _resolver = new Resolver(factories, _tracker);
+            _resolver = new Resolver(factories);
             
-            var registerer = new Registration.Registerer(factories, _resolver, _tracker);
+            var registerer = new Registration.Registerer(factories, _resolver, _singletonLifeScope);
             var extendableRegisterer = new ExtendableRegisterer(registerer);
             
             serviceRegistration.Invoke(extendableRegisterer);
@@ -28,19 +28,21 @@ namespace Essence.Ioc
         }
 
         [Pure]
-        public TService Resolve<TService>() where TService : class
+        public IDisposable Resolve<TService>(out TService service) where TService : class
         {
             if (_isDisposed)
             {
                 throw new ObjectDisposedException(nameof(Container));
             }
             
-            return _resolver.Resolve<TService>();
+            var transientLifeScope = new LifeScope();
+            service = _resolver.Resolve<TService>(transientLifeScope);
+            return transientLifeScope;
         }
         
         public void Dispose()
         {
-            _tracker.DisposeTrackedDisposables();
+            _singletonLifeScope.Dispose();
             _isDisposed = true;
         }
 
