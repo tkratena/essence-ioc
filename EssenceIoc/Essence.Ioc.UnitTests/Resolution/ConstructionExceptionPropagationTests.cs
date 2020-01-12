@@ -12,11 +12,11 @@ namespace Essence.Ioc.Resolution
     {
         public static IEnumerable TestCases = new[]
         {
-            new TestCaseData(new Container(r => 
+            new TestCaseData(new Container(r =>
                     r.RegisterService<IService>().ImplementedBy<ImplementationWithThrowingConstructor>()))
                 .SetName("Transient"),
-            
-            new TestCaseData(new Container(r => 
+
+            new TestCaseData(new Container(r =>
                     r.RegisterService<IService>().ImplementedBy<ImplementationWithThrowingConstructor>().AsSingleton()))
                 .SetName("Singleton")
         };
@@ -25,7 +25,7 @@ namespace Essence.Ioc.Resolution
         [TestCaseSource(nameof(TestCases))]
         public void Service(Container container)
         {
-            Assert.Throws<ConstructorException>(() => container.Resolve<IService>(out _));
+            Assert.Throws<TestConstructorException>(() => container.Resolve<IService>(out _));
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace Essence.Ioc.Resolution
         {
             container.Resolve<Lazy<IService>>(out var lazyService);
 
-            Assert.Throws<ConstructorException>(() =>
+            Assert.Throws<TestConstructorException>(() =>
             {
                 var _ = lazyService.Value;
             });
@@ -46,7 +46,7 @@ namespace Essence.Ioc.Resolution
         {
             container.Resolve<Func<IService>>(out var serviceFactory);
 
-            Assert.Throws<ConstructorException>(() => serviceFactory.Invoke());
+            Assert.Throws<TestConstructorException>(() => serviceFactory.Invoke());
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace Essence.Ioc.Resolution
         {
             container.Resolve<DelegateReturningService>(out var serviceFactory);
 
-            Assert.Throws<ConstructorException>(() => serviceFactory.Invoke());
+            Assert.Throws<TestConstructorException>(() => serviceFactory.Invoke());
         }
 
         private delegate IService DelegateReturningService();
@@ -65,11 +65,11 @@ namespace Essence.Ioc.Resolution
         {
             public ImplementationWithThrowingConstructor()
             {
-                throw new ConstructorException();
+                throw new TestConstructorException();
             }
         }
 
-        private class ConstructorException : Exception
+        private class TestConstructorException : Exception
         {
         }
 

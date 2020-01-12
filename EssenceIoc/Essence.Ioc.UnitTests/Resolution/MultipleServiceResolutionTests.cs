@@ -40,7 +40,7 @@ namespace Essence.Ioc.Resolution
                 new object[] {s1, s2, s3, s4, s5, s6, s7, s8, s9, s10},
                 Is.Unique.And.All.InstanceOf<MultipleServiceImplementation>());
         }
-        
+
         [Test]
         public void MultipleServicesConstructedByTheSameFactory()
         {

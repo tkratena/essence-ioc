@@ -20,30 +20,30 @@ namespace Essence.Ioc.Registration
             [Test]
             public void RegisteringThrows()
             {
-                TestDelegate when = () => new Container(r => 
+                TestDelegate when = () => new Container(r =>
                     r.RegisterService<IService>().ImplementedBy<T>());
 
                 Assert.That(
-                    when, 
+                    when,
                     Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
                         .With.InstanceOf<NotRegisteredDependencyException>()
                         .And.Property(nameof(NotRegisteredDependencyException.DependencyType)).EqualTo(typeof(T)));
             }
-            
+
             [Test]
             public void RegisteringAsSingletonThrows()
             {
-                TestDelegate when = () => new Container(r => 
+                TestDelegate when = () => new Container(r =>
                     r.RegisterService<IService>().ImplementedBy<T>().AsSingleton());
 
                 Assert.That(
-                    when, 
+                    when,
                     Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
                         .With.InstanceOf<NotRegisteredDependencyException>()
                         .And.Property(nameof(NotRegisteredDependencyException.DependencyType)).EqualTo(typeof(T)));
             }
         }
-        
+
         [TestFixture(typeof(ClassDependingOnServiceItImplements))]
         [TestFixture(typeof(ClassDependingOnLazyServiceItImplements))]
         [TestFixture(typeof(ClassDependingOnServiceItImplementsFactory))]
@@ -52,30 +52,30 @@ namespace Essence.Ioc.Registration
             [Test]
             public void RegisteringThrows()
             {
-                TestDelegate when = () => new Container(r => 
+                TestDelegate when = () => new Container(r =>
                     r.RegisterService<IService>().ImplementedBy<T>());
 
                 Assert.That(
-                    when, 
+                    when,
                     Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
                         .With.InstanceOf<NotRegisteredDependencyException>()
                         .And.Property(nameof(NotRegisteredDependencyException.DependencyType)).EqualTo(typeof(IService)));
             }
-        
+
             [Test]
             public void RegisteringAsSingletonThrows()
             {
-                TestDelegate when = () => new Container(r => 
+                TestDelegate when = () => new Container(r =>
                     r.RegisterService<IService>().ImplementedBy<T>().AsSingleton());
 
                 Assert.That(
-                    when, 
+                    when,
                     Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
                         .With.InstanceOf<NotRegisteredDependencyException>()
                         .And.Property(nameof(NotRegisteredDependencyException.DependencyType)).EqualTo(typeof(IService)));
             }
         }
-        
+
         [Test]
         public void RegisteringServiceImplementationDependentOnSelfByItsDependencyThrows()
         {
@@ -86,57 +86,57 @@ namespace Essence.Ioc.Registration
             });
 
             Assert.That(
-                when, 
+                when,
                 Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
                     .With.InstanceOf<NotRegisteredDependencyException>());
         }
-        
+
         private class ClassDependingOnSelf : IService
         {
             public ClassDependingOnSelf(ClassDependingOnSelf circularDependency)
             {
             }
         }
-        
+
         private class ClassDependingOnLazySelf : IService
         {
             public ClassDependingOnLazySelf(Lazy<ClassDependingOnLazySelf> circularDependency)
             {
             }
         }
-        
+
         private class ClassDependingOnSelfFactory : IService
         {
             public ClassDependingOnSelfFactory(Func<ClassDependingOnSelfFactory> circularDependency)
             {
             }
         }
-        
+
         private class ClassDependingOnServiceItImplements : IService
         {
             public ClassDependingOnServiceItImplements(IService circularDependency)
             {
             }
         }
-        
+
         private class ClassDependingOnLazyServiceItImplements : IService
         {
             public ClassDependingOnLazyServiceItImplements(Lazy<IService> circularDependency)
             {
             }
         }
-        
+
         private class ClassDependingOnServiceItImplementsFactory : IService
         {
             public ClassDependingOnServiceItImplementsFactory(Func<IService> circularDependency)
             {
             }
         }
-        
+
         public interface IService
         {
         }
-        
+
         private class ServiceAImplementationDependingOnServiceB : IServiceA
         {
             public ServiceAImplementationDependingOnServiceB(IServiceB circularDependency)
@@ -150,7 +150,7 @@ namespace Essence.Ioc.Registration
             {
             }
         }
-        
+
         private interface IServiceA
         {
         }

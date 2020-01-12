@@ -11,40 +11,40 @@ namespace Essence.Ioc.LifeCycleManagement
         [Test]
         public void TransientServiceIsDisposedWithTransientLifeScope()
         {
-            var container = new Container(r => 
+            var container = new Container(r =>
                 r.GenericallyRegisterService(typeof(IService<>)).ImplementedBy(typeof(DisposableSpy<>)));
             var transientLifeScope = container.Resolve<IService<IActualGenericArg>>(out var disposableSpy);
-            
+
             transientLifeScope.Dispose();
-            
+
             Assert.That(disposableSpy, Has.Property(nameof(DisposableSpy.IsDisposed)).True);
         }
-        
+
         [Test]
         public void TransientServiceIsNotDisposedWithContainer()
         {
-            var container = new Container(r => 
+            var container = new Container(r =>
                 r.GenericallyRegisterService(typeof(IService<>)).ImplementedBy(typeof(DisposableSpy<>)));
             var _ = container.Resolve<IService<IActualGenericArg>>(out var disposableSpy);
-            
+
             container.Dispose();
-            
+
             Assert.That(disposableSpy, Has.Property(nameof(DisposableSpy.IsDisposed)).False);
         }
-        
+
         [Test]
         public void TransientServiceIsDisposedOnlyOnce()
         {
-            var container = new Container(r => 
+            var container = new Container(r =>
                 r.GenericallyRegisterService(typeof(IService<>)).ImplementedBy(typeof(DisposableSpy<>)));
             var transientLifeScope = container.Resolve<IService<IActualGenericArg>>(out var disposableSpy);
-            
+
             transientLifeScope.Dispose();
             transientLifeScope.Dispose();
-            
+
             Assert.That(disposableSpy, Has.Property(nameof(DisposableSpy.DisposeCount)).EqualTo(1));
         }
-        
+
         private class DisposableSpy<T> : DisposableSpy, IService<T>, IDisposable
         {
         }
@@ -52,7 +52,7 @@ namespace Essence.Ioc.LifeCycleManagement
         private abstract class DisposableSpy
         {
             public int DisposeCount { get; private set; }
-            
+
             public bool IsDisposed => DisposeCount > 0;
 
             public void Dispose() => DisposeCount++;
@@ -62,7 +62,7 @@ namespace Essence.Ioc.LifeCycleManagement
         private interface IService<T>
         {
         }
-        
+
         private interface IActualGenericArg
         {
         }

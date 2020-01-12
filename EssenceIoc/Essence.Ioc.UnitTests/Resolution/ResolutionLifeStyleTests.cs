@@ -12,15 +12,15 @@ namespace Essence.Ioc.Resolution
         [Test]
         public void ContainerCreatesNewInstancesOfTransientService()
         {
-            var container = new Container(r => 
+            var container = new Container(r =>
                 r.RegisterService<IService>().ImplementedBy<ServiceImplementation>());
 
             container.Resolve<IService>(out var firstInstance);
             container.Resolve<IService>(out var secondInstance);
-            
+
             Assert.AreNotSame(firstInstance, secondInstance);
         }
-        
+
         [Test]
         public void ContainerCreatesNewInstancesOfTransientDependency()
         {
@@ -29,7 +29,7 @@ namespace Essence.Ioc.Resolution
                 r.RegisterService<IService>()
                     .ImplementedBy<ServiceImplementation>();
                 r.RegisterService<SpyClassDependentTwiceOnService>()
-                    .ImplementedBy<SpyClassDependentTwiceOnService>(); 
+                    .ImplementedBy<SpyClassDependentTwiceOnService>();
             });
 
             container.Resolve<SpyClassDependentTwiceOnService>(out var spy);
@@ -38,7 +38,7 @@ namespace Essence.Ioc.Resolution
             var secondInstance = spy.SecondDependency;
             Assert.AreNotSame(firstInstance, secondInstance);
         }
-        
+
         [Test]
         public void ServiceFactoryDependencyCreatesNewInstancesOfTransientService()
         {
@@ -51,12 +51,12 @@ namespace Essence.Ioc.Resolution
             });
 
             container.Resolve<SpyClassDependentOnServiceFactory>(out var spy);
-            
+
             var firstInstance = spy.Dependency.Invoke();
             var secondInstance = spy.Dependency.Invoke();
             Assert.AreNotSame(firstInstance, secondInstance);
         }
-        
+
         [Test]
         public void ServiceFactoryDelegateDependencyCreatesNewInstancesOfTransientService()
         {
@@ -65,7 +65,7 @@ namespace Essence.Ioc.Resolution
                 r.RegisterService<IService>()
                     .ImplementedBy<ServiceImplementation>();
                 r.RegisterService<SpyClassDependentOnServiceFactoryDelegate>()
-                    .ImplementedBy<SpyClassDependentOnServiceFactoryDelegate>(); 
+                    .ImplementedBy<SpyClassDependentOnServiceFactoryDelegate>();
             });
 
             container.Resolve<SpyClassDependentOnServiceFactoryDelegate>(out var spy);
@@ -78,15 +78,15 @@ namespace Essence.Ioc.Resolution
         [Test]
         public void ContainerProvidesSameInstanceOfSingletonService()
         {
-            var container = new Container(r => 
+            var container = new Container(r =>
                 r.RegisterService<IService>().ImplementedBy<ServiceImplementation>().AsSingleton());
 
             container.Resolve<IService>(out var firstInstance);
             container.Resolve<IService>(out var secondInstance);
-            
+
             Assert.AreSame(firstInstance, secondInstance);
         }
-        
+
         [Test]
         public void ContainerProvidesSameInstanceOfSingletonDependency()
         {
@@ -104,7 +104,7 @@ namespace Essence.Ioc.Resolution
             var secondInstance = spy.SecondDependency;
             Assert.AreSame(firstInstance, secondInstance);
         }
-        
+
         [Test]
         public void ServiceFactoryDependencyProvidesSameInstanceOfSingletonService()
         {
@@ -122,7 +122,7 @@ namespace Essence.Ioc.Resolution
             var secondInstance = spy.Dependency.Invoke();
             Assert.AreSame(firstInstance, secondInstance);
         }
-        
+
         [Test]
         public void ServiceFactoryDelegateDependencyProvidesSameInstanceOfSingletonService()
         {
@@ -140,21 +140,21 @@ namespace Essence.Ioc.Resolution
             var secondInstance = spy.Dependency.Invoke();
             Assert.AreSame(firstInstance, secondInstance);
         }
-        
+
         [Test]
         public void ContainerProvidesSameInstanceOfSingletonServiceCreatedByCustomFactory()
         {
-            var container = new Container(r => 
+            var container = new Container(r =>
                 r.RegisterService<IService>().ConstructedBy(() => new ServiceImplementation()).AsSingleton());
 
             container.Resolve<IService>(out var instance);
             var firstInstance = instance;
             container.Resolve<IService>(out var instance1);
             var secondInstance = instance1;
-            
+
             Assert.AreSame(firstInstance, secondInstance);
         }
-        
+
         [Test]
         public void ContainerProvidesSameInstanceOfSingletonDependencyCreatedByCustomFactory()
         {
@@ -172,7 +172,7 @@ namespace Essence.Ioc.Resolution
             var secondInstance = spy.SecondDependency;
             Assert.AreSame(firstInstance, secondInstance);
         }
-        
+
         [Test]
         public void ServiceFactoryDependencyProvidesSameInstanceOfSingletonServiceCreatedByCustomFactory()
         {
@@ -185,12 +185,12 @@ namespace Essence.Ioc.Resolution
             });
 
             container.Resolve<SpyClassDependentOnServiceFactory>(out var spy);
-            
+
             var firstInstance = spy.Dependency.Invoke();
             var secondInstance = spy.Dependency.Invoke();
             Assert.AreSame(firstInstance, secondInstance);
         }
-        
+
         [Test]
         public void ServiceFactoryDelegateDependencyProvidesSameInstanceOfSingletonServiceCreatedByCustomFactory()
         {
@@ -208,9 +208,9 @@ namespace Essence.Ioc.Resolution
             var secondInstance = spy.Dependency.Invoke();
             Assert.AreSame(firstInstance, secondInstance);
         }
-        
+
         [Test]
-        public void ContainerProvidesSameInstanceOfSingletonDependencyCreatedByCustomFactoryThatUsesContainer()
+        public void ContainerProvidesSameInstanceOfSingletonDependencyConstructedByCustomFactoryUsingContainer()
         {
             var container = new Container(r =>
             {
@@ -223,7 +223,7 @@ namespace Essence.Ioc.Resolution
             });
 
             container.Resolve<SpyClassDependentTwiceOnService>(out var spy);
-            
+
             var firstInstance = spy.FirstDependency;
             var secondInstance = spy.SecondDependency;
             Assert.AreSame(firstInstance, secondInstance);
@@ -232,7 +232,7 @@ namespace Essence.Ioc.Resolution
         private class ServiceImplementation : IService
         {
         }
-        
+
         private class SpyClassDependentTwiceOnService
         {
             public IService FirstDependency { get; }
@@ -244,7 +244,7 @@ namespace Essence.Ioc.Resolution
                 SecondDependency = secondDependency;
             }
         }
-        
+
         private class SpyClassDependentOnServiceFactory
         {
             public Func<IService> Dependency { get; }
@@ -254,11 +254,11 @@ namespace Essence.Ioc.Resolution
                 Dependency = dependency;
             }
         }
-        
+
         private class SpyClassDependentOnServiceFactoryDelegate
         {
             public delegate IService ServiceFactory();
-            
+
             public ServiceFactory Dependency { get; }
 
             public SpyClassDependentOnServiceFactoryDelegate(ServiceFactory dependency)
@@ -266,7 +266,7 @@ namespace Essence.Ioc.Resolution
                 Dependency = dependency;
             }
         }
-        
+
         private class ServiceImplementationDependentOnService : IService
         {
             [SuppressMessage("ReSharper", "UnusedParameter.Local")]
@@ -278,11 +278,11 @@ namespace Essence.Ioc.Resolution
         private class DependencyImplementation : IServiceDependency
         {
         }
-        
+
         private interface IService
         {
         }
-        
+
         private interface IServiceDependency
         {
         }

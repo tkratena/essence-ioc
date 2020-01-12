@@ -107,7 +107,7 @@ namespace Essence.Ioc.Resolution
                 Dependency = dependency;
             }
         }
-        
+
         [Test]
         public void ClassDependentOnGenericServiceFactoryDelegate()
         {
@@ -125,7 +125,7 @@ namespace Essence.Ioc.Resolution
             var dependency = ((SpyServiceImplementationDependentOnGenericServiceFactoryDelegate) service).Dependency;
             Assert.IsInstanceOf<DependencyImplementation>(dependency.Invoke());
         }
-        
+
         private class SpyServiceImplementationDependentOnGenericServiceFactoryDelegate : IService
         {
             public delegate T DependencyFactory<out T>();
@@ -227,15 +227,15 @@ namespace Essence.Ioc.Resolution
 
             Assert.IsInstanceOf<ServiceImplementation>(service);
         }
-        
+
         [Test]
-        public void ServiceConstructedByCustomFactoryThatUsesContainer()
+        public void ServiceConstructedByCustomFactoryUsingContainer()
         {
             var container = new Container(r =>
             {
                 r.RegisterService<IServiceDependency>().ImplementedBy<DependencyImplementation>();
-                r.RegisterService<IService>()
-                    .ConstructedBy(c => new SpyServiceImplementationDependentOnService(c.Resolve<IServiceDependency>()));
+                r.RegisterService<IService>().ConstructedBy(c =>
+                    new SpyServiceImplementationDependentOnService(c.Resolve<IServiceDependency>()));
             });
 
             container.Resolve<IService>(out var service);
@@ -323,7 +323,7 @@ namespace Essence.Ioc.Resolution
         private interface IActualGenericArg
         {
         }
-        
+
         [Test]
         public void DependencyTypeDefinedByGenericArgumentOfGenericallyRegisteredService()
         {
@@ -333,7 +333,7 @@ namespace Essence.Ioc.Resolution
                 r.GenericallyRegisterService(typeof(IService<>)).ImplementedBy(typeof(SpyGenericArgumentConsumer<>));
             });
 
-            var service = container.Resolve<IService<IService>>();
+            container.Resolve<IService<IService>>(out var service);
 
             Assert.IsInstanceOf<SpyGenericArgumentConsumer<IService>>(service);
             var spyService = (SpyGenericArgumentConsumer<IService>) service;
@@ -341,7 +341,7 @@ namespace Essence.Ioc.Resolution
             Assert.IsInstanceOf<ServiceImplementation>(spyService.LazyDependency.Value);
             Assert.IsInstanceOf<ServiceImplementation>(spyService.DependencyFactory.Invoke());
         }
-        
+
         private class SpyGenericArgumentConsumer<T> : IService<T>
         {
             public T Dependency { get; }
@@ -383,7 +383,7 @@ namespace Essence.Ioc.Resolution
             {
             }
         }
-        
+
         private class ServiceImplementation : IService
         {
         }
