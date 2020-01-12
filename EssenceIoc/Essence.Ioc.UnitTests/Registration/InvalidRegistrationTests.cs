@@ -30,25 +30,25 @@ namespace Essence.Ioc.Registration
         {
             [Test]
             public void RegisteringThrows()
-                
+
             {
-                TestDelegate when = () => new Container(r => 
+                TestDelegate when = () => new Container(r =>
                     r.RegisterService<IService>().ImplementedBy<TServiceImplementation>());
 
                 Assert.That(when, Throws.Exception.InstanceOf<TExpectedException>());
             }
-            
+
             [Test]
             public void RegisteringAsSingletonThrows()
-                
+
             {
-                TestDelegate when = () => new Container(r => 
+                TestDelegate when = () => new Container(r =>
                     r.RegisterService<IService>().ImplementedBy<TServiceImplementation>().AsSingleton());
 
                 Assert.That(when, Throws.Exception.InstanceOf<TExpectedException>());
             }
         }
-        
+
         [TestFixture(typeof(ClassDependingOnDelegateWithNoReturnType), typeof(NonFactoryDelegateException))]
         [TestFixture(typeof(ClassDependingOnDelegateWithParameters), typeof(NonFactoryDelegateException))]
         [TestFixture(typeof(ClassDependingOnDelegateWithParametersAndNoReturnType), typeof(NonFactoryDelegateException))]
@@ -62,7 +62,7 @@ namespace Essence.Ioc.Registration
             [Test]
             public void RegisteringThrows()
             {
-                TestDelegate when = () => new Container(r => 
+                TestDelegate when = () => new Container(r =>
                     r.RegisterService<IService>().ImplementedBy<TServiceImplementation>());
 
                 Assert.That(
@@ -70,11 +70,11 @@ namespace Essence.Ioc.Registration
                     Throws.Exception.InstanceOf<DependencyRegistrationException>()
                         .With.InnerException.InstanceOf<TExpectedException>());
             }
-            
+
             [Test]
             public void RegisteringAsSingletonThrows()
             {
-                TestDelegate when = () => new Container(r => 
+                TestDelegate when = () => new Container(r =>
                     r.RegisterService<IService>().ImplementedBy<TServiceImplementation>().AsSingleton());
 
                 Assert.That(
@@ -130,11 +130,11 @@ namespace Essence.Ioc.Registration
         [Test]
         public void RegisteringClassDependentOnSequenceDescendantNotRegisteredYetThrowsNonSpecificException()
         {
-            TestDelegate when = () => new Container(r => 
+            TestDelegate when = () => new Container(r =>
                 r.RegisterService<IService>().ImplementedBy<ClassDependingOnSequenceDescendantNotRegisteredYet>());
 
             Assert.That(
-                when, 
+                when,
                 Throws.Exception.InstanceOf<DependencyRegistrationException>().With.InnerException
                     .With.InstanceOf<NotRegisteredDependencyException>());
         }
@@ -235,14 +235,14 @@ namespace Essence.Ioc.Registration
             {
             }
         }
-        
+
         private class ClassDependingOnServiceNotRegisteredYet : IService
         {
             public ClassDependingOnServiceNotRegisteredYet(INotRegisteredService dependency)
             {
             }
         }
-        
+
         private class ClassDependingOnGenericServiceNotRegisteredYet : IService
         {
             public ClassDependingOnGenericServiceNotRegisteredYet(INotRegisteredService<IActualGenericArg> dependency)
@@ -265,7 +265,7 @@ namespace Essence.Ioc.Registration
             {
             }
         }
-        
+
         private class ClassDependingOnSequenceDescendantNotRegisteredYet : IService
         {
             public ClassDependingOnSequenceDescendantNotRegisteredYet(ISequenceDescendant dependency)
@@ -280,17 +280,17 @@ namespace Essence.Ioc.Registration
         private interface INotRegisteredService
         {
         }
-        
+
         [SuppressMessage("ReSharper", "UnusedTypeParameter")]
         private interface INotRegisteredService<T>
         {
         }
-        
+
         [SuppressMessage("ReSharper", "UnusedTypeParameter")]
         private interface INotRegisteredService<T1, T2>
         {
         }
-        
+
         private interface IActualGenericArg
         {
         }
@@ -302,7 +302,7 @@ namespace Essence.Ioc.Registration
         private class ServiceImplementation : IService
         {
         }
-        
+
         public interface IService
         {
         }

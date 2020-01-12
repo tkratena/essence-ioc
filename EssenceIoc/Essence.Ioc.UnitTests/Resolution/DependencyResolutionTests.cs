@@ -107,7 +107,7 @@ namespace Essence.Ioc.Resolution
                 Dependency = dependency;
             }
         }
-        
+
         [Test]
         public void ClassDependentOnGenericServiceFactoryDelegate()
         {
@@ -125,7 +125,7 @@ namespace Essence.Ioc.Resolution
             var dependency = ((SpyServiceImplementationDependentOnGenericServiceFactoryDelegate) service).Dependency;
             Assert.IsInstanceOf<DependencyImplementation>(dependency.Invoke());
         }
-        
+
         private class SpyServiceImplementationDependentOnGenericServiceFactoryDelegate : IService
         {
             public delegate T DependencyFactory<out T>();
@@ -227,15 +227,15 @@ namespace Essence.Ioc.Resolution
 
             Assert.IsInstanceOf<ServiceImplementation>(service);
         }
-        
+
         [Test]
-        public void ServiceConstructedByCustomFactoryThatUsesContainer()
+        public void ServiceConstructedByCustomFactoryUsingContainer()
         {
             var container = new Container(r =>
             {
                 r.RegisterService<IServiceDependency>().ImplementedBy<DependencyImplementation>();
-                r.RegisterService<IService>()
-                    .ConstructedBy(c => new SpyServiceImplementationDependentOnService(c.Resolve<IServiceDependency>()));
+                r.RegisterService<IService>().ConstructedBy(c =>
+                    new SpyServiceImplementationDependentOnService(c.Resolve<IServiceDependency>()));
             });
 
             container.Resolve<IService>(out var service);
@@ -310,7 +310,7 @@ namespace Essence.Ioc.Resolution
             Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(genericallyRegistered);
             Assert.IsInstanceOf<NonGenericallyRegisteredGenericServiceImplementation>(nonGenericallyRegistered);
         }
-        
+
         [SuppressMessage("ReSharper", "UnusedTypeParameter")]
         private interface IService<T>
         {
@@ -332,7 +332,7 @@ namespace Essence.Ioc.Resolution
             : IService<INonGenericallyRegisteredGenericArg>
         {
         }
-        
+
         [Test]
         [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
         public void ServiceCanBeResolvedAfterDependencyOfItsImplementationHasBeenResolved()

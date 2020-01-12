@@ -21,22 +21,22 @@ namespace Essence.Ioc.Registration
 
             Assert.That(when, Throws.Exception.InstanceOf<ServiceTypeNotGenericTypeDefinitionException>());
         }
-        
+
         [Test]
         [TestCase(typeof(NonGenericServiceImplementation))]
         [TestCase(typeof(GenericServiceImplementation<object>))]
         public void RegisteringNonGenericTypeDefinitionAsGenericServiceImplementationThrows(Type implementationType)
         {
-            TestDelegate when = () => new Container(r => 
+            TestDelegate when = () => new Container(r =>
                 r.GenericallyRegisterService(typeof(IGenericService<>)).ImplementedBy(implementationType));
 
             Assert.That(when, Throws.Exception.InstanceOf<ImplementationTypeNotGenericTypeDefinitionException>());
         }
-        
+
         [Test]
         public void RegisteringClassNotImplementingGivenServiceAsGenericServiceImplementationThrows()
         {
-            TestDelegate when = () => new Container(r => 
+            TestDelegate when = () => new Container(r =>
                 r.GenericallyRegisterService(typeof(IGenericService<>))
                     .ImplementedBy(typeof(GenericClassNotImplementingAService<>)));
 
@@ -46,7 +46,7 @@ namespace Essence.Ioc.Registration
         private interface IGenericService<T>
         {
         }
-        
+
         private interface INonGenericService
         {
         }
@@ -58,7 +58,7 @@ namespace Essence.Ioc.Registration
         private class NonGenericServiceImplementation : INonGenericService
         {
         }
-        
+
         private class GenericClassNotImplementingAService<T>
         {
         }

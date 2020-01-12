@@ -7,7 +7,7 @@ namespace Essence.Ioc
     {
         private readonly Action<Registerer> _registerServices;
 
-        public TestRegistration(string description, Action<Registerer> registration) 
+        public TestRegistration(string description, Action<Registerer> registration)
             : base(description)
         {
             _registerServices = registration ?? throw new ArgumentNullException(nameof(registration));

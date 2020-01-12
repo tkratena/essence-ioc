@@ -25,7 +25,7 @@ namespace Essence.Ioc.Registration
             new TestRegistration(
                 "Custom factory",
                 r => r.RegisterService<IService>().ConstructedBy(() => new ServiceImplementation())),
-            
+
             new TestRegistration(
                 "Custom factory singleton",
                 r => r.RegisterService<IService>().ConstructedBy(() => new ServiceImplementation()).AsSingleton()),
@@ -33,7 +33,7 @@ namespace Essence.Ioc.Registration
             new TestRegistration(
                 "Custom factory using container",
                 r => r.RegisterService<IService>().ConstructedBy(_ => new ServiceImplementation())),
-            
+
             new TestRegistration(
                 "Custom factory singleton using container",
                 r => r.RegisterService<IService>().ConstructedBy(_ => new ServiceImplementation()).AsSingleton())
@@ -52,7 +52,7 @@ namespace Essence.Ioc.Registration
 
             Assert.That(when, Throws.Exception.InstanceOf<AlreadyRegisteredException>());
         }
-        
+
         private class ServiceImplementation : IService
         {
         }

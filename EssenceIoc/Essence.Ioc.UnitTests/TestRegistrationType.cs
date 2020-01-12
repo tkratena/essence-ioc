@@ -8,7 +8,7 @@ namespace Essence.Ioc
     {
         private readonly Func<Registerer, ILifeStyle> _registerServices;
 
-        public TestRegistrationType(string description, Func<Registerer, ILifeStyle> registration) 
+        public TestRegistrationType(string description, Func<Registerer, ILifeStyle> registration)
             : base(description)
         {
             _registerServices = registration ?? throw new ArgumentNullException(nameof(registration));

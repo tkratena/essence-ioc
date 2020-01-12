@@ -19,7 +19,7 @@ namespace Essence.Ioc.Resolution
 
             Assert.IsInstanceOf<ConcreteService>(service);
         }
-        
+
         [TestFixture]
         public class ServiceTests
         {
@@ -44,7 +44,7 @@ namespace Essence.Ioc.Resolution
             public void LazyService()
             {
                 _container.Resolve<Lazy<IService>>(out var lazyService);
-            
+
                 Assert.IsFalse(lazyService.IsValueCreated);
                 Assert.IsInstanceOf<ServiceImplementation>(lazyService.Value);
             }
@@ -53,7 +53,7 @@ namespace Essence.Ioc.Resolution
             public void ServiceFactory()
             {
                 _container.Resolve<Func<IService>>(out var serviceFactory);
-            
+
                 Assert.IsInstanceOf<ServiceImplementation>(serviceFactory.Invoke());
             }
 
@@ -61,7 +61,7 @@ namespace Essence.Ioc.Resolution
             public void ServiceFactoryDelegate()
             {
                 _container.Resolve<DelegateReturningService>(out var serviceFactory);
-            
+
                 Assert.IsInstanceOf<ServiceImplementation>(serviceFactory.Invoke());
             }
 
@@ -79,7 +79,7 @@ namespace Essence.Ioc.Resolution
                 _container = new Container(r =>
                     r.GenericallyRegisterService(typeof(IService<>)).ImplementedBy(typeof(ServiceImplementation<>)));
             }
-            
+
             [Test]
             public void Service()
             {
@@ -87,7 +87,7 @@ namespace Essence.Ioc.Resolution
 
                 Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(service);
             }
-            
+
             [Test]
             public void LazyService()
             {
@@ -96,12 +96,12 @@ namespace Essence.Ioc.Resolution
                 Assert.IsFalse(lazyService.IsValueCreated);
                 Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(lazyService.Value);
             }
-            
+
             [Test]
             public void ServiceFactory()
             {
                 _container.Resolve<Func<IService<IActualGenericArg>>>(out var serviceFactory);
-            
+
                 Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(serviceFactory.Invoke());
             }
 
@@ -109,7 +109,7 @@ namespace Essence.Ioc.Resolution
             public void ServiceFactoryDelegate()
             {
                 _container.Resolve<DelegateReturningService>(out var serviceFactory);
-            
+
                 Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(serviceFactory.Invoke());
             }
 

@@ -16,7 +16,7 @@ namespace Essence.Ioc.LifeCycleManagement
             container.Dispose();
 
             TestDelegate when = () => _ = container.Resolve<object>(out _);
-            
+
             Assert.That(when, Throws.Exception.InstanceOf<ObjectDisposedException>());
         }
 
@@ -33,28 +33,28 @@ namespace Essence.Ioc.LifeCycleManagement
                     r.RegisterService<IDependency>().ImplementedBy<Disposable>();
                     r.RegisterService<IDependencySpy>().ImplementedBy<DependencySpy>();
                 });
-                
+
                 var transientLifeScope = container.Resolve(out _dependencySpy);
                 transientLifeScope.Dispose();
             }
-            
+
             [Test]
             public void TransientLazyUsageThrowsAfterTransientLifeScopeIsDisposed()
             {
                 TestDelegate when = () => _ = _dependencySpy.LazyDependency.Value;
-            
+
                 Assert.That(when, Throws.Exception.InstanceOf<ObjectDisposedException>());
             }
-            
+
             [Test]
             public void TransientFactoryUsageThrowsAfterTransientLifeScopeIsDisposed()
             {
                 TestDelegate when = () => _dependencySpy.DependencyFactory.Invoke();
-            
+
                 Assert.That(when, Throws.Exception.InstanceOf<ObjectDisposedException>());
             }
         }
-        
+
         [TestFixture]
         private class SingletonDependency
         {
@@ -68,28 +68,28 @@ namespace Essence.Ioc.LifeCycleManagement
                     r.RegisterService<IDependency>().ImplementedBy<Disposable>().AsSingleton();
                     r.RegisterService<IDependencySpy>().ImplementedBy<DependencySpy>();
                 });
-                
+
                 _ = container.Resolve(out _dependencySpy);
                 container.Dispose();
             }
-            
+
             [Test]
             public void SingletonLazyUsageThrowsAfterTransientLifeScopeIsDisposed()
             {
                 TestDelegate when = () => _ = _dependencySpy.LazyDependency.Value;
-            
+
                 Assert.That(when, Throws.Exception.InstanceOf<ObjectDisposedException>());
             }
-            
+
             [Test]
             public void SingletonFactoryUsageThrowsAfterTransientLifeScopeIsDisposed()
             {
                 TestDelegate when = () => _dependencySpy.DependencyFactory.Invoke();
-            
+
                 Assert.That(when, Throws.Exception.InstanceOf<ObjectDisposedException>());
             }
         }
-        
+
         [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
         private class DependencySpy : IDependencySpy
         {
