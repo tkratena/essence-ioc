@@ -22,6 +22,25 @@ namespace Essence.Ioc.Resolution
         private interface INotImplementedService
         {
         }
+        
+        [Test]
+        public void ClassNotRegisteredAsServiceOnlyUsedAsImplementationThrows()
+        {
+            var container = new Container(r => 
+                r.RegisterService<IDummyService>().ImplementedBy<ServiceImplementation>());
+
+            TestDelegate when = () => container.Resolve<ServiceImplementation>(out _);
+
+            Assert.That(when, Throws.Exception.InstanceOf<NotRegisteredServiceException>());
+        }
+        
+        private class ServiceImplementation : IDummyService
+        {
+        }
+        
+        private interface IDummyService
+        {
+        }
 
         [Test]
         public void NotRegisteredServiceThatIsImplementedByRegisteredImplementationThrows()
