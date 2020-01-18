@@ -13,6 +13,10 @@ namespace Essence.Ioc.TypeModel
 {
     internal sealed class Implementation
     {
+        private static readonly TypeInfo DisposableType = typeof(IDisposable).GetTypeInfo();
+        private static readonly MethodInfo TrackMethod = 
+            typeof(ILifeScope).GetTypeInfo().GetMethod(nameof(ILifeScope.TrackDisposable));
+        
         private readonly Type _type;
 
         public Implementation(Type implementationType)
@@ -30,7 +34,7 @@ namespace Essence.Ioc.TypeModel
             var constructor = GetSinglePublicConstructor(_type);
             var resolvedDependencies = ResolveDependencies(constructor, factoryFinder).ToList();
             
-            if (typeof(IDisposable).GetTypeInfo().IsAssignableFrom(_type))
+            if (DisposableType.IsAssignableFrom(_type))
             {
                 return ResolveDisposable(constructor, resolvedDependencies);
             }
@@ -42,12 +46,9 @@ namespace Essence.Ioc.TypeModel
             ConstructorInfo constructor, 
             IEnumerable<IFactoryExpression> dependencies)
         {
-            var trackMethod = typeof(ILifeScope).GetTypeInfo().GetMethod(nameof(ILifeScope.TrackDisposable));
-
             return new FactoryExpression(lifeScope =>
             {
-                var constructorCall =
-                    Expression.New(constructor, dependencies.Select(d => d.GetBody(lifeScope)));
+                var constructorCall = Expression.New(constructor, dependencies.Select(d => d.GetBody(lifeScope)));
 
                 var instanceVariable = Expression.Variable(_type, "instance");
                 var returnTarget = Expression.Label(_type);
@@ -55,7 +56,7 @@ namespace Essence.Ioc.TypeModel
                 return Expression.Block(
                     new[] {instanceVariable},
                     Expression.Assign(instanceVariable, constructorCall),
-                    Expression.Call(lifeScope, trackMethod, instanceVariable),
+                    Expression.Call(lifeScope, TrackMethod, instanceVariable),
                     Expression.Label(returnTarget, instanceVariable));
             });
         }

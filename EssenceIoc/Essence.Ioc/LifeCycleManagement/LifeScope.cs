@@ -8,7 +8,14 @@ namespace Essence.Ioc.LifeCycleManagement
     {
         private readonly ICollection<IDisposable> _disposables = new List<IDisposable>();
         private bool _isDisposed;
-        
+
+        public ILifeScope CreateNestedScope()
+        {
+            var nestedLifeScope = new LifeScope();
+            TrackDisposable(nestedLifeScope);
+            return nestedLifeScope;
+        }
+
         public void TrackDisposable(IDisposable instance)
         {
             if (_isDisposed)

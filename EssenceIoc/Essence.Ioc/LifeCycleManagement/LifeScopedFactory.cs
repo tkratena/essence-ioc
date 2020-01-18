@@ -4,15 +4,19 @@ namespace Essence.Ioc.LifeCycleManagement
 {
     internal static class LifeScopedFactory
     {
-        public static T ConstructWithTracking<T>(this Func<T> factory, ILifeScope lifeScope)
+        public static Func<T> WithTracking<T>(this Func<T> factory, ILifeScope lifeScope)
         {
-            var instance = factory.Invoke();
-            if (instance is IDisposable disposable)
-            {
-                lifeScope.TrackDisposable(disposable);
-            }
+            var nestedLifeScope = lifeScope.CreateNestedScope();
+            
+            return () => {
+                var instance = factory.Invoke();
+                if (instance is IDisposable disposable)
+                {
+                    nestedLifeScope.TrackDisposable(disposable);
+                }
 
-            return instance;
+                return instance;
+            };
         }
 
         public static T ConstructWithTracking<T>(this Func<ILifeScope, T> factory, ILifeScope lifeScope)

@@ -10,7 +10,7 @@ namespace Essence.Ioc.LifeCycleManagement
 
         public LifeScopedResolver(ILifeScope lifeScope, Resolver resolver)
         {
-            _lifeScope = lifeScope;
+            _lifeScope = lifeScope.CreateNestedScope();
             _resolver = resolver;
         }
 
