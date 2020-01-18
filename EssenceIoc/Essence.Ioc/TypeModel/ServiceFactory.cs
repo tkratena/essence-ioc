@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Essence.Framework.System;
 using Essence.Ioc.Expressions;
 using Essence.Ioc.LifeCycleManagement;
@@ -11,6 +12,9 @@ namespace Essence.Ioc.TypeModel
 {
     internal sealed class ServiceFactory
     {
+        private static readonly MethodInfo CreateNestedScopeMethod = 
+            typeof(ILifeScope).GetTypeInfo().GetMethod(nameof(ILifeScope.CreateNestedScope));
+        
         private readonly IDelegateInfo _delegateInfo;
 
         public ServiceFactory(IDelegateInfo delegateInfo)
@@ -30,15 +34,15 @@ namespace Essence.Ioc.TypeModel
 
             return new FactoryExpression(lifeScope =>
             {
-                var closure = Expression.Constant(new Closure());
-                var lifeScopeClosure = Expression.Property(closure, nameof(Closure.LifeScope));
+                var closure = new Closure();
+                var nestedScopeClosure = Expression.Property(Expression.Constant(closure), nameof(Closure.LifeScope));
                     
-                var body = service.GetBody(lifeScopeClosure);
+                var body = service.GetBody(nestedScopeClosure);
                 var factory = Expression.Lambda(_delegateInfo.Type, body).Compile();
 
                 var returnTarget = Expression.Label(_delegateInfo.Type);
                 return Expression.Block(
-                    Expression.Assign(lifeScopeClosure, lifeScope),
+                    Expression.Assign(nestedScopeClosure, Expression.Call(lifeScope, CreateNestedScopeMethod)),
                     Expression.Label(returnTarget, Expression.Constant(factory)));
             });
         }

@@ -196,6 +196,74 @@ namespace Essence.Ioc.LifeCycleManagement
             Assert.That(disposableSpy, Has.Property(nameof(DisposableSpy.DisposeCount)).EqualTo(1));
         }
 
+        private static IEnumerable<TestRegistrationType> DisposableConsumerRegistrationTypes => new[]
+        {
+            new TestRegistrationType("Dependent on service", r =>
+                r.RegisterService<IDependencySpyService>().ImplementedBy<DisposableClassDependentOnService>()),
+
+            new TestRegistrationType("Dependent on lazy service", r =>
+                r.RegisterService<IDependencySpyService>().ImplementedBy<DisposableClassDependentOnLazyService>()),
+
+            new TestRegistrationType("Dependent on service factory", r =>
+                r.RegisterService<IDependencySpyService>().ImplementedBy<DisposableClassDependentOnServiceFactory>()),
+
+            new TestRegistrationType("Dependent on custom service resolved by container", r =>
+                r.RegisterService<IDependencySpyService>().ConstructedBy(c =>
+                    new DisposableClassDependentOnService(c.Resolve<IDependency>()))),
+
+            new TestRegistrationType("Dependent on custom lazy service resolved by container", r =>
+                r.RegisterService<IDependencySpyService>().ConstructedBy(c =>
+                    new DisposableClassDependentOnLazyService(c.Resolve<Lazy<IDependency>>()))),
+
+            new TestRegistrationType("Dependent on custom service factory resolved by container", r =>
+                r.RegisterService<IDependencySpyService>().ConstructedBy(c =>
+                    new DisposableClassDependentOnServiceFactory(c.Resolve<Func<IDependency>>()))),
+
+            new TestRegistrationType("Dependent on custom lazy service using container", r =>
+                r.RegisterService<IDependencySpyService>().ConstructedBy(c =>
+                    new DisposableClassDependentOnLazyService(new Lazy<IDependency>(c.Resolve<IDependency>)))),
+
+            new TestRegistrationType("Dependent on custom service factory using container", r =>
+                r.RegisterService<IDependencySpyService>().ConstructedBy(c =>
+                    new DisposableClassDependentOnServiceFactory(c.Resolve<IDependency>)))
+        };
+
+        [Test]
+        public void TransientDependencyIsDisposedAfterItsConsumer(
+            [ValueSource(nameof(DisposableConsumerRegistrationTypes))] TestRegistrationType consumerRegistration,
+            [ValueSource(nameof(DependencyRegistrationTypes))] TestRegistrationType dependencyRegistration)
+        {
+            var container = new Container(r =>
+            {
+                dependencyRegistration.Invoke(r);
+                consumerRegistration.Invoke(r);
+            });
+            var transientLifeScope = container.Resolve<IDependencySpyService>(out var disposalOrderSpy);
+            _ = disposalOrderSpy.ActualDependency;
+
+            transientLifeScope.Dispose();
+
+            Assert.That(disposalOrderSpy, Has.Property(nameof(DisposalOrderSpy.WasDependencyDisposedBeforeThis)).False);
+        }
+
+        [Test]
+        public void SingletonDependencyIsDisposedAfterItsConsumer(
+            [ValueSource(nameof(SingletonRegistrationTypes))] TestDependencyLifeStyleRegistration singletonRegistration,
+            [ValueSource(nameof(DisposableConsumerRegistrationTypes))] TestRegistrationType consumerRegistration,
+            [ValueSource(nameof(DependencyRegistrationTypes))] TestRegistrationType dependencyRegistration)
+        {
+            var container = new Container(r => singletonRegistration.Invoke(
+                () => dependencyRegistration.Invoke(r),
+                () => consumerRegistration.Invoke(r)));
+            var transientLifeScope = container.Resolve<IDependencySpyService>(out var disposalOrderSpy);
+            _ = disposalOrderSpy.ActualDependency;
+
+            transientLifeScope.Dispose();
+            container.Dispose();
+
+            Assert.That(disposalOrderSpy, Has.Property(nameof(DisposalOrderSpy.WasDependencyDisposedBeforeThis)).False);
+        }
+
         private class ClassDependentOnService : IDependencySpyService
         {
             public IDependency ActualDependency { get; }
@@ -206,20 +274,64 @@ namespace Essence.Ioc.LifeCycleManagement
         {
             private readonly Lazy<IDependency> _actualDependency;
 
-            public ClassDependentOnLazyService(Lazy<IDependency> dependency)
-                => _actualDependency = dependency;
+            public ClassDependentOnLazyService(Lazy<IDependency> lazyDependency)
+                => _actualDependency = lazyDependency;
 
             public IDependency ActualDependency => _actualDependency.Value;
         }
 
         private class ClassDependentOnServiceFactory : IDependencySpyService
         {
-            private readonly Func<IDependency> _actualDependency;
+            private readonly Lazy<IDependency> _actualDependency;
 
-            public ClassDependentOnServiceFactory(Func<IDependency> dependency)
-                => _actualDependency = dependency;
+            public ClassDependentOnServiceFactory(Func<IDependency> dependencyFactory)
+                => _actualDependency = new Lazy<IDependency>(dependencyFactory);
 
-            public IDependency ActualDependency => _actualDependency.Invoke();
+            public IDependency ActualDependency => _actualDependency.Value;
+        }
+
+        private class DisposableClassDependentOnService : DisposalOrderSpy
+        {
+            public DisposableClassDependentOnService(IDependency dependency)
+                : base(new ClassDependentOnService(dependency))
+            {
+            }
+        }
+
+        private class DisposableClassDependentOnLazyService : DisposalOrderSpy
+        {
+            public DisposableClassDependentOnLazyService(Lazy<IDependency> lazyDependency)
+                : base(new ClassDependentOnLazyService(lazyDependency))
+            {
+            }
+        }
+
+        private class DisposableClassDependentOnServiceFactory : DisposalOrderSpy
+        {
+            public DisposableClassDependentOnServiceFactory(Func<IDependency> dependencyFactory)
+                : base(new ClassDependentOnServiceFactory(dependencyFactory))
+            {
+            }
+        }
+
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+        private abstract class DisposalOrderSpy : IDependencySpyService, IDisposable
+        {
+            private readonly IDependencySpyService _dependencySpyService;
+
+            public bool? WasDependencyDisposedBeforeThis { get; private set; }
+
+            protected DisposalOrderSpy(IDependencySpyService dependencySpyService)
+            {
+                _dependencySpyService = dependencySpyService;
+            }
+
+            public IDependency ActualDependency => _dependencySpyService.ActualDependency;
+
+            public void Dispose()
+            {
+                WasDependencyDisposedBeforeThis = (ActualDependency as DisposableSpy)?.IsDisposed;
+            }
         }
 
         private class DisposableSpy : NonDisposable, IDisposable

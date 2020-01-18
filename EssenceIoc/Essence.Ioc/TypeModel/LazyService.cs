@@ -20,11 +20,11 @@ namespace Essence.Ioc.TypeModel
         {
             var serviceType = _lazyType.GenericTypeArguments[0];
             var serviceFactoryDelegateInfo = typeof(Func<>).MakeGenericType(serviceType).AsDelegate();
-            var constructor = _lazyType.GetTypeInfo().GetConstructor(new[] {serviceFactoryDelegateInfo.Type});
+            var lazyConstructor = _lazyType.GetTypeInfo().GetConstructor(new[] {serviceFactoryDelegateInfo.Type});
             
             var factory = new ServiceFactory(serviceFactoryDelegateInfo).Resolve(factoryFinder);
-            
-            return new FactoryExpression(lifeScope => Expression.New(constructor, factory.GetBody(lifeScope)));
+
+            return new FactoryExpression(lifeScope => Expression.New(lazyConstructor, factory.GetBody(lifeScope)));
         }
     }
 }

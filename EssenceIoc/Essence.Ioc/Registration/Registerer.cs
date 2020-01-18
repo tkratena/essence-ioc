@@ -51,10 +51,12 @@ namespace Essence.Ioc.Registration
         public void RegisterSingleton(Type implementationType, IEnumerable<Type> serviceTypes)
         {
             var factoryExpression = CreateFactoryExpression(implementationType);
+            var nestedLifeScope = _singletonLifeScope.CreateNestedScope();
+            
             var singleton = new Lazy<object>(() =>
             {
                 var factory = factoryExpression.Compile<object>();
-                return factory.Invoke(_singletonLifeScope);
+                return factory.Invoke(nestedLifeScope);
             });
             
             RegisterFactory(transientLifeScope => singleton.Value, serviceTypes);
@@ -79,7 +81,7 @@ namespace Essence.Ioc.Registration
             IEnumerable<Type> serviceTypes)
             where TImplementation : class
         {
-            Func<object> scopedFactory = () => factory.ConstructWithTracking(_singletonLifeScope);
+            var scopedFactory = factory.WithTracking(_singletonLifeScope);
             var singleton = new Lazy<object>(scopedFactory);
             
             RegisterFactory(transientLifeScope => singleton.Value, serviceTypes);
