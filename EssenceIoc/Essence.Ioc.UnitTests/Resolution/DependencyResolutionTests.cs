@@ -245,10 +245,6 @@ namespace Essence.Ioc.Resolution
             Assert.IsInstanceOf<DependencyImplementation>(dependency);
         }
 
-        private class ServiceImplementation : IService
-        {
-        }
-
         [Test]
         public void GenericallyRegisteredGenericServiceWithDependencyOfTheGenericArgumentType()
         {
@@ -310,15 +306,6 @@ namespace Essence.Ioc.Resolution
             Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(genericallyRegistered);
             Assert.IsInstanceOf<NonGenericallyRegisteredGenericServiceImplementation>(nonGenericallyRegistered);
         }
-        
-        [SuppressMessage("ReSharper", "UnusedTypeParameter")]
-        private interface IService<T>
-        {
-        }
-
-        private interface IActualGenericArg
-        {
-        }
 
         private class ServiceImplementation<T> : IService<T>
         {
@@ -332,7 +319,48 @@ namespace Essence.Ioc.Resolution
             : IService<INonGenericallyRegisteredGenericArg>
         {
         }
+
+        private interface IActualGenericArg
+        {
+        }
         
+        [Test]
+        public void DependencyTypeDefinedByGenericArgumentOfGenericallyRegisteredService()
+        {
+            var container = new Container(r =>
+            {
+                r.RegisterService<IService>().ImplementedBy<ServiceImplementation>();
+                r.GenericallyRegisterService(typeof(IService<>)).ImplementedBy(typeof(SpyGenericArgumentConsumer<>));
+            });
+
+            var service = container.Resolve<IService<IService>>();
+
+            Assert.IsInstanceOf<SpyGenericArgumentConsumer<IService>>(service);
+            var spyService = (SpyGenericArgumentConsumer<IService>) service;
+            Assert.IsInstanceOf<ServiceImplementation>(spyService.Dependency);
+            Assert.IsInstanceOf<ServiceImplementation>(spyService.LazyDependency.Value);
+            Assert.IsInstanceOf<ServiceImplementation>(spyService.DependencyFactory.Invoke());
+        }
+        
+        private class SpyGenericArgumentConsumer<T> : IService<T>
+        {
+            public T Dependency { get; }
+            public Lazy<T> LazyDependency { get; }
+            public Func<T> DependencyFactory { get; }
+
+            public SpyGenericArgumentConsumer(T dependency, Lazy<T> lazyDependency, Func<T> dependencyFactory)
+            {
+                Dependency = dependency;
+                LazyDependency = lazyDependency;
+                DependencyFactory = dependencyFactory;
+            }
+        }
+
+        [SuppressMessage("ReSharper", "UnusedTypeParameter")]
+        private interface IService<T>
+        {
+        }
+
         [Test]
         [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
         public void ServiceCanBeResolvedAfterDependencyOfItsImplementationHasBeenResolved()
@@ -354,6 +382,10 @@ namespace Essence.Ioc.Resolution
             public ServiceImplementationDependentOnService(IServiceDependency dependency)
             {
             }
+        }
+        
+        private class ServiceImplementation : IService
+        {
         }
 
         private interface IService
