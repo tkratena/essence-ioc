@@ -158,20 +158,6 @@ namespace Essence.Ioc.Resolution
             Assert.IsInstanceOf<ServiceImplementation<IFirstActualGenericArg, ISecondActualGenericArg>>(service);
         }
 
-        [Test]
-        public void DependencyWithTypeOfGenericArgumentOfGenericallyRegisteredService()
-        {
-            var container = new Container(r =>
-            {
-                r.RegisterService<IService>().ImplementedBy<ServiceImplementation>();
-                r.GenericallyRegisterService(typeof(IService<>)).ImplementedBy(typeof(GenericArgumentConsumer<>));
-            });
-
-            var service = container.Resolve<IService<IService>>();
-
-            Assert.IsInstanceOf<GenericArgumentConsumer<IService>>(service);
-        }
-
         private interface IFirstActualGenericArg
         {
         }
@@ -194,17 +180,6 @@ namespace Essence.Ioc.Resolution
 
         private class ServiceImplementation : IService
         {
-        }
-
-        [SuppressMessage("ReSharper", "UnusedParameter.Local")]
-        [SuppressMessage("ReSharper", "AssignmentIsFullyDiscarded")]
-        private class GenericArgumentConsumer<T> : IService<T>
-        {
-            public GenericArgumentConsumer(T dependency, Lazy<T> lazyDependency, Func<T> dependencyFactory)
-            {
-                _ = lazyDependency.Value;
-                dependencyFactory.Invoke();
-            }
         }
 
         [SuppressMessage("ReSharper", "UnusedTypeParameter")]
