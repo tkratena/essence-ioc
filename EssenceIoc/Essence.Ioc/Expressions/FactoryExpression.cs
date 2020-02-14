@@ -17,10 +17,10 @@ namespace Essence.Ioc.Expressions
 
         public Expression GetBody(Expression lifeScope) => _bodyProvider.Invoke(lifeScope);
 
-        public Func<ILifeScope, T> Compile<T>()
+        public Func<ILifeScope, TService> Compile<TService>()
         {
             var lifeScope = Expression.Parameter(typeof(ILifeScope), "lifeScope");
-            return Expression.Lambda<Func<ILifeScope, T>>(GetBody(lifeScope), lifeScope).Compile();
+            return Expression.Lambda<Func<ILifeScope, TService>>(GetBody(lifeScope), lifeScope).Compile();
         }
     }
 }

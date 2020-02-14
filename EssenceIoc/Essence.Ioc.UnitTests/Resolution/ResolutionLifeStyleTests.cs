@@ -147,10 +147,8 @@ namespace Essence.Ioc.Resolution
             var container = new Container(r =>
                 r.RegisterService<IService>().ConstructedBy(() => new ServiceImplementation()).AsSingleton());
 
-            container.Resolve<IService>(out var instance);
-            var firstInstance = instance;
-            container.Resolve<IService>(out var instance1);
-            var secondInstance = instance1;
+            container.Resolve<IService>(out var firstInstance);
+            container.Resolve<IService>(out var secondInstance);
 
             Assert.AreSame(firstInstance, secondInstance);
         }
@@ -228,8 +226,38 @@ namespace Essence.Ioc.Resolution
             var secondInstance = spy.SecondDependency;
             Assert.AreSame(firstInstance, secondInstance);
         }
+        
+        [Test]
+        public void ContainerProvidesSameInstanceOfSingletonImplementingMultipleServices()
+        {
+            var container = new Container(r =>
+                r.RegisterService<IService>()
+                    .AndService<ISecondService>()
+                    .ImplementedBy<ServiceImplementation>()
+                    .AsSingleton());
 
-        private class ServiceImplementation : IService
+            container.Resolve<IService>(out var serviceInstance);
+            container.Resolve<ISecondService>(out var secondServiceInstance);
+
+            Assert.AreSame(serviceInstance, secondServiceInstance);
+        }
+
+        [Test]
+        public void ContainerProvidesSameInstanceOfSingletonCreatedByCustomFactoryImplementingMultipleServices()
+        {
+            var container = new Container(r =>
+                r.RegisterService<IService>()
+                    .AndService<ISecondService>()
+                    .ConstructedBy(() => new ServiceImplementation())
+                    .AsSingleton());
+
+            container.Resolve<IService>(out var serviceInstance);
+            container.Resolve<ISecondService>(out var secondServiceInstance);
+
+            Assert.AreSame(serviceInstance, secondServiceInstance);
+        }
+
+        private class ServiceImplementation : IService, ISecondService
         {
         }
 
@@ -284,6 +312,10 @@ namespace Essence.Ioc.Resolution
         }
 
         private interface IServiceDependency
+        {
+        }
+
+        private interface ISecondService
         {
         }
     }
