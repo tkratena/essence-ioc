@@ -14,19 +14,17 @@ namespace Essence.Ioc.Registration
 {
     internal class Registerer : IRegisterer
     {
-        private readonly RegisteredServices _registeredServices = new RegisteredServices();
-        private readonly RegisteredServices _registeredGenericServices = new RegisteredServices();
         private readonly Factories _factories;
         private readonly Resolver _resolver;
         private readonly SingletonFactory _singletonFactory;
-        
+
         public Registerer(Factories factories, Resolver resolver, ILifeScope singletonLifeScope)
         {
             _factories = factories;
             _resolver = resolver;
             _singletonFactory = new SingletonFactory(singletonLifeScope);
         }
-        
+
         public void RegisterTransient(Type implementationType, IEnumerable<Type> serviceTypes)
         {
             Register(Resolve(implementationType), serviceTypes);
@@ -47,12 +45,11 @@ namespace Essence.Ioc.Registration
         {
             Register(Resolve(factory), serviceTypes);
         }
-        
+
         private void Register(IFactoryExpression factoryExpression, IEnumerable<Type> serviceTypes)
         {
             foreach (var serviceType in serviceTypes)
             {
-                _registeredServices.MarkRegistered(serviceType);
                 _factories.AddFactory(serviceType, factoryExpression);
             }
         }
@@ -79,7 +76,7 @@ namespace Essence.Ioc.Registration
         }
 
         private void RegisterSingleton(
-            IFactoryExpression factoryExpression, 
+            IFactoryExpression factoryExpression,
             Type implementationType,
             IEnumerable<Type> serviceTypes)
         {
@@ -148,7 +145,6 @@ namespace Essence.Ioc.Registration
                     serviceGenericTypeDefinition);
             }
 
-            _registeredGenericServices.MarkRegistered(serviceGenericTypeDefinition);
             _factories.AddGenericImplementation(serviceGenericTypeDefinition, implementationGenericTypeDefinition);
         }
 
