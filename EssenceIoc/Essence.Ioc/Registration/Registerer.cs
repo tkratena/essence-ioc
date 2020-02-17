@@ -19,33 +19,17 @@ namespace Essence.Ioc.Registration
         private readonly Factories _factories;
         private readonly Resolver _resolver;
         private readonly SingletonFactory _singletonFactory;
-
+        
         public Registerer(Factories factories, Resolver resolver, ILifeScope singletonLifeScope)
         {
             _factories = factories;
             _resolver = resolver;
-            _singletonFactory = new SingletonFactory(_factories, resolver, singletonLifeScope);
+            _singletonFactory = new SingletonFactory(singletonLifeScope);
         }
-
+        
         public void RegisterTransient(Type implementationType, IEnumerable<Type> serviceTypes)
         {
-            foreach (var serviceType in serviceTypes)
-            {
-                RegisterTransient(implementationType, serviceType);
-            }
-        }
-
-        private void RegisterTransient(Type implementationType, Type serviceType)
-        {
-            _registeredServices.MarkRegistered(serviceType);
-
-            var factoryExpression = CreateFactoryExpression(implementationType);
-            _factories.AddFactory(serviceType, factoryExpression);
-        }
-
-        private IFactoryExpression CreateFactoryExpression(Type implementationType)
-        {
-            return new Implementation(implementationType).Resolve(_factories);
+            Register(Resolve(implementationType), serviceTypes);
         }
 
         public void RegisterFactoryTransient<TImplementation>(
@@ -53,20 +37,7 @@ namespace Essence.Ioc.Registration
             IEnumerable<Type> serviceTypes)
             where TImplementation : class
         {
-            RegisterFactoryTransient(lifeScope => factory.Invoke(CreateContainer(lifeScope)), serviceTypes);
-        }
-
-        private IContainer CreateContainer(ILifeScope lifeScope)
-        {
-            return new LifeScopedResolver(lifeScope, _resolver);
-        }
-
-        private void RegisterFactoryTransient<TImplementation>(
-            Func<ILifeScope, TImplementation> factory,
-            IEnumerable<Type> serviceTypes)
-            where TImplementation : class
-        {
-            RegisterFactory(factory.ConstructWithTracking, serviceTypes);
+            Register(Resolve(factory), serviceTypes);
         }
 
         public void RegisterFactoryTransient<TImplementation>(
@@ -74,35 +45,21 @@ namespace Essence.Ioc.Registration
             IEnumerable<Type> serviceTypes)
             where TImplementation : class
         {
-            RegisterFactory(factory.ConstructWithTracking, serviceTypes);
+            Register(Resolve(factory), serviceTypes);
         }
-
-        private void RegisterFactory(Func<ILifeScope, object> factory, IEnumerable<Type> serviceTypes)
+        
+        private void Register(IFactoryExpression factoryExpression, IEnumerable<Type> serviceTypes)
         {
             foreach (var serviceType in serviceTypes)
             {
-                RegisterFactory(factory, serviceType);
+                _registeredServices.MarkRegistered(serviceType);
+                _factories.AddFactory(serviceType, factoryExpression);
             }
         }
 
         public void RegisterSingleton(Type implementationType, IEnumerable<Type> serviceTypes)
         {
-            var factoryExpression = _singletonFactory.Resolve(implementationType);
-            foreach (var serviceType in serviceTypes)
-            {
-                RegisterFactory(factoryExpression, serviceType);
-            }
-        }
-        
-        private void RegisterFactory(Func<ILifeScope, object> factory, Type serviceType)
-        {
-            RegisterFactory(new CompiledFactoryExpression(factory, serviceType), serviceType);
-        }
-
-        private void RegisterFactory(IFactoryExpression factoryExpression, Type serviceType)
-        {
-            _registeredServices.MarkRegistered(serviceType);
-            _factories.AddFactory(serviceType, factoryExpression);
+            RegisterSingleton(Resolve(implementationType), implementationType, serviceTypes);
         }
 
         public void RegisterFactorySingleton<TImplementation>(
@@ -110,7 +67,7 @@ namespace Essence.Ioc.Registration
             IEnumerable<Type> serviceTypes)
             where TImplementation : class
         {
-            RegisterFactory(_singletonFactory.Resolve(factory), serviceTypes);
+            RegisterSingleton(Resolve(factory), typeof(TImplementation), serviceTypes);
         }
 
         public void RegisterFactorySingleton<TImplementation>(
@@ -118,7 +75,46 @@ namespace Essence.Ioc.Registration
             IEnumerable<Type> serviceTypes)
             where TImplementation : class
         {
-            RegisterFactory(_singletonFactory.Resolve(factory), serviceTypes);
+            RegisterSingleton(Resolve(factory), typeof(TImplementation), serviceTypes);
+        }
+
+        private void RegisterSingleton(
+            IFactoryExpression factoryExpression, 
+            Type implementationType,
+            IEnumerable<Type> serviceTypes)
+        {
+            var singleton = _singletonFactory.MakeSingleton(factoryExpression, implementationType);
+            Register(singleton, serviceTypes);
+        }
+
+        private IFactoryExpression Resolve(Type implementationType)
+        {
+            return new Implementation(implementationType).Resolve(_factories);
+        }
+
+        private IFactoryExpression Resolve<TImplementation>(Func<IContainer, TImplementation> factory)
+            where TImplementation : class
+        {
+            return Resolve(lifeScope => ConstructWithTracking(factory, lifeScope));
+        }
+
+        private T ConstructWithTracking<T>(Func<IContainer, T> factory, ILifeScope lifeScope)
+        {
+            var container = new LifeScopedResolver(lifeScope, _resolver);
+            Func<T> factoryWithContainer = () => factory.Invoke(container);
+            return factoryWithContainer.ConstructWithTracking(lifeScope);
+        }
+
+        private static IFactoryExpression Resolve<TImplementation>(Func<TImplementation> factory)
+            where TImplementation : class
+        {
+            return Resolve(factory.ConstructWithTracking);
+        }
+
+        private static IFactoryExpression Resolve<TImplementation>(Func<ILifeScope, TImplementation> factory)
+            where TImplementation : class
+        {
+            return new CompiledFactoryExpression(factory, typeof(TImplementation));
         }
 
         public void RegisterGeneric(

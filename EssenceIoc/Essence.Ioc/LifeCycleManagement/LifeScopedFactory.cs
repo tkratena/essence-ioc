@@ -6,12 +6,7 @@ namespace Essence.Ioc.LifeCycleManagement
     {
         public static T ConstructWithTracking<T>(this Func<T> factory, ILifeScope lifeScope)
         {
-            return ConstructWithTracking(_ => factory.Invoke(), lifeScope);
-        }
-
-        public static T ConstructWithTracking<T>(this Func<ILifeScope, T> factory, ILifeScope lifeScope)
-        {
-            var instance = factory.Invoke(lifeScope);
+            var instance = factory.Invoke();
             if (instance is IDisposable disposable)
             {
                 lifeScope.TrackDisposable(disposable);
