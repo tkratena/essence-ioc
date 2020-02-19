@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Reflection;
 using Essence.Ioc.Expressions;
 using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.Resolution;
@@ -27,11 +26,6 @@ namespace Essence.Ioc.Registration
 
         private static void Add<T>(ConcurrentDictionary<Type, T> dictionary, Type serviceType, T value)
         {
-            if (typeof(IDisposable).GetTypeInfo().IsAssignableFrom(serviceType))
-            {
-                throw new DisposableServiceException(serviceType);
-            }
-
             if (!dictionary.TryAdd(serviceType, value))
             {
                 throw new AlreadyRegisteredException(serviceType);

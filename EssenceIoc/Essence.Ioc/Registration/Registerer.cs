@@ -50,7 +50,16 @@ namespace Essence.Ioc.Registration
         {
             foreach (var serviceType in serviceTypes)
             {
+                AssertServiceIsNotDisposable(serviceType);
                 _factories.AddFactory(serviceType, factoryExpression);
+            }
+        }
+        
+        private static void AssertServiceIsNotDisposable(Type serviceType)
+        {
+            if (typeof(IDisposable).GetTypeInfo().IsAssignableFrom(serviceType))
+            {
+                throw new DisposableServiceException(serviceType);
             }
         }
 
@@ -144,7 +153,8 @@ namespace Essence.Ioc.Registration
                     implementationGenericTypeDefinition,
                     serviceGenericTypeDefinition);
             }
-
+            
+            AssertServiceIsNotDisposable(serviceGenericTypeDefinition);
             _factories.AddGenericImplementation(serviceGenericTypeDefinition, implementationGenericTypeDefinition);
         }
 
