@@ -1,0 +1,37 @@
+version: 2.0.0-{branch}.{build}
+image: Visual Studio 2017
+configuration: Release
+before_build:
+- cmd: nuget restore EssenceIoc\EssenceIoc.sln
+build:
+  parallel: true
+  verbosity: minimal
+after_build:
+- ps: >-
+    $version = [System.Version]::Parse($env:APPVEYOR_BUILD_VERSION.Substring(0, $env:APPVEYOR_BUILD_VERSION.IndexOf("-")))
+    
+    $latestVersion = nuget list packageId:Essence.Ioc | % {[System.Version]::Parse($_.Replace("Essence.Ioc ",""))}
+    
+    if ($latestVersion -ge $version) { throw "Expected greater than latest released version $latestVersion, but was $version" }
+    
+    dotnet pack .\EssenceIoc\Essence.Framework\Essence.Framework.csproj -p:Version=$version -o .\..\..
+
+    dotnet pack .\EssenceIoc\Essence.Ioc.ExtendableRegistration\Essence.Ioc.ExtendableRegistration.csproj -p:Version=$version -o .\..\..
+
+    dotnet pack .\EssenceIoc\Essence.Ioc\Essence.Ioc.csproj -p:Version=$version -o .\..\..
+
+    dotnet pack .\EssenceIoc\Essence.Ioc.FluentRegistration\Essence.Ioc.FluentRegistration.csproj -p:Version=$version -o .\..\..
+test:
+  assemblies:
+    only:
+    - '**\*Tests.dll'
+artifacts:
+- path: '*.nupkg'
+  name: NuGet
+deploy:
+- provider: NuGet
+  api_key:
+    secure: /oz3rB21H9vjbU0M+gKaFNU580O5l1WeB+G4KfvP+V1/N5gcwysIkv17lOuyNLbA
+  artifact: NuGet
+  on:
+    branch: master
