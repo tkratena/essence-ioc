@@ -4,12 +4,12 @@ using System.Diagnostics.Contracts;
 using System.Reflection;
 using Essence.Framework.System;
 using Essence.Ioc.Expressions;
-using Essence.Ioc.ExtendableRegistration;
+using Essence.Ioc.LifeCycleManagement;
 using Essence.Ioc.TypeModel;
 
 namespace Essence.Ioc.Resolution
 {
-    internal class Resolver : IContainer
+    internal class Resolver
     {
         private readonly IDictionary<Type, Delegate> _compiledFactories = new Dictionary<Type, Delegate>();
         private readonly IFactoryFinder _factoryFinder;
@@ -20,18 +20,17 @@ namespace Essence.Ioc.Resolution
         }
 
         [Pure]
-        public TService Resolve<TService>() where TService : class
+        public TService Resolve<TService>(ILifeScope lifeScope) where TService : class
         {
-            return GetCompiledFactory<TService>().Invoke();
+            return GetCompiledFactory<TService>().Invoke(lifeScope);
         }
 
-        private Func<TService> GetCompiledFactory<TService>()
+        private Func<ILifeScope, TService> GetCompiledFactory<TService>()
         {
             var serviceType = typeof(TService);
             lock (serviceType)
             {
-                if (_compiledFactories.TryGetValue(serviceType, out var factory)
-                    || _factoryFinder.TryGetFactory(serviceType, out factory))
+                if (_compiledFactories.TryGetValue(serviceType, out var factory))
                 {
                     return CastFactory<TService>(factory);
                 }
@@ -40,26 +39,26 @@ namespace Essence.Ioc.Resolution
                 factory = factoryExpression.Compile<TService>();
                 _compiledFactories[serviceType] = factory;
 
-                return (Func<TService>) factory;
+                return (Func<ILifeScope, TService>) factory;
             }
         }
 
-        private static Func<T> CastFactory<T>(Delegate sourceDelegate)
+        private static Func<ILifeScope, T> CastFactory<T>(Delegate sourceDelegate)
         {
-            if (sourceDelegate is Func<T> targetDelegate)
+            if (sourceDelegate is Func<ILifeScope, T> targetDelegate)
             {
                 return targetDelegate;
             }
 
-            var function = (Func<object>) sourceDelegate;
-            return () => (T)function.Invoke();
+            var function = (Func<ILifeScope, object>) sourceDelegate;
+            return lifeScope => (T)function.Invoke(lifeScope);
         }
 
         private IFactoryExpression GetFactoryExpression(Type serviceType)
         {
-            if (_factoryFinder.TryGetFactoryExpression(serviceType, out var expression))
+            if (_factoryFinder.TryGetFactory(serviceType, out var factoryExpression))
             {
-                return expression;
+                return factoryExpression;
             }
             
             var delegateInfo = serviceType.AsDelegate();

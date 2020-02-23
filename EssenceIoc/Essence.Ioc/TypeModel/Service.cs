@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
 using System.Reflection;
 using Essence.Ioc.Expressions;
 using Essence.Ioc.Registration.RegistrationExceptions;
@@ -18,14 +17,7 @@ namespace Essence.Ioc.TypeModel
         
         public IFactoryExpression Resolve(IFactoryFinder factoryFinder)
         {
-            if (factoryFinder.TryGetFactory(_type, out var factory))
-            {
-                var expression = Expression.Convert(Expression.Invoke(Expression.Constant(factory)), _type);
-                
-                return FactoryExpression.Create(expression);
-            }
-
-            if (factoryFinder.TryGetFactoryExpression(_type, out var factoryExpression))
+            if (factoryFinder.TryGetFactory(_type, out var factoryExpression))
             {
                 return factoryExpression;
             }

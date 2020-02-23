@@ -20,16 +20,11 @@ namespace Essence.Ioc.TypeModel
         {
             var serviceType = _lazyType.GenericTypeArguments[0];
             var serviceFactoryDelegateInfo = typeof(Func<>).MakeGenericType(serviceType).AsDelegate();
-
+            var lazyConstructor = _lazyType.GetTypeInfo().GetConstructor(new[] {serviceFactoryDelegateInfo.Type});
+            
             var factory = new ServiceFactory(serviceFactoryDelegateInfo).Resolve(factoryFinder);
 
-            return FactoryExpression.CreateLazy(() =>
-            {
-                var constructor = _lazyType.GetTypeInfo().GetConstructor(new[] {serviceFactoryDelegateInfo.Type});
-
-                // ReSharper disable once AssignNullToNotNullAttribute
-                return Expression.New(constructor, factory.Body);
-            });
+            return new FactoryExpression(lifeScope => Expression.New(lazyConstructor, factory.GetBody(lifeScope)));
         }
     }
 }

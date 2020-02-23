@@ -15,11 +15,11 @@ namespace Essence.Ioc.Resolution
             var container = new Container(r =>
                 r.RegisterService<ConcreteService>().ImplementedBy<ConcreteService>());
 
-            var service = container.Resolve<ConcreteService>();
+            container.Resolve<ConcreteService>(out var service);
 
             Assert.IsInstanceOf<ConcreteService>(service);
         }
-        
+
         [TestFixture]
         public class ServiceTests
         {
@@ -35,7 +35,7 @@ namespace Essence.Ioc.Resolution
             [Test]
             public void Service()
             {
-                var service = _container.Resolve<IService>();
+                _container.Resolve<IService>(out var service);
 
                 Assert.IsInstanceOf<ServiceImplementation>(service);
             }
@@ -43,8 +43,8 @@ namespace Essence.Ioc.Resolution
             [Test]
             public void LazyService()
             {
-                var lazyService = _container.Resolve<Lazy<IService>>();
-            
+                _container.Resolve<Lazy<IService>>(out var lazyService);
+
                 Assert.IsFalse(lazyService.IsValueCreated);
                 Assert.IsInstanceOf<ServiceImplementation>(lazyService.Value);
             }
@@ -52,16 +52,16 @@ namespace Essence.Ioc.Resolution
             [Test]
             public void ServiceFactory()
             {
-                var serviceFactory = _container.Resolve<Func<IService>>();
-            
+                _container.Resolve<Func<IService>>(out var serviceFactory);
+
                 Assert.IsInstanceOf<ServiceImplementation>(serviceFactory.Invoke());
             }
 
             [Test]
             public void ServiceFactoryDelegate()
             {
-                var serviceFactory = _container.Resolve<DelegateReturningService>();
-            
+                _container.Resolve<DelegateReturningService>(out var serviceFactory);
+
                 Assert.IsInstanceOf<ServiceImplementation>(serviceFactory.Invoke());
             }
 
@@ -79,37 +79,37 @@ namespace Essence.Ioc.Resolution
                 _container = new Container(r =>
                     r.GenericallyRegisterService(typeof(IService<>)).ImplementedBy(typeof(ServiceImplementation<>)));
             }
-            
+
             [Test]
             public void Service()
             {
-                var service = _container.Resolve<IService<IActualGenericArg>>();
+                _container.Resolve<IService<IActualGenericArg>>(out var service);
 
                 Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(service);
             }
-            
+
             [Test]
             public void LazyService()
             {
-                var lazyService = _container.Resolve<Lazy<IService<IActualGenericArg>>>();
+                _container.Resolve<Lazy<IService<IActualGenericArg>>>(out var lazyService);
 
                 Assert.IsFalse(lazyService.IsValueCreated);
                 Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(lazyService.Value);
             }
-            
+
             [Test]
             public void ServiceFactory()
             {
-                var serviceFactory = _container.Resolve<Func<IService<IActualGenericArg>>>();
-            
+                _container.Resolve<Func<IService<IActualGenericArg>>>(out var serviceFactory);
+
                 Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(serviceFactory.Invoke());
             }
 
             [Test]
             public void ServiceFactoryDelegate()
             {
-                var serviceFactory = _container.Resolve<DelegateReturningService>();
-            
+                _container.Resolve<DelegateReturningService>(out var serviceFactory);
+
                 Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(serviceFactory.Invoke());
             }
 
@@ -123,7 +123,7 @@ namespace Essence.Ioc.Resolution
                 r.RegisterService<IService<IActualGenericArg>>()
                     .ImplementedBy<ServiceImplementation<IActualGenericArg>>());
 
-            var service = container.Resolve<IService<IActualGenericArg>>();
+            container.Resolve<IService<IActualGenericArg>>(out var service);
 
             Assert.IsInstanceOf<ServiceImplementation<IActualGenericArg>>(service);
         }
@@ -135,7 +135,7 @@ namespace Essence.Ioc.Resolution
                 r.GenericallyRegisterService(typeof(IService<>))
                     .ImplementedBy(typeof(GenericClass<>.NestedGenericServiceImplementation)));
 
-            var service = container.Resolve<IService<IActualGenericArg>>();
+            container.Resolve<IService<IActualGenericArg>>(out var service);
 
             Assert.IsInstanceOf<GenericClass<IActualGenericArg>.NestedGenericServiceImplementation>(service);
         }
@@ -153,7 +153,7 @@ namespace Essence.Ioc.Resolution
             var container = new Container(r =>
                 r.GenericallyRegisterService(typeof(IService<,>)).ImplementedBy(typeof(ServiceImplementation<,>)));
 
-            var service = container.Resolve<IService<IFirstActualGenericArg, ISecondActualGenericArg>>();
+            container.Resolve<IService<IFirstActualGenericArg, ISecondActualGenericArg>>(out var service);
 
             Assert.IsInstanceOf<ServiceImplementation<IFirstActualGenericArg, ISecondActualGenericArg>>(service);
         }

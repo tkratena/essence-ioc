@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Linq.Expressions;
-using Essence.Ioc.ExtendableRegistration;
+﻿using System.Diagnostics.CodeAnalysis;
 using Essence.Ioc.FluentRegistration;
 using NUnit.Framework;
 
@@ -16,7 +10,7 @@ namespace Essence.Ioc.Resolution
     public class MultipleServiceResolutionTests
     {
         [Test]
-        public void TenServicesImplementedBySameClass()
+        public void MultipleServicesImplementedByTheSameClass()
         {
             var container = new Container(r =>
                 r.RegisterService<IService1>()
@@ -31,205 +25,55 @@ namespace Essence.Ioc.Resolution
                     .AndService<IService10>()
                     .ImplementedBy<MultipleServiceImplementation>());
 
-            var resolvedServices = new object[]
-            {
-                container.Resolve<IService1>(),
-                container.Resolve<IService2>(),
-                container.Resolve<IService3>(),
-                container.Resolve<IService4>(),
-                container.Resolve<IService5>(),
-                container.Resolve<IService6>(),
-                container.Resolve<IService7>(),
-                container.Resolve<IService8>(),
-                container.Resolve<IService9>(),
-                container.Resolve<IService10>()
-            };
+            container.Resolve<IService1>(out var s1);
+            container.Resolve<IService2>(out var s2);
+            container.Resolve<IService3>(out var s3);
+            container.Resolve<IService4>(out var s4);
+            container.Resolve<IService5>(out var s5);
+            container.Resolve<IService6>(out var s6);
+            container.Resolve<IService7>(out var s7);
+            container.Resolve<IService8>(out var s8);
+            container.Resolve<IService9>(out var s9);
+            container.Resolve<IService10>(out var s10);
 
-            Assert.That(resolvedServices, Is.Unique.And.All.InstanceOf<MultipleServiceImplementation>());
+            Assert.That(
+                new object[] {s1, s2, s3, s4, s5, s6, s7, s8, s9, s10},
+                Is.Unique.And.All.InstanceOf<MultipleServiceImplementation>());
         }
 
         [Test]
-        public void MultipleGenericServicesImplementedBySameClass()
+        public void MultipleServicesConstructedByTheSameFactory()
+        {
+            var container = new Container(r =>
+                r.RegisterService<IService1>()
+                    .AndService<IService2>()
+                    .AndService<IService3>()
+                    .ConstructedBy(() => new MultipleServiceImplementation()));
+
+            container.Resolve<IService1>(out var service1);
+            container.Resolve<IService2>(out var service2);
+            container.Resolve<IService3>(out var service3);
+
+            Assert.That(
+                new object[] {service1, service2, service3},
+                Is.Unique.And.All.InstanceOf<MultipleServiceImplementation>());
+        }
+
+        [Test]
+        public void MultipleGenericallyRegisteredServicesImplementedByTheSameClass()
         {
             var container = new Container(r =>
                 r.GenericallyRegisterService(typeof(IGenericService1<>))
                     .AndService(typeof(IGenericService2<>))
                     .ImplementedBy(typeof(MultipleGenericServiceImplementation<>)));
 
-            var resolvedServices = new object[]
-            {
-                container.Resolve<IGenericService1<IActualGenericArgument>>(),
-                container.Resolve<IGenericService2<IActualGenericArgument>>()
-            };
+            container.Resolve<IGenericService1<IActualGenericArgument>>(out var service1);
+            container.Resolve<IGenericService2<IActualGenericArgument>>(out var service2);
+            container.Resolve<IGenericService2<IActualGenericArgument>>(out var service3);
 
             Assert.That(
-                resolvedServices,
+                new object[] {service1, service2, service3},
                 Is.Unique.And.All.InstanceOf<MultipleGenericServiceImplementation<IActualGenericArgument>>());
-        }
-
-        private static readonly IReadOnlyCollection<Type> AllServiceInterfaces = new[]
-        {
-            typeof(IService1),
-            typeof(IService2),
-            typeof(IService3),
-            typeof(IService4),
-            typeof(IService5),
-            typeof(IService6),
-            typeof(IService7),
-            typeof(IService8),
-            typeof(IService9),
-            typeof(IService10)
-        };
-
-        public static IEnumerable<IReadOnlyCollection<Type>> MultipleServiceCases => Enumerable
-            .Range(1, 10)
-            .Select(serviceCount => new MultipleServices(AllServiceInterfaces.Take(serviceCount).ToList()));
-
-        [Test]
-        public void MultipleServicesImplementedBySameClass(
-            [ValueSource(nameof(MultipleServiceCases))] IReadOnlyCollection<Type> serviceInterfaces)
-        {
-            var resolvedServices = ResolveUsingContainerWithMultipleServiceRegistration(
-                serviceInterfaces,
-                callTarget =>
-                    Expression.Call(
-                        callTarget,
-                        nameof(IService<object>.ImplementedBy),
-                        new[] {typeof(MultipleServiceImplementation)}));
-
-            Assert.That(resolvedServices, Is.Unique.And.All.InstanceOf<MultipleServiceImplementation>());
-        }
-        
-        [Test]
-        public void MultipleServicesImplementedBySameClassAsSingleton(
-            [ValueSource(nameof(MultipleServiceCases))] IReadOnlyCollection<Type> serviceInterfaces)
-        {
-            var resolvedServices = ResolveUsingContainerWithMultipleServiceRegistration(
-                serviceInterfaces,
-                callTarget =>
-                    Expression.Call(
-                        Expression.Call(
-                            callTarget,
-                            nameof(IService<object>.ImplementedBy),
-                            new[] {typeof(MultipleServiceImplementation)}),
-                        nameof(ILifeScope.AsSingleton),
-                        new Type[0]));
-
-            var first = resolvedServices.First();
-            Assert.That(resolvedServices, Is.All.InstanceOf<MultipleServiceImplementation>().And.SameAs(first));
-        }
-        
-        [Test]
-        public void MultipleServicesConstructedBySameCustomFactory(
-            [ValueSource(nameof(MultipleServiceCases))] IReadOnlyCollection<Type> serviceInterfaces)
-        {
-            var resolvedServices = ResolveUsingContainerWithMultipleServiceRegistration(
-                serviceInterfaces,
-                callTarget =>
-                    Expression.Call(
-                        callTarget,
-                        nameof(IService<object>.ConstructedBy),
-                        new[] { typeof(MultipleServiceImplementation) },
-                        Expression.Constant((Func<MultipleServiceImplementation>) (() =>
-                            new MultipleServiceImplementation()))));
-
-            Assert.That(resolvedServices, Is.Unique.And.All.InstanceOf<MultipleServiceImplementation>());
-        }
-        
-        [Test]
-        public void MultipleServicesConstructedBySameCustomFactoryAsSingleton(
-            [ValueSource(nameof(MultipleServiceCases))] IReadOnlyCollection<Type> serviceInterfaces)
-        {
-            var resolvedServices = ResolveUsingContainerWithMultipleServiceRegistration(
-                serviceInterfaces,
-                callTarget =>
-                    Expression.Call(
-                        Expression.Call(
-                            callTarget,
-                            nameof(IService<object>.ConstructedBy),
-                            new[] { typeof(MultipleServiceImplementation) },
-                            Expression.Constant((Func<MultipleServiceImplementation>) (() =>
-                                new MultipleServiceImplementation()))),
-                        nameof(ILifeScope.AsSingleton),
-                        new Type[0]));
-
-            var first = resolvedServices.First();
-            Assert.That(resolvedServices, Is.All.InstanceOf<MultipleServiceImplementation>().And.SameAs(first));
-        }
-        
-        [Test]
-        public void MultipleServicesConstructedBySameCustomFactoryThatUsesContainer(
-            [ValueSource(nameof(MultipleServiceCases))] IReadOnlyCollection<Type> serviceInterfaces)
-        {
-            var resolvedServices = ResolveUsingContainerWithMultipleServiceRegistration(
-                serviceInterfaces,
-                callTarget =>
-                    Expression.Call(
-                        callTarget,
-                        nameof(IService<object>.ConstructedBy),
-                        new[] { typeof(MultipleServiceImplementation) },
-                        Expression.Constant((Func<IContainer, MultipleServiceImplementation>) (_ => 
-                            new MultipleServiceImplementation()))));
-
-            Assert.That(resolvedServices, Is.Unique.And.All.InstanceOf<MultipleServiceImplementation>());
-        }
-        
-        [Test]
-        public void MultipleServicesConstructedBySameCustomFactoryThatUsesContainerAsSingleton(
-            [ValueSource(nameof(MultipleServiceCases))] IReadOnlyCollection<Type> serviceInterfaces)
-        {
-            var resolvedServices = ResolveUsingContainerWithMultipleServiceRegistration(
-                serviceInterfaces,
-                callTarget =>
-                    Expression.Call(
-                        Expression.Call(
-                            callTarget,
-                            nameof(IService<object>.ConstructedBy),
-                            new[] { typeof(MultipleServiceImplementation) },
-                            Expression.Constant((Func<IContainer, MultipleServiceImplementation>) (_ => 
-                                new MultipleServiceImplementation()))),
-                        nameof(ILifeScope.AsSingleton),
-                        new Type[0]));
-
-            var first = resolvedServices.First();
-            Assert.That(resolvedServices, Is.All.InstanceOf<MultipleServiceImplementation>().And.SameAs(first));
-        }
-
-        private static IReadOnlyCollection<object> ResolveUsingContainerWithMultipleServiceRegistration(
-            IReadOnlyCollection<Type> serviceInterfaces,
-            Func<Expression, Expression> implementedByCallExpressionProvider)
-        {
-            var registererParameter = Expression.Parameter(typeof(Registerer));
-
-            Expression registerServiceCall = registererParameter;
-            
-            registerServiceCall = Expression.Call(
-                typeof(FluentRegistererExtensions),
-                nameof(FluentRegistererExtensions.RegisterService),
-                new[] {serviceInterfaces.First()},
-                registerServiceCall);
-            
-            foreach (var serviceInterface in serviceInterfaces.Skip(1))
-            {
-                var methodName = nameof(IService<object>.AndService);
-                registerServiceCall = Expression.Call(registerServiceCall, methodName, new[] {serviceInterface});
-            }
-
-            var implementedByCall = implementedByCallExpressionProvider.Invoke(registerServiceCall);
-
-            var serviceRegistration = Expression.Lambda<Action<Registerer>>(implementedByCall, registererParameter);
-            var container = new Container(serviceRegistration.Compile());
-
-            var resolvedServices = serviceInterfaces.Select(serviceInterface =>
-                Expression
-                    .Lambda<Func<object>>(Expression.Call(
-                        Expression.Constant(container),
-                        nameof(Container.Resolve),
-                        new[] {serviceInterface}))
-                    .Compile()
-                    .Invoke());
-            
-            return resolvedServices.ToList();
         }
 
         private class MultipleServiceImplementation :
@@ -300,33 +144,6 @@ namespace Essence.Ioc.Resolution
 
         private interface IActualGenericArgument
         {
-        }
-
-        private class MultipleServices : IReadOnlyCollection<Type>
-        {
-            private readonly IReadOnlyCollection<Type> _services;
-
-            public MultipleServices(IReadOnlyCollection<Type> services)
-            {
-                _services = services;
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-
-            public IEnumerator<Type> GetEnumerator()
-            {
-                return _services.GetEnumerator();
-            }
-
-            public int Count => _services.Count;
-
-            public override string ToString()
-            {
-                return _services.Count.ToString();
-            }
         }
     }
 }

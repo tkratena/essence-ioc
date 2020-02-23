@@ -8,37 +8,39 @@ namespace Essence.Ioc.FluentRegistration
 {
     internal class GenericService : IGenericServices
     {
-        private readonly Registerer.Registrations _registrations;
+        private readonly Registerer _registerer;
         private readonly IEnumerable<Type> _genericServiceTypeDefinitions;
 
-        public GenericService(Registerer.Registrations registrations, Type genericServiceTypeDefinition)
-            : this(registrations, genericServiceTypeDefinition.UnfoldToEnumerable())
+        public GenericService(Registerer registerer, Type genericServiceTypeDefinition)
+            : this(registerer, genericServiceTypeDefinition.UnfoldToEnumerable())
         {
         }
             
         private GenericService(
-            Registerer.Registrations registrations,
+            Registerer registerer,
             IEnumerable<Type> genericServiceTypeDefinitions)
         {
-            _registrations = registrations;
+            _registerer = registerer;
             _genericServiceTypeDefinitions = genericServiceTypeDefinitions;
         }
             
         public void ImplementedBy(Type genericServiceImplementationTypeDefinition)
         {
-            _registrations.Add(new GenericImplementation(
+            var registration = new GenericImplementation(
                 genericServiceImplementationTypeDefinition,
-                _genericServiceTypeDefinitions));
+                _genericServiceTypeDefinitions);
+            
+            Registerer.AddRegistration(_registerer, registration);
         }
 
         public IGenericServices AndService(Type genericServiceTypeDefinition)
         {
             return new GenericService(
-                _registrations, 
+                _registerer, 
                 _genericServiceTypeDefinitions.Append(genericServiceTypeDefinition));
         }
             
-        private class GenericImplementation : Registerer.IRegistration
+        private class GenericImplementation : IRegistration
         {
             private readonly Type _implementationGenericTypeDefinition;
             private readonly IEnumerable<Type> _serviceGenericTypeDefinitions;

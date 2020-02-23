@@ -5,52 +5,75 @@ using System.Reflection;
 using Essence.Framework.System;
 using Essence.Ioc.Expressions;
 using Essence.Ioc.ExtendableRegistration;
+using Essence.Ioc.LifeCycleManagement;
 using Essence.Ioc.Registration.RegistrationExceptions;
+using Essence.Ioc.Resolution;
 using Essence.Ioc.TypeModel;
 
 namespace Essence.Ioc.Registration
 {
     internal class Registerer : IRegisterer
     {
-        private readonly RegisteredServices _registeredServices = new RegisteredServices();
-        private readonly RegisteredServices _registeredGenericServices = new RegisteredServices();
         private readonly Factories _factories;
-        private readonly IContainer _container;
+        private readonly Resolver _resolver;
+        private readonly SingletonFactory _singletonFactory;
 
-        public Registerer(Factories factories, IContainer container)
+        public Registerer(Factories factories, Resolver resolver, ILifeScope singletonLifeScope)
         {
             _factories = factories;
-            _container = container;
+            _resolver = resolver;
+            _singletonFactory = new SingletonFactory(singletonLifeScope);
         }
 
         public void RegisterTransient(Type implementationType, IEnumerable<Type> serviceTypes)
         {
-            foreach (var serviceType in serviceTypes)
-            {
-                RegisterTransient(implementationType, serviceType);
-            }
+            Register(Resolve(implementationType), serviceTypes);
         }
 
-        private void RegisterTransient(Type implementationType, Type serviceType)
+        public void RegisterFactoryTransient<TImplementation>(
+            Func<IContainer, TImplementation> factory,
+            IEnumerable<Type> serviceTypes)
+            where TImplementation : class
         {
-            _registeredServices.MarkRegistered(serviceType);
+            Register(Resolve(factory), serviceTypes);
+        }
 
-            var factoryExpression = CreateFactoryExpression(implementationType);
-            _factories.AddFactoryExpression(serviceType, factoryExpression);
+        public void RegisterFactoryTransient<TImplementation>(
+            Func<TImplementation> factory,
+            IEnumerable<Type> serviceTypes)
+            where TImplementation : class
+        {
+            Register(Resolve(factory), serviceTypes);
+        }
+
+        private void Register(IFactoryExpression factoryExpression, IEnumerable<Type> serviceTypes)
+        {
+            foreach (var serviceType in serviceTypes)
+            {
+                AssertServiceIsNotDisposable(serviceType);
+                _factories.AddFactory(serviceType, factoryExpression);
+            }
+        }
+        
+        private static void AssertServiceIsNotDisposable(Type serviceType)
+        {
+            if (typeof(IDisposable).GetTypeInfo().IsAssignableFrom(serviceType))
+            {
+                throw new DisposableServiceException(serviceType);
+            }
         }
 
         public void RegisterSingleton(Type implementationType, IEnumerable<Type> serviceTypes)
         {
-            var factoryExpression = CreateFactoryExpression(implementationType);
-            RegisterFactorySingleton(() => factoryExpression.Compile<object>().Invoke(), serviceTypes);
+            RegisterSingleton(Resolve(implementationType), implementationType, serviceTypes);
         }
-        
+
         public void RegisterFactorySingleton<TImplementation>(
-            Func<IContainer, TImplementation> factory, 
+            Func<IContainer, TImplementation> factory,
             IEnumerable<Type> serviceTypes)
             where TImplementation : class
         {
-            RegisterFactorySingleton(() => factory.Invoke(_container), serviceTypes);
+            RegisterSingleton(Resolve(factory), typeof(TImplementation), serviceTypes);
         }
 
         public void RegisterFactorySingleton<TImplementation>(
@@ -58,44 +81,46 @@ namespace Essence.Ioc.Registration
             IEnumerable<Type> serviceTypes)
             where TImplementation : class
         {
-            var singleton = new Lazy<TImplementation>(factory.Invoke);
-
-            RegisterFactoryTransient(() => singleton.Value, serviceTypes);
+            RegisterSingleton(Resolve(factory), typeof(TImplementation), serviceTypes);
         }
-        
-        private IFactoryExpression CreateFactoryExpression(Type implementationType)
+
+        private void RegisterSingleton(
+            IFactoryExpression factoryExpression,
+            Type implementationType,
+            IEnumerable<Type> serviceTypes)
+        {
+            var singleton = _singletonFactory.MakeSingleton(factoryExpression, implementationType);
+            Register(singleton, serviceTypes);
+        }
+
+        private IFactoryExpression Resolve(Type implementationType)
         {
             return new Implementation(implementationType).Resolve(_factories);
         }
-        
-        public void RegisterFactoryTransient<TImplementation>(
-            Func<IContainer, TImplementation> factory, 
-            IEnumerable<Type> serviceTypes)
+
+        private IFactoryExpression Resolve<TImplementation>(Func<IContainer, TImplementation> factory)
             where TImplementation : class
         {
-            RegisterFactoryTransient(() => factory.Invoke(_container), serviceTypes);
+            return Resolve(lifeScope => ConstructWithTracking(factory, lifeScope));
         }
 
-        public void RegisterFactoryTransient<TImplementation>(
-            Func<TImplementation> factory,
-            IEnumerable<Type> serviceTypes)
+        private T ConstructWithTracking<T>(Func<IContainer, T> factory, ILifeScope lifeScope)
+        {
+            var container = new LifeScopedResolver(lifeScope, _resolver);
+            Func<T> factoryWithContainer = () => factory.Invoke(container);
+            return factoryWithContainer.ConstructWithTracking(lifeScope);
+        }
+
+        private static IFactoryExpression Resolve<TImplementation>(Func<TImplementation> factory)
             where TImplementation : class
         {
-            foreach (var serviceType in serviceTypes)
-            {
-                RegisterFactoryTransient(factory, serviceType);
-            }
+            return Resolve(factory.ConstructWithTracking);
         }
 
-        private void RegisterFactoryTransient(Delegate factory, Type serviceType)
+        private static IFactoryExpression Resolve<TImplementation>(Func<ILifeScope, TImplementation> factory)
+            where TImplementation : class
         {
-            if (typeof(IDisposable).GetTypeInfo().IsAssignableFrom(serviceType))
-            {
-                throw new DisposableClassException(serviceType);
-            }
-
-            _registeredServices.MarkRegistered(serviceType);
-            _factories.AddFactory(serviceType, factory);
+            return new CompiledFactoryExpression(factory, typeof(TImplementation));
         }
 
         public void RegisterGeneric(
@@ -106,7 +131,7 @@ namespace Essence.Ioc.Registration
             {
                 throw new ImplementationTypeNotGenericTypeDefinitionException(implementationGenericTypeDefinition);
             }
-            
+
             foreach (var serviceGenericTypeDefinition in serviceGenericTypeDefinitions)
             {
                 RegisterGeneric(implementationGenericTypeDefinition, serviceGenericTypeDefinition);
@@ -125,11 +150,11 @@ namespace Essence.Ioc.Registration
                 implementationGenericTypeDefinition))
             {
                 throw new ImplementationTypeNotImplementingGenericService(
-                    implementationGenericTypeDefinition, 
+                    implementationGenericTypeDefinition,
                     serviceGenericTypeDefinition);
             }
-
-            _registeredGenericServices.MarkRegistered(serviceGenericTypeDefinition);
+            
+            AssertServiceIsNotDisposable(serviceGenericTypeDefinition);
             _factories.AddGenericImplementation(serviceGenericTypeDefinition, implementationGenericTypeDefinition);
         }
 

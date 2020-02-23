@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Essence.Ioc.FluentRegistration;
@@ -13,37 +12,37 @@ namespace Essence.Ioc.Registration
     [SuppressMessage("ReSharper", "ObjectCreationAsStatement")]
     public class InvalidSubsequentRegistrationTests
     {
-        private static IEnumerable<Registration> AllServiceRegistrations { get; } = new[]
+        private static IEnumerable<TestRegistration> AllServiceRegistrations { get; } = new[]
         {
-            new Registration(
+            new TestRegistration(
                 "Transient",
                 r => r.RegisterService<IService>().ImplementedBy<ServiceImplementation>()),
 
-            new Registration(
+            new TestRegistration(
                 "Singleton",
                 r => r.RegisterService<IService>().ImplementedBy<ServiceImplementation>().AsSingleton()),
 
-            new Registration(
+            new TestRegistration(
                 "Custom factory",
                 r => r.RegisterService<IService>().ConstructedBy(() => new ServiceImplementation())),
-            
-            new Registration(
+
+            new TestRegistration(
                 "Custom factory singleton",
                 r => r.RegisterService<IService>().ConstructedBy(() => new ServiceImplementation()).AsSingleton()),
 
-            new Registration(
+            new TestRegistration(
                 "Custom factory using container",
                 r => r.RegisterService<IService>().ConstructedBy(_ => new ServiceImplementation())),
-            
-            new Registration(
+
+            new TestRegistration(
                 "Custom factory singleton using container",
                 r => r.RegisterService<IService>().ConstructedBy(_ => new ServiceImplementation()).AsSingleton())
         };
 
         [Test]
         public void AlreadyRegisteredServiceThrows(
-            [ValueSource(nameof(AllServiceRegistrations))] Registration registration,
-            [ValueSource(nameof(AllServiceRegistrations))] Registration subsequentRegistration)
+            [ValueSource(nameof(AllServiceRegistrations))] TestRegistration registration,
+            [ValueSource(nameof(AllServiceRegistrations))] TestRegistration subsequentRegistration)
         {
             TestDelegate when = () => new Container(r =>
             {
@@ -53,35 +52,13 @@ namespace Essence.Ioc.Registration
 
             Assert.That(when, Throws.Exception.InstanceOf<AlreadyRegisteredException>());
         }
-        
+
         private class ServiceImplementation : IService
         {
         }
 
         private interface IService
         {
-        }      
-
-        public class Registration
-        {
-            private readonly string _description;
-            private readonly Action<ExtendableRegistration.Registerer> _registerServices;
-
-            public Registration(string description, Action<ExtendableRegistration.Registerer> registerServices)
-            {
-                _description = description;
-                _registerServices = registerServices;
-            }
-
-            public void Invoke(ExtendableRegistration.Registerer registerer)
-            {
-                _registerServices.Invoke(registerer);
-            }
-
-            public override string ToString()
-            {
-                return _description;
-            }
         }
     }
 }

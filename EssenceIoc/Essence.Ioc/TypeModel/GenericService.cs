@@ -19,7 +19,8 @@ namespace Essence.Ioc.TypeModel
 
         public IFactoryExpression Resolve(IFactoryFinder factoryFinder)
         {
-            if (!factoryFinder.TryGetGenericType(_type.GetGenericTypeDefinition(), out var implementationTypeDefinition))
+            var serviceTypeDefinition = _type.GetGenericTypeDefinition();
+            if (!factoryFinder.TryGetGenericType(serviceTypeDefinition, out var implementationTypeDefinition))
             {
                 if (IsGenericSequence(_type))
                 {
@@ -29,7 +30,9 @@ namespace Essence.Ioc.TypeModel
                 throw new NotRegisteredDependencyException(_type);
             }
 
-            var implementationType = implementationTypeDefinition.MakeGenericType(_type.GetTypeInfo().GetGenericArguments());
+            var implementationType = 
+                implementationTypeDefinition.MakeGenericType(_type.GetTypeInfo().GetGenericArguments());
+            
             return new Implementation(implementationType).Resolve(factoryFinder);
         }
 

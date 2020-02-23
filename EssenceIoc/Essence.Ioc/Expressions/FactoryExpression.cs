@@ -1,48 +1,26 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Essence.Ioc.LifeCycleManagement;
 
 namespace Essence.Ioc.Expressions
 {
-    internal static class FactoryExpression
+    internal class FactoryExpression : IFactoryExpression
     {
-        public static IFactoryExpression Create(Expression body)
+        public delegate Expression FactoryBodyProvider(Expression lifeScope);
+
+        private readonly FactoryBodyProvider _bodyProvider;
+
+        public FactoryExpression(FactoryBodyProvider bodyProvider)
         {
-            return new Value(body);
+            _bodyProvider = bodyProvider;
         }
 
-        public static IFactoryExpression CreateLazy(Func<Expression> body)
-        {
-            return new Lazy(body);
-        }
-        
-        public static Func<T> Compile<T>(this IFactoryExpression factoryExpression)
-        {
-            return CompileLambda<T>(factoryExpression.Body);
-        }
+        public Expression GetBody(Expression lifeScope) => _bodyProvider.Invoke(lifeScope);
 
-        private static Func<T> CompileLambda<T>(Expression body)
+        public Func<ILifeScope, TService> Compile<TService>()
         {
-            return Expression.Lambda<Func<T>>(body).Compile();
-        }
-
-        private class Value : IFactoryExpression
-        {
-            public Value(Expression body)
-            {
-                Body = body;
-            }
-
-            public Expression Body { get; }
-        }
-        
-        private class Lazy : Lazy<Expression>, IFactoryExpression
-        {
-            public Lazy(Func<Expression> bodyProvider)
-                : base(bodyProvider)
-            {
-            }
-
-            public Expression Body => Value;
+            var lifeScope = Expression.Parameter(typeof(ILifeScope), "lifeScope");
+            return Expression.Lambda<Func<ILifeScope, TService>>(GetBody(lifeScope), lifeScope).Compile();
         }
     }
 }

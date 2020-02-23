@@ -1,41 +1,40 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using Essence.Ioc.Expressions;
+using Essence.Ioc.Registration.RegistrationExceptions;
 using Essence.Ioc.Resolution;
 
 namespace Essence.Ioc.Registration
 {
     internal class Factories : IFactoryFinder
     {
-        private readonly IDictionary<Type, Delegate> _factories = new ConcurrentDictionary<Type, Delegate>();
-        private readonly IDictionary<Type, IFactoryExpression> _factoryExpressions = 
+        private readonly ConcurrentDictionary<Type, IFactoryExpression> _factories =
             new ConcurrentDictionary<Type, IFactoryExpression>();
-        private readonly IDictionary<Type, Type> _genericImplementations = new ConcurrentDictionary<Type, Type>();
 
-        public void AddFactory(Type serviceType, Delegate factory)
-        {
-            _factories.Add(serviceType, factory);
-        }
+        private readonly ConcurrentDictionary<Type, Type> _genericImplementations =
+            new ConcurrentDictionary<Type, Type>();
 
-        public void AddFactoryExpression(Type serviceType, IFactoryExpression factoryExpression)
+        public void AddFactory(Type serviceType, IFactoryExpression factoryExpression)
         {
-            _factoryExpressions.Add(serviceType, factoryExpression);
+            Add(_factories, serviceType, factoryExpression);
         }
 
         public void AddGenericImplementation(Type serviceType, Type implementationType)
         {
-            _genericImplementations.Add(serviceType, implementationType);
+            Add(_genericImplementations, serviceType, implementationType);
         }
 
-        public bool TryGetFactory(Type constructedType, out Delegate factory)
+        private static void Add<T>(ConcurrentDictionary<Type, T> dictionary, Type serviceType, T value)
         {
-            return _factories.TryGetValue(constructedType, out factory);
+            if (!dictionary.TryAdd(serviceType, value))
+            {
+                throw new AlreadyRegisteredException(serviceType);
+            }
         }
-        
-        public bool TryGetFactoryExpression(Type constructedType, out IFactoryExpression factoryExpression)
+
+        public bool TryGetFactory(Type constructedType, out IFactoryExpression factoryExpression)
         {
-            return _factoryExpressions.TryGetValue(constructedType, out factoryExpression);
+            return _factories.TryGetValue(constructedType, out factoryExpression);
         }
 
         public bool TryGetGenericType(Type genericServiceTypeDefinition, out Type genericImplementationTypeDefinition)
