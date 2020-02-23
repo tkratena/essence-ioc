@@ -6,7 +6,6 @@ namespace Essence.Ioc.Resolution
 {
     [TestFixture]
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-    [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
     public class InvalidResolutionTests
     {
         [Test]

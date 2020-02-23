@@ -140,7 +140,6 @@ namespace Essence.Ioc.Registration
         }
 
         [Test]
-        [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
         public void RegistrationIsNotPossibleAfterContainerIsCreated()
         {
             ExtendableRegistration.Registerer registerer = null;

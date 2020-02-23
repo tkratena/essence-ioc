@@ -7,7 +7,6 @@ using NUnit.Framework;
 namespace Essence.Ioc.Resolution
 {
     [TestFixture]
-    [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
     public class ConstructionExceptionPropagationTests
     {
         public static IEnumerable TestCases = new[]
