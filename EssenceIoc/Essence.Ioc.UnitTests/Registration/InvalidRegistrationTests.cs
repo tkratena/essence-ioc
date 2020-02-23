@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Essence.Ioc.FluentRegistration;
 using Essence.Ioc.Registration.RegistrationExceptions;
-using Essence.Ioc.Resolution;
 using NUnit.Framework;
 
 namespace Essence.Ioc.Registration
@@ -140,15 +139,14 @@ namespace Essence.Ioc.Registration
         }
 
         [Test]
-        public void RegistrationIsNotPossibleAfterContainerIsCreated()
+        public void RegistrationIsNotPossibleAfterContainerIsConstructed()
         {
             ExtendableRegistration.Registerer registerer = null;
-            var container = new Container(r => registerer = r);
-            registerer.RegisterService<IService>().ImplementedBy<ServiceImplementation>();
+            new Container(r => registerer = r);
 
-            TestDelegate when = () => container.Resolve<IService>(out _);
+            TestDelegate when = () => registerer.RegisterService<IService>().ImplementedBy<ServiceImplementation>();
 
-            Assert.That(when, Throws.Exception.InstanceOf<NotRegisteredServiceException>());
+            Assert.That(when, Throws.Exception.InstanceOf<InvalidRegistrationAfterContainerConstructedException>());
         }
 
         private class ClassWithPrivateConstructor : IService
