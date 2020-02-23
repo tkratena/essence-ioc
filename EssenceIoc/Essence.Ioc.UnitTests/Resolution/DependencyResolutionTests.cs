@@ -362,7 +362,6 @@ namespace Essence.Ioc.Resolution
         }
 
         [Test]
-        [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
         public void ServiceCanBeResolvedAfterDependencyOfItsImplementationHasBeenResolved()
         {
             var container = new Container(r =>
