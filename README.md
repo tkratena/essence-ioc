@@ -21,16 +21,16 @@ class MyApplication : IDisposable
   {
     _container = new Essence.Ioc.Container(r =>
     {
-      r.RegisterService<IDependency>().ImplementedBy<DependencyImplementation>();
-      r.RegisterService<IService>().ImplementedBy<ServiceImplementation>();
+      r.RegisterService<IMyDependency>().ImplementedBy<MyDependencyImplementation>();
+      r.RegisterService<IMyService>().ImplementedBy<MyServiceImplementation>();
     });
   }
   
   public void ExecuteMyUseCase()
   {
-    using (_container.Resolve<IService>(out var service))
+    using (_container.Resolve<IMyService>(out var myService))
     {
-      service.Use();
+      myService.Use();
     }
   }
   
@@ -44,18 +44,18 @@ class MyApplication : IDisposable
 ### Constructor injection
 Only constructor injection is supported.
 ```cs
-class ServiceImplementation : IService
+class MyServiceImplementation : IMyService
 {
-  private readonly IDependency _dependency;
+  private readonly IMyDependency _myDependency;
   
-  public ServiceImplementation(IDependency dependency)
+  public MyServiceImplementation(IMyDependency myDependency)
   {
-    _dependency = dependency;
+    _myDependency = myDependency;
   }
   
   public void Use()
   {
-    _dependency.Use();
+    _myDependency.Use();
   }
 }
 ```
@@ -69,19 +69,19 @@ new Essence.Ioc.Container(r =>
   r.RegisterService<IDoor>().ImplementedBy<ElectricDoor>(); // depends on IElectricity
   r.RegisterService<IWater>().ImplementedBy<Water>();
   r.RegisterService<IWashDevice>().ImplementedBy<RotatingBrushes>(); // depends on IElectricity and IWater
-  r.RegisterService<ICarWash>().ImplementedBy<CarWash>(); // depends on IDoor and IWashingDevice
+  r.RegisterService<ICarWash>().ImplementedBy<CarWash>(); // depends on IDoor and IWashDevice
 })
 ```
 
 ### Injection types
 Not only an instance of the dependency but also a lazy instance and an instance factory delegate can be injected.
 ```cs
-class ServiceImplementation : IService
+class MyServiceImplementation : IService
 {
-  public ServiceImplementation(
-    IDependency dependency, 
-    Lazy<IDependency> lazyDependency, 
-    Func<IDependency> dependencyFactory)
+  public MyServiceImplementation(
+    IMyDependency dependency, 
+    Lazy<IMyDependency> lazyDependency, 
+    Func<IMyDependency> dependencyFactory)
   {
   }
 }
