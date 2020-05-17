@@ -1,4 +1,7 @@
 version: 2.0.0-{branch}.{build}
+skip_commits:
+  files:
+    - README.md
 image: Visual Studio 2017
 configuration: Release
 before_build:
