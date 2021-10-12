@@ -8,7 +8,7 @@ before_build:
 - cmd: nuget restore EssenceIoc\EssenceIoc.sln
 build:
   parallel: true
-  verbosity: minimal
+  verbosity: normal
 after_build:
 - ps: >-
     $version = [System.Version]::Parse($env:APPVEYOR_BUILD_VERSION.Substring(0, $env:APPVEYOR_BUILD_VERSION.IndexOf("-")))
