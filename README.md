@@ -93,7 +93,7 @@ class MyServiceImplementation : IService
 Service interfaces must not be `IDisposable` as life cycle should be an implementation detail and should be managed by the container.
 
 ### Reference documentation
-See [unit tests](https://github.com/tkratena/essence-ioc/tree/master/EssenceIoc/Essence.Ioc.UnitTests) to find more examples and details about Essence IoC features.
+See [unit tests](https://github.com/tkratena/essence-ioc/tree/master/EssenceIoc/Essence.Ioc.UnitTests) for more examples and details about Essence IoC features.
 
 ## Changelog
 
